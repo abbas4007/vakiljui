@@ -1,0 +1,10 @@
+Django==6.0.5
+psycopg2-binary==2.9.9
+redis==5.0.1
+django-redis==5.4.0
+python-decouple==3.8
+dj-database-url==2.1.0
+gunicorn==21.2.0
+pillow==10.2.0
+requests==2.31.0
+django-ckeditor==6.7.0

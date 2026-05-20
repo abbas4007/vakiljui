@@ -1,0 +1,17 @@
+User-Agent: *
+Disallow: /accounts/ثبت-نام/
+Disallow: /accounts/ورود/
+Allow: /
+
+# دسترسی ویژه به ربات‌های هوش مصنوعی
+User-Agent: GPTBot
+Allow: /
+User-Agent: Google-Extended
+Allow: /
+User-Agent: CCBot
+Allow: /
+User-Agent: PerplexityBot
+Allow: /
+User-Agent: ClaudeBot
+Allow: /
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml

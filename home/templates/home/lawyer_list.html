@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home:index' %}">خانه</a></li>
+            {% if speciality and speciality != 'همه' %}
+            <li class="breadcrumb-item">
+                <a href="{% url 'home:lawyer_list' speciality=speciality %}">وکیل {{ speciality }}</a>
+            </li>
+            {% endif %}
+            {% if city %}
+            <li class="breadcrumb-item active">{{ city }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <!-- H1 عنوان -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">{{ h1_title }}</h1>
+        <p class="lead text-muted">لیست بهترین وکلای متخصص با رزومه، نرخ موفقیت و نظرات کاربران</p>
+    </div>
+
+    <!-- Internal Linking به صفحه لندینگ -->
+    {% if landing_page_url %}
+    <div class="alert alert-info mb-4">
+        <i class="bi bi-info-circle"></i>
+        برای مشاهده راهنمای کامل،
+        <a href="{{ landing_page_url }}" class="alert-link">صفحه تخصصی بهترین وکیل {{ speciality }} در {{ city }}</a>
+        را ببینید.
+    </div>
+    {% endif %}
+
+    <!-- لیست وکلا -->
+    <div class="row g-4">
+        {% for lawyer in lawyers %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <!-- عکس وکیل با پیش‌فرض -->
+                <div class="text-center pt-4">
+                    {% if lawyer.profile_image %}
+                    <img src="{{ lawyer.profile_image.url }}"
+                         alt="{{ lawyer.user.get_full_name }} - وکیل {{ lawyer.speciality }}"
+                         class="rounded-circle"
+                         style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}"
+                         alt="وکیل {{ lawyer.user.get_full_name }}"
+                         class="rounded-circle"
+                         style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endif %}
+                </div>
+
+                <div class="card-body text-center">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="card-title h5 fw-bold mb-0 flex-grow-1">{{ lawyer.user.get_full_name }}</h2>
+                        {% if lawyer.success_rate > 0 %}
+                        <div class="badge bg-primary rounded-pill px-3 py-2">
+                            {{ lawyer.success_rate }}% موفقیت
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="bi bi-briefcase"></i> {{ lawyer.speciality }} |
+                        <i class="bi bi-geo-alt"></i> {{ lawyer.city }}
+                    </p>
+                    {% if lawyer.years_of_experience > 0 %}
+                    <p class="card-text small text-muted mb-2">
+                        <i class="bi bi-calendar"></i> {{ lawyer.years_of_experience }} سال سابقه
+                    </p>
+                    {% endif %}
+                    <p class="card-text small">{{ lawyer.ai_summary|default:lawyer.description|striptags|truncatechars:100 }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-4 text-center">
+                    <a href="{% url 'home:lawyer_detail' lawyer.slug %}" class="btn btn-primary px-4">
+                        مشاهده پروفایل <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-search display-1 text-muted mb-3 d-block"></i>
+            <h3 class="h4 text-muted">هیچ وکیلی یافت نشد!</h3>
+            <p class="text-muted">برای دیدن وکلا، ابتدا از پنل ادمین وکیل ثبت کنید.</p>
+            <a href="{% url 'home:lawyer_register' %}" class="btn btn-primary mt-3">
+                <i class="bi bi-plus-circle"></i> ثبت‌نام وکیل
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Internal Linking به سایر شهرها -->
+    {% if related_cities %}
+    <div class="mt-5 pt-3">
+        <h4 class="h6 fw-bold mb-3">سایر شهرهای دارای وکیل {{ speciality }}:</h4>
+        <div class="d-flex flex-wrap gap-2">
+            {% for c in related_cities %}
+            <a href="{% url 'home:lawyer_list_city' speciality=speciality city=c.slug %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-geo-alt"></i> وکیل {{ speciality }} در {{ c.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">اول</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">قبلی</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">صفحه {{ page_obj.number }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">بعدی</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">آخر</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+.hover-card:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}

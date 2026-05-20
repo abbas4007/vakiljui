@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پرداخت موفق | دادور{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 text-center p-5">
+                <div class="mb-4">
+                    <div class="display-1 text-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                </div>
+                <h1 class="display-5 fw-bold text-success mb-3">پرداخت موفق!</h1>
+                <p class="lead">{{ message|default:"اشتراک شما با موفقیت فعال شد." }}</p>
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle"></i>
+                    اشتراک {{ plan.name }} تا {{ plan.duration_days }} روز دیگر فعال است.
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'home:index' %}" class="btn btn-primary px-4">
+                        <i class="bi bi-house"></i> بازگشت به صفحه اصلی
+                    </a>
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-person"></i> پنل کاربری من
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

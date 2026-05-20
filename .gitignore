@@ -1,0 +1,45 @@
+# Django
+*.log
+*.pyc
+__pycache__/
+db.sqlite3
+*.db
+*.sqlite3
+media/
+staticfiles/
+static/
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Virtual Environment
+venv/
+env/
+.venv/
+ENV/
+
+# Docker
+*.pid
+docker/volumes/
+postgres_data/
+
+# Personal
+*.pem
+*.key
+*.crt
+local_settings.py
+config.local.py
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.db
+Desktop.ini

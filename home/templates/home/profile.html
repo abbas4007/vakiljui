@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}پنل من | دادور{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- سایدبار -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if user.lawyerprofile.profile_image %}
+                        <img src="{{ user.lawyerprofile.profile_image.url }}" class="rounded-circle mb-3" width="100" height="100" style="object-fit: cover;">
+                    {% else %}
+                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px;">
+                            <i class="bi bi-person display-4 text-white"></i>
+                        </div>
+                    {% endif %}
+                    <h5>{{ user.get_full_name }}</h5>
+                    <p class="text-muted small">{{ user.lawyerprofile.speciality }} | {{ user.lawyerprofile.city }}</p>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm">ویرایش پروفایل</a>
+                        <a href="{% url 'home:subscription_plans' %}" class="btn btn-primary btn-sm">خرید اشتراک</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- محتوا -->
+        <div class="col-lg-9">
+            <!-- وضعیت اشتراک -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">وضعیت اشتراک</h5>
+                </div>
+                <div class="card-body">
+                    {% if active_subscription %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                            اشتراک <strong>{{ active_subscription.plan.name }}</strong> تا تاریخ 
+                            {{ active_subscription.end_date|date:"Y/m/d" }} فعال است.
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-success" style="width: {{ subscription_progress }}%"></div>
+                        </div>
+                        <a href="{% url 'home:subscription_plans' %}" class="btn btn-outline-primary">تمدید اشتراک</a>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            شما هیچ اشتراک فعالی ندارید.
+                        </div>
+                        <a href="{% url 'home:subscription_plans' %}" class="btn btn-primary">خرید اشتراک</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- آمار پروفایل -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">آمار پروفایل شما</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h3 class="text-primary">{{ profile_views }}</h3>
+                                <p class="text-muted mb-0">بازدید پروفایل</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h3 class="text-success">{{ contact_requests }}</h3>
+                                <p class="text-muted mb-0">درخواست تماس</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h3 class="text-warning">{{ search_rank }}</h3>
+                                <p class="text-muted mb-0">رتبه در جستجو</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- راهنما -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">راهنمای افزایش دیده شدن</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success"></i> پروفایل خود را کامل کنید</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success"></i> اشتراک طلا یا پلاتین تهیه کنید</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success"></i> نظرات مثبت از موکلان دریافت کنید</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success"></i> لینک پروفایل خود را در شبکه‌های اجتماعی به اشتراک بگذارید</li>
+                    </ul>
+                    <hr>
+                    <div class="text-center">
+                        <a href="{% url 'home:seo_guidance' %}" class="btn btn-outline-primary">مشاوره سئو رایگان</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

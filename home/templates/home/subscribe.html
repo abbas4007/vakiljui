@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title|default:"خرید اشتراک | دادور" }}{% endblock %}
+{% block meta_description %}اشتراک دادور - دیده شدن در گوگل و جذب مشتری آنلاین برای وکلا{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- مسیر صفحه -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">خانه</a></li>
+            <li class="breadcrumb-item active">خرید اشتراک</li>
+        </ol>
+    </nav>
+
+    <!-- هدر -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">اشتراک دادور</h1>
+        <p class="lead text-muted">با انتخاب یکی از پلن‌های زیر، در صدر نتایج جستجو دیده شوید</p>
+    </div>
+
+    <!-- پلن‌های اشتراک -->
+    <div class="row g-4 justify-content-center">
+        <!-- برنز (رایگان) -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-shadow">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <span class="display-6"><i class="bi bi-bronze text-secondary"></i></span>
+                    </div>
+                    <h3 class="card-title">برنز</h3>
+                    <h2 class="text-success mb-3">رایگان <small class="text-muted fs-6">/ ماهانه</small></h2>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> ایجاد پروفایل</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> نمایش در انتهای لیست</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x-circle-fill text-danger"></i> شماره تماس عمومی</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x-circle-fill text-danger"></i> صفحه اول گوگل</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x-circle-fill text-danger"></i> پشتیبانی</li>
+                    </ul>
+                    <a href="{% url 'home:lawyer_register' %}" class="btn btn-outline-secondary w-100 mt-3">شروع رایگان</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- نقره -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-2 border-primary hover-shadow">
+                <div class="card-header bg-primary text-white text-center py-2">
+                    <span class="fw-bold">محبوب ترین</span>
+                </div>
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <span class="display-6"><i class="bi bi-gem text-primary"></i></span>
+                    </div>
+                    <h3 class="card-title">نقره</h3>
+                    <h2 class="text-primary mb-3">۳۰۰,۰۰۰ <small class="text-muted fs-6">/ ماهانه</small></h2>
+                    <p class="text-muted small">۳,۰۰۰,۰۰۰ تومان سالانه (۲ ماه رایگان)</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> همه امکانات برنز</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> نمایش شماره تماس</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> صفحه اول دسته‌بندی</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> اولویت در جستجو</li>
+                        <li class="mb-2 text-muted"><i class="bi bi-x-circle-fill text-danger"></i> توی لندینگ‌پیج‌ها</li>
+                    </ul>
+                    <form method="post" action="{% url 'home:subscribe' 2 %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-100 mt-3">خرید اشتراک</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- طلا -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-lg border-0 hover-shadow position-relative">
+                <div class="position-absolute top-0 start-50 translate-middle">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">🔥 پیشنهاد ویژه</span>
+                </div>
+                <div class="card-body text-center p-4 mt-3">
+                    <div class="mb-3">
+                        <span class="display-6"><i class="bi bi-crown text-warning"></i></span>
+                    </div>
+                    <h3 class="card-title">طلا</h3>
+                    <h2 class="text-warning mb-3">۷۰۰,۰۰۰ <small class="text-muted fs-6">/ ماهانه</small></h2>
+                    <p class="text-muted small">۷,۰۰۰,۰۰۰ تومان سالانه (۲ ماه رایگان)</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> همه امکانات نقره</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> توی لندینگ‌پیج‌های اختصاصی</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> توی مقالات پرطرفدار</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> نشان ویژه + بنر کوچک</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> پشتیبانی ویژه</li>
+                    </ul>
+                    <form method="post" action="{% url 'home:subscribe' 3 %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning w-100 mt-3">خرید اشتراک طلا</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- پلاتین -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-shadow">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <span class="display-6"><i class="bi bi-stars text-dark"></i></span>
+                    </div>
+                    <h3 class="card-title">پلاتین</h3>
+                    <h2 class="text-dark mb-3">۱,۵۰۰,۰۰۰ <small class="text-muted fs-6">/ ماهانه</small></h2>
+                    <p class="text-muted small">۱۵,۰۰۰,۰۰۰ تومان سالانه (۲ ماه رایگان)</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> همه امکانات طلا</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> بنر اختصاصی در صفحه اصلی</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> ایمیل مارکتینگ به کاربران</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> معرفی در شبکه‌های اجتماعی</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> مشاوره سئو رایگان</li>
+                    </ul>
+                    <form method="post" action="{% url 'home:subscribe' 4 %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-dark w-100 mt-3">خرید اشتراک پلاتین</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- سوالات متداول -->
+    <div class="mt-5 pt-5">
+        <h2 class="text-center mb-4">سوالات متداول</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                چطور می‌توانم اشتراک بخرم؟
+                            </button>
+                        </h3>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                کافی است روی دکمه "خرید اشتراک" کلیک کنید، سپس وارد درگاه بانکی شده و مبلغ را پرداخت کنید. اشتراک شما بلافاصله فعال می‌شود.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                آیا امکان لغو اشتراک وجود دارد؟
+                            </button>
+                        </h3>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                بله، شما می‌توانید در هر زمان اشتراک خود را لغو کنید. در این صورت تا پایان دوره از خدمات استفاده می‌کنید و تمدید نمی‌شود.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                تفاوت پلن‌ها در چیست؟
+                            </button>
+                        </h3>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                پلن برنز رایگان و پایه است. پلن نقره باعث می‌شود در صفحه اول دسته‌بندی‌ها دیده شوید. پلن طلا شامل لندینگ‌پیج‌های اختصاصی و مقالات می‌شود. پلن پلاتین شامل تبلیغات گسترده‌تر است.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 1.5rem 3rem rgba(0,0,0,0.15) !important;
+}
+.border-2 {
+    border-width: 2px !important;
+}
+</style>
+{% endblock %}

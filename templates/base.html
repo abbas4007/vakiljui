@@ -1,0 +1,635 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>{% block title %}{{ meta_title|default:"وکیل جو | سامانه تخصصی وکلای ایران" }}{% endblock %}</title>
+    <meta name="description"
+          content="{{ meta_description|default:'بهترین وکلای طلاق، مهریه، کیفری و حقوقی در تهران و سایر شهرها با رتبه‌بندی هوشمند' }}">
+    <meta name="robots" content="{{ robots|default:'index, follow' }}">
+
+    <!-- ========== CANONICAL ========== -->
+    <link rel="canonical" href="{{ canonical_url }}">
+<!-- Preconnect برای CDNها -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- ========== OPEN GRAPH (یکبار) ========== -->
+    <meta property="og:title"
+          content="{% block og_title %}{{ meta_title|default:'وکیل جو | سامانه تخصصی وکلای ایران' }}{% endblock %}">
+    <meta property="og:description" content="
+            {% block og_description %}{{ meta_description|default:'بهترین وکلای ایران را پیدا کنید' }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="
+            {% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
+    <meta property="og:image:alt" content="وکیل جو - بهترین وکلای ایران">
+    <meta property="og:site_name" content="وکیل جو">
+
+    <!-- ========== TWITTER CARD ========== -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ meta_title|default:'وکیل جو' }}{% endblock %}">
+    <meta name="twitter:description"
+          content="{% block twitter_description %}{{ meta_description|default:'' }}{% endblock %}">
+    <meta name="twitter:image" content="
+            {% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
+
+    <!-- ========== STYLESHEETS ========== -->
+ <link href="{% static 'css/bootstrap.min.rtl.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/all.min.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{#    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">#}
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('/static/fonts/Vazirmatn-Regular.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('/static/fonts/Vazirmatn-Bold.woff2') format('woff2');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'Vazirmatn';
+        src: url('/static/fonts/Vazirmatn-Medium.woff2') format('woff2');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 0.8rem 0;
+            transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e3c72 0%, #ffd700 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #2c3e50 !important;
+            transition: all 0.3s ease;
+            margin: 0 0.3rem;
+        }
+
+        .nav-link:hover {
+            color: #ffd700 !important;
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            position: relative;
+            height: 85vh;
+            min-height: 550px;
+            background-image: url('{% static 'img/back.jfif' %}');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 0;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 22, 40, 0.85) 0%, rgba(26, 42, 74, 0.75) 100%);
+            z-index: 0;
+        }
+
+        .hero::after {
+            content: '⚖️';
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 5rem;
+            opacity: 0.1;
+            z-index: 0;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 1rem;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-title span {
+            color: #ffd700;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        .hero-search {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 60px;
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-search:focus-within {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #ffd700;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+            transform: scale(1.02);
+        }
+
+        .hero-search input {
+            background: transparent;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .hero-search input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .hero-search input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .hero-search button {
+            border-radius: 50px;
+            padding: 0.7rem 2rem;
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            border: none;
+            color: #1e3c72;
+            font-weight: bold;
+        }
+
+        .hero-search button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-buttons {
+            margin-top: 2rem;
+        }
+
+        .hero-buttons .btn {
+            margin: 0 0.5rem;
+            padding: 0.7rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hero-primary {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #1e3c72;
+            border: none;
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-hero-outline {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+        }
+
+        .btn-hero-outline:hover {
+            background: #ffd700;
+            color: #1e3c72;
+            transform: translateY(-3px);
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-down a {
+            color: white;
+            font-size: 2rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-down a:hover {
+            opacity: 1;
+            transform: translateY(5px);
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #e0e0e0;
+            padding: 3rem 0 1.5rem;
+            margin-top: 3rem;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+        }
+
+        .footer h5 {
+            color: #ffd700;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+        }
+
+        .footer a {
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #ffd700;
+            padding-right: 5px;
+        }
+
+        .footer .social-icons a {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            margin-left: 0.5rem;
+        }
+
+        .footer .social-icons a:hover {
+            background: #ffd700;
+            color: #0f2027;
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.4rem;
+            }
+
+            .hero {
+                height: 70vh;
+                min-height: 500px;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .hero-search {
+                margin: 0 1rem;
+            }
+
+            .hero-search input {
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .hero-search button {
+                padding: 0.5rem 1.2rem;
+                font-size: 0.8rem;
+            }
+
+            .hero-buttons .btn {
+                padding: 0.5rem 1.2rem;
+                font-size: 0.8rem;
+                margin: 0.3rem;
+            }
+
+            .scroll-down {
+                bottom: 15px;
+            }
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .text-gold {
+            color: #ffd700;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+
+    <!-- JSON-LD Data -->
+    {% if site_schema %}
+        <script type="application/ld+json">{{ site_schema|safe }}</script>
+    {% endif %}
+    {% if attorney_schema %}
+        <script type="application/ld+json">{{ attorney_schema|safe }}</script>
+    {% endif %}
+    {% if faq_schema %}
+        <script type="application/ld+json">{{ faq_schema|safe }}</script>
+    {% endif %}
+    {% if breadcrumb_schema %}
+        <script type="application/ld+json">{{ breadcrumb_schema|safe }}</script>
+    {% endif %}
+    {% if local_business_schema %}
+        <script type="application/ld+json">{{ local_business_schema|safe }}</script>
+    {% endif %}
+    {% if article_schema %}
+        <script type="application/ld+json">{{ article_schema|safe }}</script>
+    {% endif %}
+
+</head>
+<body>
+
+<!-- ========== NAVBAR ========== -->
+<nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home:index' %}">
+            <i class="bi bi-gavel"></i> وکیل جو
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home:index' %}">خانه</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        تخصص‌ها
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='طلاق' %}">وکیل طلاق</a>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='مهریه' %}">وکیل
+                            مهریه</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='کیفری' %}">وکیل
+                            کیفری</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='ملکی' %}">وکیل ملکی</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/راهنمای-انتخاب-وکیل/">راهنما</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/تماس-با-ما/">تماس با ما</a>
+                </li>
+            </ul>
+
+            <div class="ms-2">
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username|truncatechars:12 }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'home:subscription_plans' %}">اشتراک</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">خروج</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-left"></i> ورود / ثبت‌نام
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<div class="hero" id="heroSection">
+    <div class="hero-content" data-aos="fade-up">
+        <h1 class="hero-title">
+            بهترین وکیل را <span>پیدا کن</span>
+        </h1>
+        <p class="hero-subtitle">
+            با رتبه‌بندی هوشمند، نظرات واقعی کاربران و مقایسه وکلای برتر
+        </p>
+
+        <div class="hero-search">
+            <form action="/جستجو" method="get" class="d-flex gap-2">
+                <input type="text" name="q" class="form-control" placeholder="مثال: وکیل طلاق تهران ..."
+                       aria-label="جستجو">
+                <button type="submit">
+                    <i class="bi bi-search"></i> جستجو
+                </button>
+            </form>
+        </div>
+
+        <div class="hero-buttons">
+            <a href="{% url 'home:lawyer_list' speciality='طلاق' %}" class="btn btn-hero-primary">
+                <i class="bi bi-trophy"></i> وکلای برتر
+            </a>
+            <a href="{% url 'home:lawyer_register' %}" class="btn btn-hero-outline">
+                <i class="bi bi-pencil-square"></i> ثبت درخواست مشاوره
+            </a>
+        </div>
+    </div>
+
+    <div class="scroll-down">
+        <a href="#mainContent" id="scrollDownBtn">
+            <i class="bi bi-chevron-down"></i>
+        </a>
+    </div>
+</div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<main id="mainContent">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5><i class="bi bi-gavel"></i> وکیل جو</h5>
+                <p class="mt-3">سامانه تخصصی معرفی و رتبه‌بندی بهترین وکلای ایران با استفاده از هوش مصنوعی و نظرات
+                    کاربران.</p>
+                <div class="social-icons mt-3">
+                    <a href="#"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h5>دسترسی سریع</h5>
+                <ul class="list-unstyled mt-3">
+                    <li class="mb-2"><a href="{% url 'home:index' %}"><i class="bi bi-chevron-left small"></i> صفحه اصلی</a>
+                    </li>
+                    <li class="mb-2"><a href="{% url 'home:lawyer_list' speciality='طلاق' %}"><i
+                            class="bi bi-chevron-left small"></i> وکلای طلاق</a></li>
+                    <li class="mb-2"><a href="/راهنمای-انتخاب-وکیل/"><i class="bi bi-chevron-left small"></i> راهنمای
+                        وکلا</a></li>
+                    <li class="mb-2"><a href="/قوانین-و-مقررات/"><i class="bi bi-chevron-left small"></i> قوانین و
+                        مقررات</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>تماس با ما</h5>
+                <ul class="list-unstyled mt-3">
+                    <li class="mb-2"><i class="bi bi-geo-alt"></i> تهران، خیابان ولیعصر</li>
+                    <li class="mb-2"><i class="bi bi-envelope"></i> <a href="mailto:info@vakiljo.ir">info@vakiljo.ir</a>
+                    </li>
+                    <li class="mb-2"><i class="bi bi-telephone"></i> <a href="tel:+982112345678">۰۲۱-۱۲۳۴۵۶۷۸</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="mb-0">&copy; ۱۴۰۳ وکیل جو | تمامی حقوق محفوظ است</p>
+        </div>
+    </div>
+</footer>
+
+<!-- ========== SCRIPTS (بدون defer برای اطمینان از لود شدن) ========== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- در base.html، به جای لود مستقیم AOS -->
+<script>
+    // لود AOS فقط بعد از لود کامل صفحه
+    window.addEventListener('load', function() {
+        var aosScript = document.createElement('script');
+        aosScript.src = 'https://unpkg.com/aos@2.3.1/dist/aos.js';
+        aosScript.onload = function() {
+            AOS.init({duration: 600, once: true});
+        };
+        document.body.appendChild(aosScript);
+    });
+</script>{% block extra_js %}{% endblock %}
+</body>
+</html>

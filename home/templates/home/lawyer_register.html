@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ثبت‌نام وکیل | دادور{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h3 class="mb-0">ثبت‌نام وکیل</h3>
+                    <p class="mb-0 mt-2">پروفایل خود را بسازید و در گوگل دیده شوید</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">نام و نام خانوادگی</label>
+                                <input type="text" name="full_name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">تخصص</label>
+                                <select name="speciality" class="form-select" required>
+                                    <option value="">انتخاب کنید</option>
+                                    <option>طلاق</option>
+                                    <option>مهریه</option>
+                                    <option>کیفری</option>
+                                    <option>ملکی</option>
+                                    <option>ارث و وصیت</option>
+                                    <option>خانواده</option>
+                                    <option>تجاری</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">شهر</label>
+                                <input type="text" name="city" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">سال سابقه</label>
+                                <input type="number" name="years_experience" class="form-control" min="0" max="50" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">شماره تماس (عمومی)</label>
+                            <input type="tel" name="phone_display" class="form-control" placeholder="۰۲۱-۱۲۳۴۵۶۷۸" required>
+                            <small class="text-muted">این شماره در صفحه شما نمایش داده می‌شود</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">توضیحات حرفه‌ای</label>
+                            <textarea name="description" class="form-control" rows="5" placeholder="سوابق کاری، مدارک، افتخارات، تخصص‌ها..." required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">خلاصه برای هوش مصنوعی (حداکثر ۱۶۰ کاراکتر)</label>
+                            <textarea name="ai_summary" class="form-control" rows="2" placeholder="وکیل پایه یک دادگستری با تخصص طلاق و مهریه..." maxlength="160"></textarea>
+                            <small class="text-muted">این متن در پاسخ‌های هوش مصنوعی مثل ChatGPT استفاده می‌شود</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">عکس پروفایل</label>
+                            <input type="file" name="profile_image" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                قوانین و شرایط استفاده را می‌پذیرم
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-check-circle"></i> ثبت‌نام و شروع رایگان
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0">قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'accounts:login' %}">ورود</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

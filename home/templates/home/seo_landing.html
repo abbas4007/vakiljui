@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title }}{% endblock %}
+{% block meta_description %}
+    {{ meta_description }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">خانه</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% if speciality %}/وکلای-{{ speciality|slugify }}/{% else %}/{% endif %}">
+                    وکیل {{ speciality|default:'' }}
+                </a>
+            </li>
+            <li class="breadcrumb-item active">{{ city }}</li>
+        </ol>
+    </nav>
+
+    <!-- عنوان اصلی -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">{{ h1_title|default:meta_title }}</h1>
+        <p class="lead text-muted">رتبه‌بندی بر اساس نرخ موفقیت، سابقه و نظرات کاربران</p>
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <span class="badge bg-success fs-6 p-2">
+                <i class="bi bi-check-circle"></i> {{ total_lawyers|default:0 }} وکیل متخصص
+            </span>
+            <span class="badge bg-warning fs-6 p-2">
+                <i class="bi bi-star-fill"></i> میانگین موفقیت {{ avg_success_rate|default:0 }}%
+            </span>
+        </div>
+    </div>
+
+    <!-- متن معرفی -->
+    <div class="card shadow-sm p-4 mb-5">
+        {{ intro_text|safe }}
+    </div>
+
+    <!-- لیست وکلا -->
+    <h2 class="mb-4">لیست بهترین وکلای {{ speciality }} در {{ city }}</h2>
+    <div class="row g-4 mb-5">
+        {% for lawyer in related_lawyers %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h3 class="card-title fw-bold fs-5">{{ lawyer.user.get_full_name }}</h3>
+                        {% if lawyer.success_rate > 0 %}
+                        <span class="badge bg-primary">{{ lawyer.success_rate }}% موفقیت</span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text text-muted small">
+                        <i class="bi bi-briefcase"></i> {{ lawyer.speciality }} |
+                        <i class="bi bi-geo-alt"></i> {{ lawyer.city }}
+                    </p>
+                    <p class="card-text">{{ lawyer.ai_summary|default:lawyer.description|striptags|truncatechars:100 }}</p>
+                    {% if lawyer.years_of_experience > 0 %}
+                    <div class="mb-2">
+                        <i class="bi bi-calendar"></i> {{ lawyer.years_of_experience }} سال سابقه
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <a href="{% url 'home:lawyer_detail' lawyer.slug %}" class="btn btn-outline-primary w-100">
+                        مشاهده پروفایل <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-search display-4 text-muted mb-3 d-block"></i>
+            <p class="text-muted">هیچ وکیلی برای این تخصص و شهر یافت نشد.</p>
+            <p>به زودی وکلای {{ speciality }} در {{ city }} معرفی می‌شوند.</p>
+            <a href="/" class="btn btn-primary mt-2">جستجوی وکیل دیگر</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ========== لینک‌های داخلی ========== -->
+
+    <!-- سایر شهرهای همین تخصص -->
+    {% if other_cities %}
+    <div class="related-section mt-5">
+        <h3 class="h5 fw-bold mb-3">
+            <i class="bi bi-geo-alt"></i> وکیل {{ speciality }} در سایر شهرها
+        </h3>
+        <div class="row g-2">
+            {% for other_city in other_cities %}
+            <div class="col-md-3 col-4">
+                <a href="{% url 'home:seo_landing' speciality=speciality city=other_city.slug %}"
+                   class="btn btn-sm btn-outline-secondary w-100 mb-2">
+                    <i class="bi bi-geo-alt"></i> {{ other_city.name }}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- سایر تخصص‌های همین شهر -->
+    {% if other_specialties %}
+    <div class="related-section mt-4">
+        <h3 class="h5 fw-bold mb-3">
+            <i class="bi bi-briefcase"></i> سایر تخصص‌های حقوقی در {{ city }}
+        </h3>
+        <div class="row g-2">
+            {% for other_specialty in other_specialties %}
+            <div class="col-md-3 col-4">
+                <a href="{% url 'home:seo_landing' speciality=other_specialty.slug city=city %}"
+                   class="btn btn-sm btn-outline-primary w-100 mb-2">
+                    <i class="bi bi-briefcase"></i> وکیل {{ other_specialty.name }}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- راهنماهای مرتبط -->
+    {% if related_guides %}
+    <div class="related-section mt-4">
+        <h3 class="h5 fw-bold mb-3">
+            <i class="bi bi-book"></i> راهنمای {{ speciality }} در {{ city }}
+        </h3>
+        <div class="row g-2">
+            {% for guide in related_guides %}
+            <div class="col-md-4 col-6">
+                <a href="{{ guide.url }}" class="text-decoration-none">
+                    <div class="card bg-light border-0 p-2 mb-2">
+                        <small><i class="bi bi-chevron-left"></i> {{ guide.title }}</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- لینک به صفحه لیست کامل وکلا -->
+    {% if list_page_url %}
+    <div class="text-center mt-4">
+        <a href="{{ list_page_url }}" class="btn btn-outline-primary">
+            <i class="bi bi-people"></i> مشاهده همه وکلای {{ speciality }} در {{ city }}
+            <i class="bi bi-arrow-left"></i>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- محتوای اصلی -->
+    <div class="card shadow-sm p-4 mb-5">
+        {{ main_content|safe }}
+    </div>
+
+    <!-- راهنمای انتخاب -->
+    <div class="card shadow-sm p-4 mb-5 bg-light">
+        {{ tips_content|safe }}
+    </div>
+
+    <!-- سوالات متداول (FAQ) -->
+    {% if faq_list %}
+    <div class="card shadow-sm p-4 mb-5">
+        <h2 class="mb-4">سوالات متداول درباره وکیل {{ speciality }} در {{ city }}</h2>
+        <div class="accordion" id="faqAccordion">
+            {% for faq in faq_list %}
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#faq{{ forloop.counter }}">
+                        {{ faq.question }}
+                    </button>
+                </h3>
+                <div id="faq{{ forloop.counter }}"
+                     class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                     data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        {{ faq.answer }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CTA -->
+    <div class="text-center bg-primary text-white p-5 rounded-4 mb-4">
+        <h3 class="mb-3">نیاز به مشاوره با وکیل {{ speciality }} دارید؟</h3>
+        <p class="mb-4">همین حالا با بهترین وکلای {{ city }} تماس بگیرید.</p>
+        <a href="/" class="btn btn-light btn-lg">جستجوی وکیل <i class="bi bi-chevron-left"></i></a>
+    </div>
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.1) !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}وکیل جو | بهترین وکلای ایران - رتبه‌بندی هوشمند{% endblock %}
+{% block meta_description %}بهترین وکلای طلاق، مهریه، کیفری و حقوقی در تهران و سایر شهرها با رتبه‌بندی هوشمند و نظرات
+    واقعی کاربران{% endblock %}
+
+{% block content %}
+    <!-- محتوا بعد از هدر -->
+    <div class="container py-5">
+        <!-- ========== آمار و ارقام با انیمیشن شمارنده ========== -->
+<div class="row text-center g-4 mb-5" data-aos="fade-up">
+    <div class="col-md-3 col-6">
+        <div class="stat-card p-3">
+            <div class="counter display-4 text-primary fw-bold" data-target="500">0</div>
+            <p class="text-muted mb-0">وکیل متخصص</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card p-3">
+            <div class="counter display-4 text-primary fw-bold" data-target="25">0</div>
+            <p class="text-muted mb-0">شهر فعال</p>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card p-3">
+            <div class="counter display-4 text-primary fw-bold" data-target="1200">0</div>
+            <p class="text-muted mb-0">مشاوره موفق</p>
+        </div>
+    </div>
+<div class="col-md-3 col-6">
+    <div class="stat-card p-3">
+        <div class="counter-wrapper">
+            <span class="counter display-4 text-primary fw-bold" data-target="98">0</span>
+            <span class="percent-sign display-4 text-primary fw-bold">%</span>
+        </div>
+        <p class="text-muted mb-0">رضایت کاربران</p>
+    </div>
+</div>
+</div>
+
+        <!-- ========== وکلای ویژه (طلایی) ========== -->
+        <div class="mb-5" data-aos="fade-up">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">وکلای ویژه <span class="text-warning"><i class="bi bi-star-fill"></i> طلایی</span>
+                </h2>
+                <p class="text-muted">برترین وکلای هر تخصص که بالاترین نرخ موفقیت را دارند</p>
+            </div>
+            <div class="row g-4">
+                {% if top_lawyers %}
+                    {% for lawyer in top_lawyers %}
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card h-100 shadow-sm border-0 card-hover">
+                                {% if lawyer.profile_image %}
+                                    <img src="{{ lawyer.profile_image.url }}" class="card-img-top"
+                                         alt="{{ lawyer.user.get_full_name }}"
+                                         style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-secondary text-center py-5 text-white">عکس وکیل</div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="card-title fw-bold">{{ lawyer.user.get_full_name }}</h5>
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-gem"></i> طلا</span>
+                                    </div>
+                                    <p class="text-muted small"><i class="bi bi-briefcase"></i> {{ lawyer.speciality }}
+                                        | <i class="bi bi-geo-alt"></i> {{ lawyer.city }}</p>
+                                    <p class="card-text small">{{ lawyer.ai_summary|default:lawyer.description|truncatewords:20 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <span><i
+                                                class="bi bi-trophy text-warning"></i> موفقیت: {{ lawyer.success_rate }}%</span>
+                                        <span><i class="bi bi-calendar"></i> {{ lawyer.years_of_experience }} سال</span>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0 pb-3">
+                                    <a href="{% url 'home:lawyer_detail' lawyer.slug %}"
+                                       class="btn btn-outline-primary w-100">مشاهده پروفایل <i
+                                            class="bi bi-arrow-left"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <p>هنوز وکیلی ثبت نشده است.</p>
+                        <a href="{% url 'home:lawyer_register' %}" class="btn btn-primary">ثبت‌نام وکیل</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div class="mb-5 bg-light py-5 rounded-4" data-aos="fade-up">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">تخصص‌های <span class="text-primary">پرطرفدار</span></h2>
+            <p class="text-muted">بر اساس نیاز کاربران و رتبه‌بندی گوگل</p>
+        </div>
+        <div class="row g-3 justify-content-center">
+            {% for specialty in specialties %}
+            <div class="col-md-3 col-6">
+<a href="{{ specialty.get_absolute_url }}" class="text-decoration-none">
+                    <div class="specialty-card text-center p-3 bg-white rounded-3 shadow-sm">
+                        <i class="bi {{ specialty.icon }} display-4
+                        {% if specialty.slug == 'طلاق' %}text-danger
+                        {% elif specialty.slug == 'مهریه' %}text-success
+                        {% elif specialty.slug == 'کیفری' %}text-dark
+                        {% else %}text-primary{% endif %}"></i>
+                        <h5 class="mt-2 mb-0">{{ specialty.name }}</h5>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>هنوز تخصصی ثبت نشده است.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+        <!-- ========== شهرهای فعال ========== -->
+<div class="mb-5" data-aos="fade-up">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">شهرهای <span class="text-primary">فعال</span></h2>
+        <p class="text-muted">وکلای متخصص در سراسر ایران</p>
+    </div>
+    <div class="row g-3 justify-content-center">
+        {% for city in cities %}
+        <div class="col-md-2 col-4">
+<a href="{{ city.get_absolute_url }}" class="text-decoration-none">
+                <div class="city-card text-center p-2">
+                    <i class="bi bi-geo-alt-fill fs-1 text-primary"></i>
+                    <p class="mt-1 mb-0 fw-bold">{{ city.name }}</p>
+                    <small class="text-muted">{{ city.real_lawyer_count|default:city.lawyer_count }} وکیل</small>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p>هنوز شهری ثبت نشده است.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+        <!-- ========== درباره ما و مزایا ========== -->
+        <div class="row g-4 mb-5 align-items-center" data-aos="fade-up">
+            <div class="col-md-6">
+                {#            <img src="{% static 'images/about-law.jpg' %}" alt="درباره وکیل جو" class="img-fluid rounded-4 shadow-sm" onerror="this.src='https://placehold.co/600x400/1e3c72/white?text=وکیل+جو'">#}
+            </div>
+            <div class="col-md-6">
+                <h2 class="fw-bold">چرا <span class="text-primary">وکیل جو</span>؟</h2>
+                <p class="lead text-muted">سامانه تخصصی معرفی بهترین وکلای ایران</p>
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>رتبه‌بندی
+                        هوشمند</strong> - بر اساس نرخ موفقیت و سابقه
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>نظرات
+                        واقعی</strong> - تایید شده توسط کاربران
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>مقایسه
+                        آسان</strong> - وکلا را کنار هم ببینید
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>پشتیبانی
+                        ۲۴/۷</strong> - تیم حرفه‌ای پاسخگو
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>داده‌های
+                        ساختاریافته</strong> - برای هوش مصنوعی و گوگل
+                    </li>
+                </ul>
+                <a href="/درباره-ما/" class="btn btn-primary mt-3">اطلاعات بیشتر <i class="bi bi-arrow-left"></i></a>
+            </div>
+        </div>
+
+        <!-- ========== نظرات کاربران ========== -->
+        <div class="mb-5 bg-primary bg-opacity-10 py-5 rounded-4" data-aos="fade-up">
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">نظرات <span class="text-primary">کاربران</span></h2>
+                    <p class="text-muted">آنچه مردم درباره وکیل جو می‌گویند</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="testimonial-card p-4 bg-white rounded-3 shadow-sm">
+                            <i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i
+                                class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i
+                                class="bi bi-star-fill text-warning"></i>
+                            <p class="mt-3">"خیلی راحت تونستم بهترین وکیل طلاق رو پیدا کنم. واقعاً عالی بود!"</p>
+                            <h6 class="fw-bold mb-0">سارا محمدی</h6>
+                            <small class="text-muted">تهران</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="testimonial-card p-4 bg-white rounded-3 shadow-sm">
+                            <i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i
+                                class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i
+                                class="bi bi-star-fill text-warning"></i>
+                            <p class="mt-3">"به عنوان وکیل، مشتریای خوبی از طریق این سایت گرفتم. راضیم."</p>
+                            <h6 class="fw-bold mb-0">دکتر علی احمدی</h6>
+                            <small class="text-muted">وکیل پایه یک</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="testimonial-card p-4 bg-white rounded-3 shadow-sm">
+                            <i class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i
+                                class="bi bi-star-fill text-warning"></i><i class="bi bi-star-fill text-warning"></i><i
+                                class="bi bi-star-fill text-warning"></i>
+                            <p class="mt-3">"سایت خیلی کاربردی و سریع. حتماً به دوستانم معرفی می‌کنم."</p>
+                            <h6 class="fw-bold mb-0">رضا کریمی</h6>
+                            <small class="text-muted">اصفهان</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== سوالات متداول (FAQ) ========== -->
+        <div class="mb-5" data-aos="fade-up">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">سوالات <span class="text-primary">متداول</span></h2>
+                <p class="text-muted">پاسخ به سوالات رایج شما</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq1">
+                                    چگونه بهترین وکیل را پیدا کنم؟
+                                </button>
+                            </h3>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    شما می‌توانید با استفاده از باکس جستجو، تخصص و شهر مورد نظر خود را وارد کنید. سپس
+                                    لیست وکلای مرتبط با رتبه‌بندی، نرخ موفقیت و نظرات کاربران نمایش داده می‌شود.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq2">
+                                    هزینه مشاوره با وکیل چقدر است؟
+                                </button>
+                            </h3>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    هزینه مشاوره بسته به تجربه وکیل و پیچیدگی پرونده متغیر است. شما می‌توانید در صفحه هر
+                                    وکیل، هزینه مشاوره را مشاهده کرده و به صورت آنلاین وقت بگیرید.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq3">
+                                    چگونه وکیل ثبت‌نام کنم؟
+                                </button>
+                            </h3>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    وکلا می‌توانند از طریق لینک <a href="{% url 'home:lawyer_register' %}">ثبت‌نام
+                                    وکیل</a> اقدام به ساخت پروفایل کنند. عضویت پایه رایگان است و با خرید اشتراک، در صدر
+                                    نتایج دیده می‌شوید.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq4">
+                                    آیا اطلاعات من در سایت محفوظ است؟
+                                </button>
+                            </h3>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    بله، تمامی اطلاعات کاربران و وکلا در سایت وکیل جو با بالاترین استانداردهای امنیتی
+                                    محافظت می‌شود.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== دعوت به اقدام (CTA) ========== -->
+        <div class="text-center bg-gradient-primary text-white p-5 rounded-4" data-aos="fade-up">
+            <h3 class="mb-3">آیا وکیل هستید؟</h3>
+            <p class="mb-4">به جمع وکلای برتر وکیل جو بپیوندید و مشتریان جدید دریافت کنید</p>
+            <a href="{% url 'home:lawyer_register' %}" class="btn btn-light btn-lg px-4">
+                ثبت‌نام وکیل <i class="bi bi-chevron-left"></i>
+            </a>
+            <a href="{% url 'home:subscription_plans' %}" class="btn btn-outline-light btn-lg px-4 me-2">
+                مشاهده طرح‌های اشتراک
+            </a>
+        </div>
+    </div>
+
+    <style>
+    .percent-sign {
+        font-size: 1.8rem;
+    }
+    @media (max-width: 768px) {
+        .percent-sign {
+            font-size: 1.2rem;
+        }
+    }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .specialty-card, .city-card {
+            transition: all 0.3s ease;
+        }
+
+        .specialty-card:hover, .city-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .testimonial-card {
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%);
+        }
+           </style>
+        {% block extra_js %}
+<script>
+    // انیمیشن شمارنده برای آمار
+    document.addEventListener('DOMContentLoaded', function() {
+        const counters = document.querySelectorAll('.counter');
+        const duration = 2000; // مدت زمان کل انیمیشن (میلی‌ثانیه)
+
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const current = parseInt(counter.innerText);
+                const remainingTime = duration - (Date.now() - startTime);
+
+                if (remainingTime > 0 && current < target) {
+                    // محاسبه مرحله بعدی (پیشرفت خطی)
+                    const increment = Math.ceil(target / (duration / 6)); // 16ms ~ 60fps
+                    const nextValue = Math.min(current + increment, target);
+                    counter.innerText = nextValue;
+                    requestAnimationFrame(updateCount);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+
+            let startTime;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        startTime = Date.now();
+                        updateCount();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+            observer.observe(counter);
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

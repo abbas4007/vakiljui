@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home:index' %}">خانه</a></li>
+            {% if lawyer.speciality %}
+            <li class="breadcrumb-item"><a href="{% url 'home:lawyer_list' speciality=lawyer.speciality %}">وکیل {{ lawyer.speciality }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ lawyer.user.get_full_name }}</li>
+        </ol>
+    </nav>
+
+    <!-- اطلاعات اصلی وکیل -->
+    <div class="row g-4">
+        <!-- ستون راست: تصویر و اطلاعات تماس -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-lg-top" style="top: 100px;">
+                <div class="card-body text-center p-4">
+                    {% if lawyer.profile_image %}
+                    <img src="{{ lawyer.profile_image.url }}" alt="{{ lawyer.user.get_full_name }} - وکیل {{ lawyer.speciality }}" class="rounded-circle img-fluid mb-3" style="width: 180px; height: 180px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 180px; height: 180px;">
+                        <i class="bi bi-person display-1 text-white"></i>
+                    </div>
+                    {% endif %}
+
+                    <h1 class="h4 fw-bold mb-2">{{ lawyer.user.get_full_name }}</h1>
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-briefcase"></i> {{ lawyer.speciality }} |
+                        <i class="bi bi-geo-alt"></i> {{ lawyer.city }}
+                    </p>
+
+                    <!-- رتبه و موفقیت -->
+                    <div class="row g-2 mb-4">
+                        {% if lawyer.success_rate > 0 %}
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="display-6 fw-bold text-primary">{{ lawyer.success_rate }}%</div>
+                                <small class="text-muted">نرخ موفقیت</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if lawyer.years_of_experience > 0 %}
+                        <div class="col-6">
+                            <div class="border rounded p-2">
+                                <div class="display-6 fw-bold text-primary">{{ lawyer.years_of_experience }}</div>
+                                <small class="text-muted">سال سابقه</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- شماره تماس -->
+                    {% if lawyer.phone_display %}
+                    <a href="tel:{{ lawyer.phone_display }}" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-telephone-fill"></i> تماس: {{ lawyer.phone_display }}
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary w-100 mb-2" disabled>
+                        <i class="bi bi-telephone-fill"></i> شماره تماس ثبت نشده
+                    </button>
+                    {% endif %}
+
+                    <!-- پروانه وکالت -->
+                    {% if lawyer.bar_number %}
+                    <p class="small text-muted mt-3 mb-0">
+                        <i class="bi bi-card-text"></i> پروانه وکالت: {{ lawyer.bar_number }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ستون چپ: توضیحات و اطلاعات تخصصی -->
+        <div class="col-lg-8">
+            <!-- معرفی وکیل -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h3 fw-bold mb-3">معرفی {{ lawyer.user.get_full_name }}</h2>
+                    <div class="lawyer-description">
+                        {{ lawyer.description|safe }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- تخصص‌ها و زمینه‌های فعالیت -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h3 class="h4 fw-bold mb-3">
+                        <i class="bi bi-star text-warning"></i> تخصص‌ها و زمینه‌های فعالیت
+                    </h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary fs-6 py-2 px-3">{{ lawyer.speciality }}</span>
+                        {% if lawyer.sub_speciality %}
+                        <span class="badge bg-secondary fs-6 py-2 px-3">{{ lawyer.sub_speciality }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- آدرس دفتر -->
+            {% if lawyer.address %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h3 class="h4 fw-bold mb-3">
+                        <i class="bi bi-geo-alt"></i> آدرس دفتر
+                    </h3>
+                    <p>{{ lawyer.address|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- سوالات متداول (FAQ) -->
+            {% if lawyer.faq_data %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h3 class="h4 fw-bold mb-3">
+                        <i class="bi bi-question-circle"></i> سوالات متداول
+                    </h3>
+                    <div class="accordion" id="faqAccordion">
+                        {% for q, a in lawyer.faq_data.items %}
+                        <div class="accordion-item">
+                            <h4 class="accordion-header">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ forloop.counter }}">
+                                    {{ q }}
+                                </button>
+                            </h4>
+                            <div id="faq{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {{ a }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- وکلا مشابه -->
+            {% if similar_lawyers %}
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h3 class="h4 fw-bold mb-3">
+                        <i class="bi bi-people"></i> سایر وکلای {{ lawyer.speciality }} در {{ lawyer.city }}
+                    </h3>
+                    <div class="row g-3">
+                        {% for other_lawyer in similar_lawyers %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center gap-2 p-2 border rounded-3">
+                                {% if other_lawyer.profile_image %}
+                                <img src="{{ other_lawyer.profile_image.url }}" alt="{{ other_lawyer.user.get_full_name }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded-circle">
+                                {% else %}
+                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-person text-white"></i>
+                                </div>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <a href="{% url 'home:lawyer_detail' other_lawyer.slug %}" class="text-decoration-none fw-bold">
+                                        {{ other_lawyer.user.get_full_name }}
+                                    </a>
+                                    <p class="small text-muted mb-0">{{ other_lawyer.success_rate }}% موفقیت | {{ other_lawyer.years_of_experience }} سال</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.lawyer-description {
+    line-height: 1.8;
+}
+.lawyer-description h2 {
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+.lawyer-description h3 {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+.lawyer-description h4 {
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+.sticky-lg-top {
+    position: sticky;
+    top: 100px;
+}
+</style>
+{% endblock %}
