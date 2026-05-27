@@ -17,33 +17,39 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <!-- ========== OPEN GRAPH (یکبار) ========== -->
     <meta property="og:title"
-          content="{% block og_title %}{{ meta_title|default:'وکیل جو | سامانه تخصصی وکلای ایران' }}{% endblock %}">
+          content="{% block og_title %}{{ meta_title|default:'وکیل جوی | سامانه تخصصی وکلای ایران' }}{% endblock %}">
     <meta property="og:description" content="
             {% block og_description %}{{ meta_description|default:'بهترین وکلای ایران را پیدا کنید' }}{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ canonical_url }}">
     <meta property="og:image" content="
             {% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
-    <meta property="og:image:alt" content="وکیل جو - بهترین وکلای ایران">
-    <meta property="og:site_name" content="وکیل جو">
+    <meta property="og:image:alt" content="وکیل جوی - بهترین وکلای ایران">
+    <meta property="og:site_name" content="وکیل جوی">
 
     <!-- ========== TWITTER CARD ========== -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}{{ meta_title|default:'وکیل جو' }}{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ meta_title|default:'وکیل جوی' }}{% endblock %}">
     <meta name="twitter:description"
           content="{% block twitter_description %}{{ meta_description|default:'' }}{% endblock %}">
     <meta name="twitter:image" content="
             {% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
 
     <!-- ========== STYLESHEETS ========== -->
- <link href="{% static 'css/bootstrap.min.rtl.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/all.min.css' %}" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{# <link href="{% static 'css/bootstrap.min.rtl.css' %}" rel="stylesheet">#}
+<link rel="stylesheet" href="https://unpkg.ir/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css">
+
+{#    <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">#}
+<link rel="stylesheet" href="https://unpkg.ir/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.iran.liara.run/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+{#    <link href="{% static 'css/all.min.css' %}" rel="stylesheet">#}
+{#    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css" rel="stylesheet">#}
+{#    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">#}
+{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">#}
 {#    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">#}
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+{#    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">#}
+<link rel="stylesheet" href="https://unpkg.ir/aos@2.3.1/dist/aos.css">
 
     <style>
     @font-face {
@@ -473,7 +479,7 @@
 <nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home:index' %}">
-            <i class="bi bi-gavel"></i> وکیل جو
+            <i class="bi bi-gavel"></i> وکیل جوی
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
             <span class="navbar-toggler-icon"></span>
@@ -578,7 +584,7 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-md-4">
-                <h5><i class="bi bi-gavel"></i> وکیل جو</h5>
+                <h5><i class="bi bi-gavel"></i> وکیل جوی</h5>
                 <p class="mt-3">سامانه تخصصی معرفی و رتبه‌بندی بهترین وکلای ایران با استفاده از هوش مصنوعی و نظرات
                     کاربران.</p>
                 <div class="social-icons mt-3">
@@ -611,14 +617,18 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p class="mb-0">&copy; ۱۴۰۳ وکیل جو | تمامی حقوق محفوظ است</p>
+            <p class="mb-0">&copy; ۱۴۰۳ وکیل جوی | تمامی حقوق محفوظ است</p>
         </div>
     </div>
 </footer>
 
 <!-- ========== SCRIPTS (بدون defer برای اطمینان از لود شدن) ========== -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+{#<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>#}
+{#<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>#}
+<script src="https://unpkg.ir/aos@2.3.1/dist/aos.js"></script>
+
+<script src="https://unpkg.ir/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 <!-- در base.html، به جای لود مستقیم AOS -->
 <script>
     // لود AOS فقط بعد از لود کامل صفحه
