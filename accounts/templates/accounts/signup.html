@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ثبت‌نام | وکیل جو{% endblock %}
+{% block meta_description %}ثبت‌نام در سامانه وکیل جو - بهترین وکلای ایران{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <i class="bi bi-gavel display-4"></i>
+                    <h1 class="h3 mb-0 mt-2">ثبت‌نام در وکیل جو</h1>
+                    <p class="small text-white-50 mt-1">همین حالا عضو شوید و از خدمات ما بهره‌مند شوید</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label fw-bold">نام</label>
+                                <input type="text" name="first_name" id="id_first_name" class="form-control"
+                                       placeholder="نام خود را وارد کنید">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label fw-bold">نام خانوادگی</label>
+                                <input type="text" name="last_name" id="id_last_name" class="form-control"
+                                       placeholder="نام خانوادگی خود را وارد کنید">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-bold">
+                                <i class="bi bi-person"></i> نام کاربری
+                            </label>
+                            <input type="text" name="username" id="id_username" class="form-control"
+                                   placeholder="نام کاربری خود را انتخاب کنید" required>
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                            {% endif %}
+                            <small class="text-muted">فقط حروف، اعداد و @/./+/-/_ مجاز است.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label fw-bold">
+                                <i class="bi bi-envelope"></i> آدرس ایمیل
+                            </label>
+                            <input type="email" name="email" id="id_email" class="form-control"
+                                   placeholder="example@domain.com" required>
+                            {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_phone" class="form-label fw-bold">
+                                <i class="bi bi-telephone"></i> شماره تماس
+                            </label>
+                            <input type="tel" name="phone" id="id_phone" class="form-control"
+                                   placeholder="۰۹۱۲۱۲۳۴۵۶۷">
+                            {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label fw-bold">
+                                <i class="bi bi-lock"></i> رمز عبور
+                            </label>
+                            <input type="password" name="password1" id="id_password1" class="form-control"
+                                   placeholder="رمز عبور خود را وارد کنید" required>
+                            <small class="text-muted">حداقل ۸ کاراکتر، ترکیبی از حروف و اعداد.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label fw-bold">
+                                <i class="bi bi-lock-fill"></i> تکرار رمز عبور
+                            </label>
+                            <input type="password" name="password2" id="id_password2" class="form-control"
+                                   placeholder="رمز عبور را دوباره وارد کنید" required>
+                            {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                <a href="#" class="text-decoration-none">قوانین و مقررات</a> را مطالعه کرده و می‌پذیرم.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-person-check"></i> ثبت‌نام
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="mb-2">قبلاً ثبت‌نام کرده‌اید؟</p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> ورود به حساب
+                        </a>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'home:index' %}" class="text-decoration-none small">
+                            <i class="bi bi-house"></i> بازگشت به صفحه اصلی
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
