@@ -149,7 +149,7 @@ This repository reflects practical experience with:
 
 Abbas Esmaili
 
-Python Backend Developer (Django / DRF)
+Python Backend Developer (Django)
 
 Specialized in scalable backend systems, automation, and production web applications.
 
