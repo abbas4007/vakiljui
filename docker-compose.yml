@@ -1,65 +1,101 @@
-version: '3.8'
-
 services:
-  nginx:
-    build: ./nginx
-    container_name: dadvar-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - static_volume:/static
-      - media_volume:/media
-      - ./ssl:/etc/ssl:ro  # گواهی‌های SSL
-    depends_on:
-      - django
-    networks:
-      - dadvar-network
-    restart: unless-stopped
-
-  django:
-    build: .
-    container_name: dadvar-django
-    volumes:
-      - static_volume:/app/static
-      - media_volume:/app/media
-    expose:
-      - "8000"
-    environment:
-      - DEBUG=False
-      - DJANGO_ENV=production
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - dadvar-network
-    restart: unless-stopped
 
   postgres:
-    image: postgres:15-alpine
-    container_name: dadvar-postgres
+    image: postgres:15
+    container_name: dadvar_postgres
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=dadvar
-      - POSTGRES_USER=dadvar_user
-      - POSTGRES_PASSWORD=your_secure_password
     networks:
-      - dadvar-network
-    restart: unless-stopped
+      - dadvar_net
 
   redis:
     image: redis:7-alpine
-    container_name: dadvar-redis
+    container_name: dadvar_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
     networks:
-      - dadvar-network
+      - dadvar_net
+
+  web:
+    build: .
+    container_name: dadvar_web
+    restart: unless-stopped
+    env_file: .env
+
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             gunicorn dadvar.wsgi:application
+             --bind 0.0.0.0:8000
+             --workers 2
+             --timeout 60
+             --log-level info
+             --access-logfile -
+             --error-logfile -"
+
+    volumes:
+      - static_files:/app/staticfiles
+      - media_files:/app/media
+      - ./logs:/app/logs
+
+    depends_on:
+      - postgres
+      - redis
+
+    networks:
+      - dadvar_net
+
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:alpine
+    container_name: dadvar_nginx
     restart: unless-stopped
 
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_files:/app/staticfiles:ro
+      - media_files:/app/media:ro
+
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+
+    depends_on:
+      - web
+
+    networks:
+      - dadvar_net
+
+  certbot:
+    image: certbot/certbot
+    container_name: dadvar_certbot
+
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
 volumes:
-  static_volume:
-  media_volume:
   postgres_data:
+  redis_data:
+  static_files:
+  media_files:
 
 networks:
-  dadvar-network:
+  dadvar_net:
     driver: bridge
+
