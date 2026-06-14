@@ -147,7 +147,7 @@ This repository reflects practical experience with:
 
 ## 👤 Author
 
-Abbas Esmaili
+Abbas Esmaeili
 
 Python Backend Developer (Django / DRF)
 
