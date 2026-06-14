@@ -23,14 +23,3 @@ staticfiles/
 # IDE
 .vscode/
 .idea/
-
-# Static files (but exclude fonts)
-static/css/
-static/js/
-static/img/
-
-# Allow font files (استثنا برای فونت‌ها)
-!static/fonts/
-!static/fonts/*.woff
-!static/fonts/*.woff2
-!static/fonts/*.ttf
