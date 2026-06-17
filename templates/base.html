@@ -52,40 +52,41 @@
 {#<link rel="stylesheet" href="https://unpkg.ir/aos@2.3.1/dist/aos.css">#}
 
     <style>
-    @font-face {
-        font-family: 'sahel';
-        src: url('/static/fonts/Sahel.woff') format('woff2');
-        font-weight: normal;
-        font-style: normal;
-        font-display: swap;
-    }
-    @font-face {
-        font-family: 'sahel';
-        src: url('/static/fonts/Sahel-Bold.ttf') format('woff2');
-        font-weight: bold;
-        font-style: normal;
-        font-display: swap;
-    }
-    @font-face {
-        font-family: 'sahel';
-        src: url('/static/fonts/Sahel.woff') format('woff');
-        font-weight: 500;
-        font-style: normal;
-        font-display: swap;
-    }
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+@font-face {
+    font-family: 'Sahel';
+    src: url('/static/fonts/Sahel.woff') format('woff');
+    font-weight: normal;
+}
+@font-face {
+    font-family: 'Sahel';
+    src: url('/static/fonts/Sahel-Bold.ttf') format('truetype');
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'Sahel';
+    src: url('/static/fonts/Sahel-Light.ttf') format('truetype');
+    font-weight: 300;
+}
+
+        body {
+    font-family: 'Sahel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    background: #f8f9fc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'sahel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fc;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+       
 
         .navbar {
             background: rgba(255, 255, 255, 0.95);
