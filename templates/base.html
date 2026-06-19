@@ -34,7 +34,10 @@
           content="{% block twitter_description %}{{ meta_description|default:'' }}{% endblock %}">
     <meta name="twitter:image" content="
             {% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
-
+<link rel="icon" type="image/svg+xml" href="{% static 'favicon-16.svg' %}">
+<link rel="icon" sizes="32x32" href="{% static 'favicon-32.svg' %}">
+<link rel="icon" sizes="64x64" href="{% static 'favicon-64.svg' %}">
+<link rel="icon" sizes="128x128" href="{% static 'favicon-128.svg' %}">
     <!-- ========== STYLESHEETS ========== -->
  <link href="{% static 'css/bootstrap.min.rtl.css' %}" rel="stylesheet">
 <!-- <link rel="stylesheet" href="https://unpkg.ir/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css"> -->
