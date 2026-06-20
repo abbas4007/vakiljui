@@ -31,12 +31,10 @@ def login_view(request):
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
-            if user is not None:
+            if user is not None :
                 login(request, user)
-                # هدایت به پنل ادمین
-                if user.is_staff:
-                    return redirect('admin:index')
-                else:
+                return redirect('admin:index')
+            else:
                     return redirect('home:index')
     else:
         form = AuthenticationForm()
