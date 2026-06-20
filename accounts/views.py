@@ -23,27 +23,51 @@ class SignupView(CreateView) :
         ctx['meta_description'] = 'ثبت‌نام وکلا و کاربران عادی'
         return ctx
 
-
-def login_view(request) :
+def login_view(request):
     """صفحه ورود به حساب کاربری"""
-    if request.method == 'POST' :
-        form = AuthenticationForm(request, data = request.POST)
-        if form.is_valid() :
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username = username, password = password)
-            if user is not None :
+            user = authenticate(username=username, password=password)
+            if user is not None:
                 login(request, user)
-                return redirect('home:index')
-    else :
+                # هدایت به پنل ادمین
+                if user.is_staff:
+                    return redirect('admin:index')
+                else:
+                    return redirect('home:index')
+    else:
         form = AuthenticationForm()
 
     return render(request, 'accounts/login.html', {
-        'form' : form,
-        'robots' : 'noindex, follow',
-        'meta_title' : 'ورود به حساب کاربری',
-        'meta_description' : 'ورود به سامانه وکلا'
-    })
+        'form': form,
+        'robots': 'noindex, follow',
+        'meta_title': 'ورود به حساب کاربری',
+        'meta_description': 'ورود به سامانه وکلا'
+        })
+
+# def login_view(request) :
+#     """صفحه ورود به حساب کاربری"""
+#     if request.method == 'POST' :
+#         form = AuthenticationForm(request, data = request.POST)
+#         if form.is_valid() :
+#             username = form.cleaned_data.get('username')
+#             password = form.cleaned_data.get('password')
+#             user = authenticate(username = username, password = password)
+#             if user is not None :
+#                 login(request, user)
+#                 return redirect('home:index')
+#     else :
+#         form = AuthenticationForm()
+#
+#     return render(request, 'accounts/login.html', {
+#         'form' : form,
+#         'robots' : 'noindex, follow',
+#         'meta_title' : 'ورود به حساب کاربری',
+#         'meta_description' : 'ورود به سامانه وکلا'
+#     })
 
 
 def logout_view(request) :
