@@ -24,3 +24,6 @@ factory-boy==3.*
 Faker==30.*
 pytest-cov==5.*
 coverage==7.*
+celery
+redis
+django-celery-beat
