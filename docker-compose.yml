@@ -30,7 +30,15 @@ services:
     restart: unless-stopped
     env_file: .env
 
-    command: sh -c "python manage.py collectstatic --noinput && gunicorn dadvar.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60 --log-level info --access-logfile - --error-logfile -"
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             gunicorn dadvar.wsgi:application
+             --bind 0.0.0.0:8000
+             --workers 2
+             --timeout 60
+             --log-level info
+             --access-logfile -
+             --error-logfile -"
 
     volumes:
       - static_files:/app/staticfiles
@@ -74,12 +82,21 @@ services:
   certbot:
     image: certbot/certbot
     container_name: dadvar_certbot
-
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  celery:
+    build: .
+    container_name: dadvar_celery
+    command: celery -A dadvar worker -l info
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - dadvar_net
 
 volumes:
   postgres_data:
@@ -90,4 +107,3 @@ volumes:
 networks:
   dadvar_net:
     driver: bridge
-
