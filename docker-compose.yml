@@ -31,14 +31,7 @@ services:
     env_file: .env
 
     command: >
-      sh -c "python manage.py collectstatic --noinput &&
-             gunicorn dadvar.wsgi:application
-             --bind 0.0.0.0:8000
-             --workers 2
-             --timeout 60
-             --log-level info
-             --access-logfile -
-             --error-logfile -"
+      sh -c "python manage.py collectstatic --noinput && gunicorn dadvar.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60 --log-level info --access-logfile - --error-logfile -"
 
     volumes:
       - static_files:/app/staticfiles
