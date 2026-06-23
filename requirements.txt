@@ -2,7 +2,7 @@ asgiref==3.11.1
 certifi==2026.4.22
 charset-normalizer==3.4.7
 dj-database-url==2.1.0
-Django==6.0.5
+Django==5.2.15
 django-ckeditor==6.7.0
 django-js-asset==3.1.2
 django-redis==5.4.0
@@ -24,6 +24,6 @@ factory-boy==3.*
 Faker==30.*
 pytest-cov==5.*
 coverage==7.*
-celery
-redis
-django-celery-beat
+celery==5.6.3
+django-celery-beat==2.8.1
+redis==5.0.1
