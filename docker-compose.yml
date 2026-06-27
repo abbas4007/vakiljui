@@ -29,9 +29,15 @@ services:
     container_name: dadvar_web
     restart: unless-stopped
     env_file: .env
-
     command: >
-      sh -c "python manage.py collectstatic --noinput && gunicorn dadvar.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 60 --log-level info --access-logfile - --error-logfile -"
+      sh -c "python manage.py collectstatic --noinput &&
+      gunicorn dadvar.wsgi:application
+      --bind 0.0.0.0:8000
+      --workers 2
+      --timeout 60
+      --log-level info
+      --access-logfile -
+      --error-logfile -"
 
     volumes:
       - static_files:/app/staticfiles
@@ -62,7 +68,6 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - static_files:/app/staticfiles:ro
       - media_files:/app/media:ro
-
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
 
@@ -72,24 +77,48 @@ services:
     networks:
       - dadvar_net
 
-  certbot:
-    image: certbot/certbot
-    container_name: dadvar_certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
   celery:
     build: .
     container_name: dadvar_celery
+    restart: unless-stopped
     command: celery -A dadvar worker -l info
     env_file: .env
+
     depends_on:
       - postgres
       - redis
+
     networks:
       - dadvar_net
+
+  celery-beat:
+    build: .
+    container_name: dadvar_celery_beat
+    restart: unless-stopped
+    command: celery -A dadvar beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file: .env
+
+    depends_on:
+      - postgres
+      - redis
+
+    networks:
+      - dadvar_net
+
+  certbot:
+    image: certbot/certbot
+    container_name: dadvar_certbot
+
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+    entrypoint: >
+      /bin/sh -c 'trap exit TERM;
+      while :;
+      do certbot renew;
+      sleep 12h & wait $${!};
+      done;'
 
 volumes:
   postgres_data:
