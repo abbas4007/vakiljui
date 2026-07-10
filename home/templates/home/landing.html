@@ -1,0 +1,573 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آووکادو | مسیر شخصی‌سازی‌شده‌ی تغذیه سالم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF9F4;
+    --bg-alt:#F0EEE2;
+    --avocado-light:#B9DE7C;
+    --avocado:#5FA33C;
+    --avocado-dark:#2E4A1E;
+    --pit:#5C4430;
+    --ink:#26301D;
+    --ink-soft:#5B6350;
+    --accent:#FF9152;
+    --accent-dark:#E8722C;
+    --accent-soft:#FFE3CC;
+    --sun:#FFC94A;
+    --glass-bg:rgba(255,255,255,0.55);
+    --glass-border:rgba(255,255,255,0.75);
+    --glass-bg-dark:rgba(56,73,43,0.35);
+    --shadow-soft: 0 20px 60px -20px rgba(56,73,43,0.35);
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Vazirmatn', sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    overflow-x:hidden;
+    line-height:1.7;
+  }
+  img,svg{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+  section{position:relative;padding:100px 6vw;}
+  @media (max-width:768px){ section{padding:64px 6vw;} }
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;letter-spacing:.5px;
+    color:var(--avocado-dark);
+    background:rgba(111,148,80,0.12);
+    padding:6px 16px;border-radius:999px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--avocado);}
+
+  h1,h2,h3{font-weight:800;color:var(--ink);letter-spacing:-0.5px;}
+  .section-title{font-size:clamp(28px,4vw,42px);margin-bottom:14px;}
+  .section-sub{color:var(--ink-soft);font-size:17px;max-width:560px;margin-bottom:48px;}
+  .center{text-align:center;margin-left:auto;margin-right:auto;}
+
+  /* ---------- background ambient blobs ---------- */
+  .blob{
+    position:absolute;border-radius:50%;
+    filter:blur(60px);
+    opacity:.55;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  /* ---------- glass utility ---------- */
+  .glass{
+    background:var(--glass-bg);
+    border:1px solid var(--glass-border);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);
+    backdrop-filter:blur(18px) saturate(160%);
+    box-shadow: 0 8px 32px -12px rgba(56,73,43,0.25);
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:16px 6vw;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .nav-inner{
+    width:100%;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 24px;
+    border-radius:999px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:var(--avocado-dark);}
+  .brand .pit-dot{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 30%, var(--avocado-light), var(--avocado) 60%, var(--avocado-dark) 100%);position:relative;}
+  .brand .pit-dot::after{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--pit);}
+  nav ul{display:flex;gap:28px;font-size:15px;font-weight:600;color:var(--ink-soft);}
+  nav ul a:hover{color:var(--avocado-dark);}
+  .nav-cta{
+    background:var(--avocado-dark);color:#fff;
+    padding:10px 22px;border-radius:999px;font-weight:700;font-size:14px;
+    box-shadow:0 8px 20px -6px rgba(56,73,43,0.5);
+    white-space:nowrap;
+  }
+  .nav-cta-accent{
+    background:linear-gradient(135deg, var(--sun), var(--accent));
+    box-shadow:0 8px 20px -6px rgba(232,114,44,0.55);
+  }
+  .nav-links, .nav-cta-wrap{display:flex;}
+  @media (max-width:860px){
+    nav ul{display:none;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;align-items:center;
+    padding-top:140px;
+    gap:40px;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;width:100%;
+    position:relative;z-index:1;
+  }
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} .hero{padding-top:120px;} }
+
+  .hero h1{
+    font-size:clamp(34px,5.2vw,58px);
+    line-height:1.25;
+    margin-bottom:22px;
+  }
+  .hero h1 .accent{color:var(--avocado);}
+  .hero p.lead{
+    font-size:18px;color:var(--ink-soft);max-width:520px;margin-bottom:32px;
+  }
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:36px;}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--avocado-light), var(--avocado));
+    color:#fff;padding:16px 30px;border-radius:16px;font-weight:800;font-size:16px;
+    box-shadow:0 14px 30px -10px rgba(111,148,80,0.6);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 36px -8px rgba(111,148,80,0.7);}
+  .btn-ghost{
+    padding:16px 26px;border-radius:16px;font-weight:700;font-size:16px;
+    color:var(--avocado-dark);
+    border:1.5px solid rgba(56,73,43,0.25);
+    transition:background .25s ease;
+  }
+  .btn-ghost:hover{background:rgba(111,148,80,0.08);}
+  .btn-accent{
+    background:linear-gradient(135deg, var(--sun), var(--accent));
+    color:#fff;padding:16px 30px;border-radius:16px;font-weight:800;font-size:16px;
+    box-shadow:0 14px 30px -10px rgba(232,114,44,0.55);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .btn-accent:hover{transform:translateY(-3px);box-shadow:0 18px 36px -8px rgba(232,114,44,0.65);}
+
+  .hero-stats{display:flex;gap:28px;flex-wrap:wrap;}
+  .hero-stats div{min-width:110px;}
+  .hero-stats b{display:block;font-size:24px;color:var(--avocado-dark);font-weight:800;}
+  .hero-stats span{font-size:13px;color:var(--ink-soft);}
+
+  /* avocado illustration */
+  .avocado-visual{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1.05;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .avo-card{
+    position:absolute;
+    border-radius:var(--radius-md);
+    padding:14px 18px;
+    display:flex;align-items:center;gap:10px;
+    font-size:13px;font-weight:700;color:var(--avocado-dark);
+    animation:float 6s ease-in-out infinite;
+  }
+  .avo-card.card1{top:8%;right:0%;animation-delay:0s;}
+  .avo-card.card2{bottom:14%;left:-4%;animation-delay:1.2s;}
+  .avo-card.card3{bottom:0%;right:8%;animation-delay:2.4s;}
+  @keyframes float{
+    0%,100%{transform:translateY(0px);}
+    50%{transform:translateY(-14px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .avo-card{animation:none;}
+  }
+
+  /* ---------- trust bar ---------- */
+  .trust-bar{
+    max-width:920px;margin:0 auto;
+    border-radius:var(--radius-lg);
+    padding:26px 40px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
+  }
+  .trust-item{display:flex;align-items:center;gap:14px;flex:1;min-width:220px;}
+  .trust-icon{
+    width:48px;height:48px;border-radius:14px;flex-shrink:0;
+    background:linear-gradient(135deg, var(--sun), var(--accent));
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    box-shadow:0 8px 18px -6px rgba(232,114,44,0.4);
+  }
+  .trust-item b{display:block;font-size:15px;color:var(--avocado-dark);}
+  .trust-item span{font-size:12.5px;color:var(--ink-soft);}
+  .trust-divider{width:1px;height:40px;background:rgba(56,73,43,0.15);}
+  @media (max-width:700px){ .trust-divider{display:none;} }
+  .trust-caption{text-align:center;font-size:13.5px;color:var(--ink-soft);margin-top:16px;}
+
+  /* ---------- benefits ---------- */
+  .benefits-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative;z-index:1;
+  }
+  @media (max-width:1000px){ .benefits-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .benefits-grid{grid-template-columns:1fr;} }
+  .benefit-card{
+    padding:30px 24px;border-radius:var(--radius-md);
+    background:#fff;
+    border:1px solid rgba(56,73,43,0.08);
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .benefit-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-soft);}
+  .benefit-icon{
+    width:52px;height:52px;border-radius:14px;
+    background:linear-gradient(135deg, var(--avocado-light), var(--avocado));
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:18px;font-size:24px;
+  }
+  .benefit-card h3{font-size:17px;margin-bottom:8px;}
+  .benefit-card p{font-size:14px;color:var(--ink-soft);}
+
+  /* ---------- services ---------- */
+  .services-wrap{background:var(--avocado-dark);border-radius:40px;padding:80px 6vw;color:#fff;position:relative;overflow:hidden;}
+  .services-wrap .section-sub{color:rgba(255,255,255,0.7);}
+  .services-wrap .eyebrow{background:rgba(255,255,255,0.12);color:#D9E8C4;}
+  .services-wrap .eyebrow::before{background:#D9E8C4;}
+  .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;z-index:1;}
+  @media (max-width:900px){ .services-grid{grid-template-columns:1fr;} }
+  .service-card{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:var(--radius-md);
+    padding:32px 26px;
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  }
+  .service-num{font-size:13px;color:#B9D69A;font-weight:700;margin-bottom:14px;letter-spacing:1px;}
+  .service-card h3{color:#fff;font-size:19px;margin-bottom:10px;}
+  .service-card p{color:rgba(255,255,255,0.72);font-size:14.5px;}
+
+  /* ---------- results ---------- */
+  .results-grid{display:grid;grid-template-columns:repeat(2,1fr);max-width:760px;margin:0 auto;gap:24px;position:relative;z-index:1;}
+  @media (max-width:900px){ .results-grid{grid-template-columns:1fr;} }
+  .result-card{
+    border-radius:var(--radius-lg);
+    padding:30px;
+  }
+  .result-name{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+  .avatar-ring{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 90deg, var(--avocado-light), var(--avocado), var(--avocado-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;}
+  .result-name b{font-size:15px;}
+  .result-name span{display:block;font-size:12px;color:var(--ink-soft);}
+  .metric-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13.5px;color:var(--ink-soft);}
+  .bar-track{width:100%;height:8px;border-radius:999px;background:rgba(56,73,43,0.1);overflow:hidden;margin-bottom:18px;}
+  .bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg, var(--avocado-light), var(--avocado));}
+  .result-quote{font-size:14px;color:var(--ink);font-style:normal;border-top:1px dashed rgba(56,73,43,0.2);padding-top:16px;margin-top:4px;}
+
+  /* ---------- plans ---------- */
+  .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative;z-index:1;}
+  @media (max-width:900px){ .plans-grid{grid-template-columns:1fr;} }
+  .plan-card{
+    border-radius:var(--radius-lg);
+    padding:36px 28px;
+    background:#fff;
+    border:1px solid rgba(56,73,43,0.1);
+    position:relative;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .plan-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-soft);}
+  .plan-card.featured{
+    background:linear-gradient(160deg, var(--avocado-dark), #24301A);
+    color:#fff;
+    transform:scale(1.04);
+  }
+  .plan-card.featured .plan-price small,
+  .plan-card.featured .plan-desc{color:rgba(255,255,255,0.7);}
+  .plan-card.featured li{color:rgba(255,255,255,0.9);}
+  .plan-tag{
+    position:absolute;top:-14px;right:28px;
+    background:linear-gradient(135deg, var(--sun), var(--accent));color:#fff;font-size:12px;font-weight:800;
+    padding:6px 14px;border-radius:999px;
+    box-shadow:0 6px 16px -4px rgba(232,114,44,0.5);
+  }
+  .plan-name{font-size:15px;font-weight:700;color:var(--avocado);margin-bottom:6px;}
+  .plan-card.featured .plan-name{color:#C9E4A8;}
+  .plan-price{font-size:34px;font-weight:800;margin-bottom:6px;}
+  .plan-price small{font-size:14px;font-weight:600;color:var(--ink-soft);}
+  .plan-desc{font-size:13.5px;color:var(--ink-soft);margin-bottom:24px;}
+  .plan-card ul{margin-bottom:28px;}
+  .plan-card li{font-size:14px;color:var(--ink-soft);margin-bottom:12px;padding-right:22px;position:relative;}
+  .plan-card li::before{content:"✓";position:absolute;right:0;color:var(--avocado);font-weight:800;}
+  .plan-card.featured li::before{color:#C9E4A8;}
+  .plan-btn{
+    display:block;text-align:center;width:100%;padding:14px;border-radius:14px;
+    font-weight:700;font-size:15px;
+    background:rgba(56,73,43,0.08);color:var(--avocado-dark);
+  }
+  .plan-card.featured .plan-btn{background:#fff;color:var(--avocado-dark);}
+
+  /* ---------- faq ---------- */
+  .faq-list{max-width:760px;margin:0 auto;position:relative;z-index:1;}
+  .faq-item{
+    border-radius:var(--radius-md);
+    margin-bottom:14px;
+    background:#fff;
+    border:1px solid rgba(56,73,43,0.1);
+    overflow:hidden;
+  }
+  .faq-q{
+    padding:20px 24px;display:flex;justify-content:space-between;align-items:center;
+    font-weight:700;font-size:15.5px;cursor:pointer;
+  }
+  .faq-q .plus{width:22px;height:22px;border-radius:50%;background:rgba(111,148,80,0.14);color:var(--avocado-dark);display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .3s ease;flex-shrink:0;margin-left:12px;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{
+    max-height:0;overflow:hidden;transition:max-height .35s ease, padding .35s ease;
+    padding:0 24px;font-size:14.5px;color:var(--ink-soft);
+  }
+  .faq-item.open .faq-a{max-height:220px;padding:0 24px 22px;}
+
+  /* ---------- consult form ---------- */
+  .consult-wrap{
+    border-radius:40px;
+    padding:70px 6vw;
+    position:relative;overflow:hidden;
+    background:linear-gradient(135deg, var(--bg-alt), #E4E9D4);
+  }
+  .consult-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;position:relative;z-index:1;}
+  @media (max-width:900px){ .consult-grid{grid-template-columns:1fr;} }
+  .consult-form{
+    border-radius:var(--radius-lg);
+    padding:36px;
+    display:flex;flex-direction:column;gap:16px;
+  }
+  .field label{font-size:13px;font-weight:700;color:var(--avocado-dark);margin-bottom:6px;display:block;}
+  .field input, .field select{
+    width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(56,73,43,0.18);
+    background:rgba(255,255,255,0.7);font-family:inherit;font-size:14.5px;color:var(--ink);
+    outline:none;transition:border-color .2s ease, background .2s ease;
+  }
+  .field input:focus, .field select:focus{border-color:var(--avocado);background:#fff;}
+  .field input:focus-visible, .field select:focus-visible{outline:2px solid var(--avocado);outline-offset:2px;}
+  .consult-submit{
+    margin-top:6px;
+    background:linear-gradient(135deg, var(--avocado-light), var(--avocado));
+    color:#fff;padding:16px;border-radius:14px;font-weight:800;font-size:15.5px;
+    box-shadow:0 14px 30px -10px rgba(111,148,80,0.55);
+  }
+  .consult-note{font-size:12.5px;color:var(--ink-soft);text-align:center;}
+  .consult-copy .section-title{margin-bottom:16px;}
+  .consult-list{margin-top:24px;}
+  .consult-list li{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--ink-soft);margin-bottom:12px;}
+  .consult-list li .dot{width:8px;height:8px;border-radius:50%;background:var(--avocado);flex-shrink:0;}
+
+  /* ---------- footer ---------- */
+  footer{
+    background:var(--avocado-dark);
+    color:rgba(255,255,255,0.75);
+    padding:30px 6vw;
+  }
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:50px;}
+  @media (max-width:800px){ .footer-grid{grid-template-columns:1fr 1fr;} }
+  .footer-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;color:#fff;margin-bottom:14px;}
+  footer p.tag{font-size:14px;max-width:280px;}
+  footer h4{color:#fff;font-size:14px;margin-bottom:16px;}
+  footer ul li{margin-bottom:10px;font-size:14px;}
+  footer ul li a:hover{color:#fff;}
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,0.15);
+    padding-top:24px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    font-size:13px;color:rgba(255,255,255,0.55);
+  }
+  .footer-social{display:flex;gap:14px;}
+  .footer-social a{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:15px;}
+
+  /* ---------- mobile floating cta ---------- */
+  .mobile-float-cta{
+    display:none;
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+    z-index:200;
+    background:linear-gradient(135deg, var(--sun), var(--accent));
+    color:#fff;font-weight:800;font-size:14.5px;
+    padding:14px 28px;border-radius:999px;
+    box-shadow:0 14px 30px -8px rgba(232,114,44,0.6);
+    white-space:nowrap;
+  }
+  @media (max-width:700px){ .mobile-float-cta{display:block;} }
+
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header>
+  <div class="nav-inner glass">
+    <a href="#hero" class="brand"><span class="pit-dot"></span> آووکادو</a>
+    <div class="nav-links"><ul>
+      <li><a href="#benefits">مزایا</a></li>
+      <li><a href="#services">خدمات</a></li>
+      <li><a href="#results">نتایج</a></li>
+    </ul></div>
+    <div class="nav-cta-wrap" style="display:flex;gap:10px;align-items:center;">
+      <a href="https://t.me/your_channel" target="_blank" rel="noopener" class="nav-cta nav-cta-accent">عضویت در کانال ✈️</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="hero">
+  <div class="blob" style="width:520px;height:520px;background:var(--avocado-light);top:-120px;right:-140px;"></div>
+  <div class="blob" style="width:380px;height:380px;background:var(--avocado);top:220px;left:-120px;opacity:.35;"></div>
+  <div class="blob" style="width:260px;height:260px;background:var(--sun);bottom:-40px;right:10%;opacity:.3;"></div>
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">کانال تخصصی تغذیه سالم</div>
+      <h1>تغذیه‌ای که با <span class="accent">زندگی واقعی</span> شما جور دربیاد</h1>
+      <p class="lead">بدون رژیم‌های سخت‌گیرانه و گرسنگی کشیدن. یه مسیر تغذیه شخصی‌سازی‌شده که بر اساس بدن، سبک زندگی و اهداف تو طراحی می‌شه — قدم به قدم و قابل اجرا.</p>
+      <div class="hero-ctas">
+        <a href="https://t.me/your_channel" target="_blank" rel="noopener" class="btn-accent">عضویت مستقیم در کانال ✈️</a>
+        <a href="#benefits" class="btn-ghost">آشنایی بیشتر</a>
+      </div>
+    </div>
+    <div class="avocado-visual">
+      <!-- signature illustration -->
+      <img src="avocado-hero.png" alt="آووکادو" width="88%" style="width:88%;border-radius:28px;filter:drop-shadow(0 30px 50px rgba(56,73,43,0.35));">
+      <div class="avo-card card1 glass"><span>🍽️</span> غذاهای انتخابی</div>
+      <div class="avo-card card2 glass"><span>📈</span> پیشرفت هفتگی</div>
+      <div class="avo-card card3 glass"><span>⚡</span> انرژی پایدار</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRUST / TEAM ================= -->
+<section id="team" style="padding-top:40px;padding-bottom:40px;">
+  <div class="trust-bar glass">
+    <div class="trust-item">
+      <div class="trust-icon">🩺</div>
+      <div><b>پزشک</b><span>نظارت بالینی کامل بر برنامه‌ها</span></div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">💊</div>
+      <div><b>داروساز</b><span>بررسی تداخل دارو و مکمل</span></div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">🥑</div>
+      <div><b>متخصصین تغذیه</b><span>طراحی و پیگیری اختصاصی برنامه</span></div>
+    </div>
+  </div>
+  <p class="trust-caption">تیمی متشکل از پزشک، داروساز و متخصصین تغذیه، پشت هر برنامه‌ای که دریافت می‌کنی.</p>
+</section>
+
+<!-- ================= BENEFITS ================= -->
+<section id="benefits">
+  <div class="eyebrow center" style="display:table;">چرا آووکادو؟</div>
+  <h2 class="section-title center">مزایایی که مسیر رو راحت‌تر می‌کنن</h2>
+  <p class="section-sub center">هر بخش از این برنامه برای این طراحی شده که تغذیه سالم رو از یه «باید سخت» تبدیل کنه به یه عادت لذت‌بخش.</p>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">🎯</div>
+      <h3>برنامه شخصی‌سازی‌شده</h3>
+      <p>بر اساس آنالیز بدن، فعالیت روزانه و ترجیحات غذایی‌ت، نه یه فایل آماده برای همه.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon" style="background:linear-gradient(135deg, var(--sun), var(--accent));">🥗</div>
+      <h3>غذاهای واقعی و در دسترس</h3>
+      <p>بدون مواد اولیه عجیب یا غیرقابل تهیه؛ با موادی که تو سوپرمارکت محله‌ت پیدا می‌کنی.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📊</div>
+      <h3>پیگیری در طول دوره</h3>
+      <p>هر هفته وضعیتت بررسی و برنامه بر اساس پیشرفت واقعی‌ت تنظیم می‌شه.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon" style="background:linear-gradient(135deg, var(--sun), var(--accent));">💬</div>
+      <h3>پشتیبانی مستقیم</h3>
+      <p>سوال داری؟ مستقیم با تیم تغذیه در ارتباطی، نه یه ربات پاسخگو.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVICES ================= -->
+<section id="services">
+  <div class="services-wrap">
+    <div class="blob" style="width:400px;height:400px;background:#B9D69A;bottom:-160px;left:-100px;opacity:.15;"></div>
+    <div class="eyebrow">خدمات ما</div>
+    <h2 class="section-title" style="color:#fff;">هرچی برای رسیدن به هدفت لازمه</h2>
+    <p class="section-sub">از اولین آنالیز تا رسیدن به عادت پایدار، در هر قدم کنارتیم.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-num">۰۱</div>
+        <h3>آنالیز بدن و سبک زندگی</h3>
+        <p>بررسی دقیق وضعیت فعلی، عادات غذایی و اهداف واقعی‌ت قبل از شروع هر برنامه.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">۰۲</div>
+        <h3>طراحی برنامه غذایی</h3>
+        <p>برنامه‌ای متناسب با کالری، درشت‌مغذی‌ها و ترجیحات طعمی خودت.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">۰۳</div>
+        <h3>مشاوره و پیگیری مداوم</h3>
+        <p>جلسات منظم برای تنظیم برنامه بر اساس پیشرفت و بازخورد بدن.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="results">
+  <div class="eyebrow center" style="display:table;">نتایج واقعی</div>
+  <h2 class="section-title center">پیشرفتی که عدد و رقمش قابل لمسه</h2>
+  <p class="section-sub center">به‌جای عکس‌های قبل و بعد، بهتره روند واقعی رو با داده ببینی؛ همینه که نتیجه رو معتبر می‌کنه.</p>
+  <div class="results-grid">
+    <div class="result-card glass">
+      <div class="result-name">
+        <div class="avatar-ring">س.ا</div>
+        <div><b>ستایش ا.</b><span>۸ هفته برنامه</span></div>
+      </div>
+      <div class="metric-row"><span>کاهش وزن</span><span>۷۸٪</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
+      <div class="metric-row"><span>غذاهای انتخابی</span><span>۶۵٪</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:65%"></div></div>
+      <p class="result-quote">«دیگه گرسنگی نمی‌کشم و انرژی روزم چند برابر شده.»</p>
+    </div>
+    <div class="result-card glass">
+      <div class="result-name">
+        <div class="avatar-ring">ف.ن</div>
+        <div><b>فاطمه ن.</b><span>۱۲ هفته برنامه</span></div>
+      </div>
+      <div class="metric-row"><span>کاهش وزن</span><span>۵ کیلوگرم</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+      <div class="metric-row"><span>بهبود کیست تخمدان</span><span>۸۰٪</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div>
+      <p class="result-quote">«با وجود شرایط سخت کنکور، هم به کاهش وزنم رسیدم هم کیستم بهبود پیدا کرد.»</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= JOIN CHANNEL CTA ================= -->
+<section id="consult">
+  <div class="consult-wrap" style="text-align:center;">
+    <div style="position:relative;z-index:1;max-width:640px;margin:0 auto;">
+      <div class="eyebrow center" style="display:table;margin-left:auto;margin-right:auto;">وارد کانال شو</div>
+      <h2 class="section-title center">همین حالا به کانال آووکادو بپیوند</h2>
+      <p class="section-sub center" style="margin-bottom:36px;">محتوای روزانه، نکات علمی تغذیه و تجربه‌های واقعی، همه رایگان و مستقیم توی تلگرام.</p>
+      <a href="https://t.me/AvoCado_Fitness" target="_blank" rel="noopener" class="btn-accent" style="display:inline-block;">عضویت مستقیم در کانال تلگرام ✈️</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="footer-bottom" style="border-top:none;padding-top:0;justify-content:center;">
+    <span>© ۱۴۰۴ آووکادو — تمامی حقوق محفوظ است.</span>
+  </div>
+</footer>
+
+<a href="https://t.me/your_channel" target="_blank" rel="noopener" class="mobile-float-cta">عضویت در کانال ✈️</a>
+
+</body>
+</html>

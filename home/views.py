@@ -668,3 +668,8 @@ def lawyer_register(request) :
         'meta_description' : 'در سامانه وکیل جو ثبت‌نام کنید و در گوگل دیده شوید',
         'canonical_url' : request.build_absolute_uri(request.path),
     })
+class LandingPage(View):
+
+    def get(self, request):
+
+        return render(request,'home/landing.html')

@@ -22,4 +22,5 @@ urlpatterns = [
     path('lawyer/register/', views.lawyer_register, name='lawyer_register'),
     path('subscribe/<int:plan_id>/', views.subscribe_view, name='subscribe'),
     path('payment-verify/', views.payment_verify, name='payment_verify'),
+    path('landingpage/',views.LandingPage.as_view(),name='landingpage'),
 ]
