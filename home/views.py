@@ -1,4 +1,3 @@
-import json
 from django.contrib import messages
 from django.views.generic import TemplateView, View
 from django.http import HttpResponse
@@ -11,6 +10,14 @@ from .models import SubscriptionPlan, LawyerSubscription
 from django.utils import timezone
 from datetime import timedelta
 from django.core.cache import cache
+import json
+from django.views.generic import ListView
+from .models import LawyerProfile, City, Specialty
+import json
+from django.views.generic import DetailView
+from django.db.models import Q
+from .models import LawyerProfile, LawyerProfile as Lawyer
+from django.utils import timezone
 
 
 class HomeView(TemplateView) :
@@ -19,6 +26,7 @@ class HomeView(TemplateView) :
     def get_context_data(self, **kwargs) :
         ctx = super().get_context_data(**kwargs)
 
+        # کش کردن شهرها و تخصص‌ها
         cities = cache.get('active_cities')
         if not cities :
             cities = list(City.objects.filter(is_active = True))
@@ -35,12 +43,57 @@ class HomeView(TemplateView) :
 
         ctx['cities'] = cities
         ctx['specialties'] = specialties
+
+        # ============ وکلای طلایی ============
+        top_lawyers = cache.get('top_lawyers')
+        if not top_lawyers :
+            # پیدا کردن طرح طلایی
+            try :
+                gold_plan = SubscriptionPlan.objects.get(
+                    name__icontains = 'طلا',  # یا name='gold' یا هر چیزی که در دیتابیس دارید
+                    is_active = True
+                )
+            except SubscriptionPlan.DoesNotExist :
+                # اگر طرح طلایی وجود نداشت، می‌توانید از priority استفاده کنید
+                gold_plan = SubscriptionPlan.objects.filter(
+                    is_active = True
+                ).order_by('-priority').first()
+
+            if gold_plan :
+                # وکلایی که اشتراک طلایی فعال دارند
+                top_lawyers = LawyerProfile.objects.filter(
+                    is_active = True,
+                    subscriptions__plan = gold_plan,
+                    subscriptions__is_paid = True,
+                    subscriptions__end_date__gt = timezone.now()  # اشتراک فعال
+                ).select_related('user').distinct().order_by('-subscriptions__start_date')[:8]
+
+                # اگر وکیل طلایی پیدا نشد، وکلای با بالاترین اولویت را بیار
+                if not top_lawyers :
+                    top_lawyers = LawyerProfile.objects.filter(
+                        is_active = True,
+                        subscriptions__is_paid = True,
+                        subscriptions__end_date__gt = timezone.now()
+                    ).select_related('user').distinct().order_by(
+                        '-subscriptions__plan__priority',
+                        '-subscriptions__start_date'
+                    )[:8]
+            else :
+                # اگر هیچ طرح اشتراکی وجود نداشت، وکلای با موفقیت بالا
+                top_lawyers = LawyerProfile.objects.filter(
+                    is_active = True
+                ).select_related('user').order_by('-success_rate')[:8]
+
+            cache.set('top_lawyers', top_lawyers, 3600)
+
+        ctx['top_lawyers'] = top_lawyers
+
+        # متا تگ‌ها و Schema
         ctx['meta_title'] = getattr(settings, 'DEFAULT_META_TITLE', 'وکیل جو | سامانه تخصصی وکلای ایران')
         ctx['meta_description'] = getattr(settings, 'DEFAULT_META_DESCRIPTION', 'بهترین وکلای ایران را پیدا کنید')
         ctx['canonical_url'] = self.request.build_absolute_uri('/')
         ctx['og_image'] = self.request.build_absolute_uri('/static/img/back.jfif')
 
-        # Schema برای صفحه اصلی
         ctx['site_schema'] = json.dumps({
             "@context" : "https://schema.org",
             "@type" : "WebSite",
@@ -58,17 +111,6 @@ class HomeView(TemplateView) :
         }, ensure_ascii = False)
 
         return ctx
-
-
-import json
-from django.views.generic import ListView
-from django.db.models import Q
-from .models import LawyerProfile, City, Specialty
-import json
-from django.views.generic import DetailView
-from django.db.models import Q
-from .models import LawyerProfile, LawyerProfile as Lawyer
-
 
 class LawyerListView(ListView) :
     model = LawyerProfile
@@ -669,8 +711,8 @@ def lawyer_register(request) :
         'canonical_url' : request.build_absolute_uri(request.path),
     })
 
-class LandingPage(View):
 
-    def get(self, request):
+class LandingPage(View) :
 
-        return render(request,'home/landing.html')
+    def get(self, request) :
+        return render(request, 'home/landing.html')
