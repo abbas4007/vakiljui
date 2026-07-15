@@ -48,35 +48,59 @@
                 {% if top_lawyers %}
                     {% for lawyer in top_lawyers %}
                         <div class="col-md-6 col-lg-3">
-                            <div class="card h-100 shadow-sm border-0 card-hover">
-                                {% if lawyer.profile_image %}
-                                    <img src="{{ lawyer.profile_image.url }}" class="card-img-top"
-                                         alt="{{ lawyer.user.get_full_name }}"
-                                         style="height: 200px; object-fit: cover;">
-                                {% else %}
-                                    <div class="bg-secondary text-center py-5 text-white">عکس وکیل</div>
-                                {% endif %}
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <h5 class="card-title fw-bold">{{ lawyer.user.get_full_name }}</h5>
-                                        <span class="badge bg-warning text-dark"><i class="bi bi-gem"></i> طلا</span>
-                                    </div>
-                                    <p class="text-muted small"><i class="bi bi-briefcase"></i> {{ lawyer.speciality }}
-                                        | <i class="bi bi-geo-alt"></i> {{ lawyer.city }}</p>
-                                    <p class="card-text small">{{ lawyer.ai_summary|default:lawyer.description|truncatewords:20 }}</p>
-                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                        <span><i
-                                                class="bi bi-trophy text-warning"></i> موفقیت: {{ lawyer.success_rate }}%</span>
-                                        <span><i class="bi bi-calendar"></i> {{ lawyer.years_of_experience }} سال</span>
-                                    </div>
-                                </div>
-                                <div class="card-footer bg-transparent border-0 pb-3">
-                                    <a href="{% url 'home:lawyer_detail' lawyer.slug %}"
-                                       class="btn btn-outline-primary w-100">مشاهده پروفایل <i
-                                            class="bi bi-arrow-left"></i></a>
-                                </div>
-                            </div>
-                        </div>
+<div class="card h-100 shadow-sm border-0 card-hover" style="text-align: right; border-radius: 15px; overflow: hidden;">
+    <!-- تصویر -->
+    {% if lawyer.profile_image %}
+        <div class="card-img-top-wrapper" style="position: relative; width: 100%; height: 220px; overflow: hidden; background: #f0f2f5;">
+            <img src="{{ lawyer.profile_image.url }}"
+                 alt="{{ lawyer.user.get_full_name }}"
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: center 20%; transition: transform 0.5s ease;"
+                 loading="lazy"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div style="display: none; width: 100%; height: 100%; background: #e9ecef; align-items: center; justify-content: center; color: #6c757d;">
+                <span><i class="bi bi-person-circle fs-1"></i></span>
+            </div>
+            {% if lawyer.has_gold_subscription %}
+                <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark gold-badge" style="font-size: 0.85rem; padding: 6px 12px; border-radius: 20px;">
+                    <i class="bi bi-gem"></i> طلا
+                </span>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="height: 220px; background: #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+            <div class="text-center">
+                <i class="bi bi-person-circle fs-1 d-block"></i>
+                <small class="mt-1">عکس وکیل</small>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- بدنه -->
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title fw-bold mb-0">{{ lawyer.user.get_full_name }}</h5>
+            {% if lawyer.has_gold_subscription %}
+                <span class="badge bg-warning text-dark"><i class="bi bi-gem"></i> طلا</span>
+            {% endif %}
+        </div>
+        <p class="text-muted small mt-2">
+            <i class="bi bi-briefcase"></i> {{ lawyer.speciality }} |
+            <i class="bi bi-geo-alt"></i> {{ lawyer.city }}
+        </p>
+        <p class="card-text small text-secondary">{{ lawyer.ai_summary|default:lawyer.description|truncatewords:20 }}</p>
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+            <span class="small"><i class="bi bi-trophy text-warning"></i> موفقیت: <strong>{{ lawyer.success_rate }}%</strong></span>
+            <span class="small"><i class="bi bi-calendar"></i> {{ lawyer.years_of_experience }} سال</span>
+        </div>
+    </div>
+
+    <!-- فوتر -->
+    <div class="card-footer bg-transparent border-0 pb-3 pt-0">
+        <a href="{% url 'home:lawyer_detail' lawyer.slug %}" class="btn btn-outline-primary w-100 rounded-pill">
+            <i class="bi bi-arrow-left"></i> مشاهده پروفایل
+        </a>
+    </div>
+</div>                        </div>
                     {% endfor %}
                 {% else %}
                     <div class="col-12 text-center py-5">
