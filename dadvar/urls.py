@@ -4,18 +4,19 @@ from django.contrib.sitemaps.views import sitemap
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-from home.sitemaps import LawyerSitemap, StaticSitemap, LandingPageSitemap, LawyerListSitemap
+from home.sitemaps import LawyerSitemap, StaticSitemap, LandingPageSitemap, LawyerListSitemap,LawyerListCitySitemap
 
 sitemaps = {
     'lawyers' : LawyerSitemap,
     'landing_pages' : LandingPageSitemap,
     'lawyer_lists' : LawyerListSitemap,
+    "lawyer_lists_city" : LawyerListCitySitemap,
     'static' : StaticSitemap,
 }
 
 
 def robots_txt(request) :
-    scheme = 'https' if request.is_secure() else 'http'
+    scheme = "https"
     host = request.get_host()
     sitemap_url = f"{scheme}://{host}/sitemap.xml"
     llms_url = f"{scheme}://{host}/llms.txt"

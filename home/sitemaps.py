@@ -4,6 +4,7 @@ from .models import LawyerProfile, City, Specialty, LandingPageContent
 
 
 class LawyerSitemap(Sitemap) :
+    protocol = "https"
     changefreq = "weekly"
     priority = 0.9
 
@@ -18,6 +19,7 @@ class LawyerSitemap(Sitemap) :
 
 
 class LandingPageSitemap(Sitemap) :
+    protocol = "https"
     """
     صفحات لندینگ /بهترین-وکیل/تخصص/شهر/
     مهم‌ترین صفحات SEO - اولویت ۱
@@ -62,6 +64,7 @@ class LandingPageSitemap(Sitemap) :
 
 
 class LawyerListSitemap(Sitemap) :
+    protocol = "https"
     """صفحات لیست وکلا بر اساس تخصص - اولویت ۰.۸"""
     changefreq = "daily"
     priority = 0.8
@@ -74,6 +77,7 @@ class LawyerListSitemap(Sitemap) :
 
 
 class LawyerListCitySitemap(Sitemap) :
+    protocol = "https"
     """صفحات لیست وکلا بر اساس تخصص + شهر - اولویت ۰.۷"""
     changefreq = "daily"
     priority = 0.7
@@ -98,6 +102,7 @@ class LawyerListCitySitemap(Sitemap) :
 
 
 class StaticSitemap(Sitemap) :
+    protocol = "https"
     """فقط صفحات مهم استاتیک (بدون صفحات لاگین و ثبت‌نام)"""
     priority = 0.5
     changefreq = "monthly"
