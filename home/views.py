@@ -26,17 +26,19 @@ class HomeView(TemplateView) :
     def get_context_data(self, **kwargs) :
         ctx = super().get_context_data(**kwargs)
 
-        # کش کردن شهرها و تخصص‌ها
+        # ============ شهرها ============
         cities = cache.get('active_cities')
         if not cities :
             cities = list(City.objects.filter(is_active = True))
             cache.set('active_cities', cities, 3600)
 
+        # ============ تخصص‌ها ============
         specialties = cache.get('active_specialties')
         if not specialties :
             specialties = list(Specialty.objects.filter(is_active = True))
             cache.set('active_specialties', specialties, 3600)
 
+        # تعداد واقعی وکلا در هر شهر
         for city in cities :
             real_count = LawyerProfile.objects.filter(is_active = True, city = city.name).count()
             city.real_lawyer_count = real_count if real_count > 0 else city.lawyer_count
@@ -46,54 +48,59 @@ class HomeView(TemplateView) :
 
         # ============ وکلای طلایی ============
         top_lawyers = cache.get('top_lawyers')
-        if not top_lawyers :
-            # پیدا کردن طرح طلایی
+
+        if top_lawyers is None :
             try :
+                # پیدا کردن طرح طلایی
                 gold_plan = SubscriptionPlan.objects.get(
-                    name__icontains = 'طلا',  # یا name='gold' یا هر چیزی که در دیتابیس دارید
+                    Q(name__icontains = 'طلا') | Q(name__iexact = 'gold'),
                     is_active = True
                 )
             except SubscriptionPlan.DoesNotExist :
-                # اگر طرح طلایی وجود نداشت، می‌توانید از priority استفاده کنید
+                # اگر طرح طلایی وجود نداشت، طرح با بالاترین اولویت
                 gold_plan = SubscriptionPlan.objects.filter(
                     is_active = True
                 ).order_by('-priority').first()
 
             if gold_plan :
                 # وکلایی که اشتراک طلایی فعال دارند
-                top_lawyers = LawyerProfile.objects.filter(
+                top_lawyers = list(LawyerProfile.objects.filter(
                     is_active = True,
                     subscriptions__plan = gold_plan,
                     subscriptions__is_paid = True,
-                    subscriptions__end_date__gt = timezone.now()  # اشتراک فعال
-                ).select_related('user').distinct().order_by('-subscriptions__start_date')[:8]
+                    subscriptions__end_date__gt = timezone.now()
+                ).select_related('user').distinct().order_by(
+                    '-subscriptions__start_date'
+                )[:8])
 
-                # اگر وکیل طلایی پیدا نشد، وکلای با بالاترین اولویت را بیار
+                # اگر وکیل طلایی پیدا نشد، وکلای دارای اشتراک فعال
                 if not top_lawyers :
-                    top_lawyers = LawyerProfile.objects.filter(
+                    top_lawyers = list(LawyerProfile.objects.filter(
                         is_active = True,
                         subscriptions__is_paid = True,
                         subscriptions__end_date__gt = timezone.now()
                     ).select_related('user').distinct().order_by(
                         '-subscriptions__plan__priority',
                         '-subscriptions__start_date'
-                    )[:8]
+                    )[:8])
             else :
                 # اگر هیچ طرح اشتراکی وجود نداشت، وکلای با موفقیت بالا
-                top_lawyers = LawyerProfile.objects.filter(
+                top_lawyers = list(LawyerProfile.objects.filter(
                     is_active = True
-                ).select_related('user').order_by('-success_rate')[:8]
+                ).select_related('user').order_by('-success_rate')[:8])
 
-            cache.set('top_lawyers', top_lawyers, 3600)
+            # ذخیره در کش به مدت ۵ دقیقه (برای تست)
+            cache.set('top_lawyers', top_lawyers, 300)
 
         ctx['top_lawyers'] = top_lawyers
 
-        # متا تگ‌ها و Schema
+        # ============ متا تگ‌ها ============
         ctx['meta_title'] = getattr(settings, 'DEFAULT_META_TITLE', 'وکیل جو | سامانه تخصصی وکلای ایران')
         ctx['meta_description'] = getattr(settings, 'DEFAULT_META_DESCRIPTION', 'بهترین وکلای ایران را پیدا کنید')
         ctx['canonical_url'] = self.request.build_absolute_uri('/')
         ctx['og_image'] = self.request.build_absolute_uri('/static/img/back.jfif')
 
+        # ============ Schema برای صفحه اصلی ============
         ctx['site_schema'] = json.dumps({
             "@context" : "https://schema.org",
             "@type" : "WebSite",
