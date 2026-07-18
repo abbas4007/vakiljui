@@ -25,13 +25,18 @@ services:
       - dadvar_net
 
   web:
-    build: .
+    image: abbas4007/dadvar:latest
     container_name: dadvar_web
     restart: unless-stopped
     env_file: .env
     command: >
-      sh -c "python manage.py collectstatic --noinput &&
       gunicorn dadvar.wsgi:application
+      --bind 0.0.0.0:8000
+      --workers 2
+      --timeout 60
+      --log-level info
+      --access-logfile -
+      --error-logfile -
       --bind 0.0.0.0:8000
       --workers 2
       --timeout 60
@@ -78,7 +83,7 @@ services:
       - dadvar_net
 
   celery:
-    build: .
+    image: abbas4007/dadvar:latest
     container_name: dadvar_celery
     restart: unless-stopped
     command: celery -A dadvar worker -l info
@@ -92,7 +97,7 @@ services:
       - dadvar_net
 
   celery-beat:
-    build: .
+    image: abbas4007/dadvar:latest
     container_name: dadvar_celery_beat
     restart: unless-stopped
     command: celery -A dadvar beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
