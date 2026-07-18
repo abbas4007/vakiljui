@@ -723,3 +723,69 @@ class LandingPage(View) :
 
     def get(self, request) :
         return render(request, 'home/landing.html')
+
+
+class LawyerSearchView(ListView):
+    model = LawyerProfile
+    template_name = 'home/search_results.html'
+    context_object_name = 'lawyers'
+    paginate_by = 12
+
+    # کلماتی که تو جستجو نادیده گرفته می‌شن (چون همه رکوردها وکیل هستن)
+    STOP_WORDS = ['وکیل', 'وکلای', 'مشاور', 'برای']
+
+    def get_query(self):
+        return self.request.GET.get('q', '').strip()
+
+    def get_keywords(self):
+        query = self.get_query()
+        if not query:
+            return []
+        keywords = [w for w in query.split() if w not in self.STOP_WORDS]
+        # اگه بعد از حذف stop wordها چیزی نموند، همون کوئری اصلی رو نگه دار
+        return keywords if keywords else query.split()
+
+    def build_search_field_query(self, word):
+        """کوئری جستجو برای یک کلمه، روی همه فیلدهای مرتبط"""
+        return (
+            Q(user__first_name__icontains=word) |
+            Q(user__last_name__icontains=word) |
+            Q(speciality__icontains=word) |
+            Q(sub_speciality__icontains=word) |
+            Q(city__icontains=word)
+        )
+
+    def get_queryset(self):
+        query = self.get_query()
+        base_qs = LawyerProfile.objects.filter(
+            is_active=True
+        ).select_related('user')
+
+        if not query:
+            return LawyerProfile.objects.none()
+
+        keywords = self.get_keywords()
+
+        # مرحله ۱: جستجوی دقیق - همه کلمات باید تو نتیجه باشن (AND)
+        and_query = Q()
+        for word in keywords:
+            and_query &= self.build_search_field_query(word)
+
+        results = base_qs.filter(and_query).distinct()
+
+        # مرحله ۲: اگه نتیجه‌ای پیدا نشد، جستجوی شل‌تر (OR)
+        if not results.exists():
+            or_query = Q()
+            for word in keywords:
+                or_query |= self.build_search_field_query(word)
+            results = base_qs.filter(or_query).distinct()
+
+        return results
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.get_query()
+        # به جای اجرای دوباره‌ی get_queryset، از paginator موجود استفاده می‌کنیم
+        # تا کوئری دیتابیس فقط یک‌بار اجرا بشه
+        context['results_count'] = context['paginator'].count
+        return context

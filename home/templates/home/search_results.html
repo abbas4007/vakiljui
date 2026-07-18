@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h4 class="mb-4">
+        {% if query %}
+            نتایج جستجو برای: «{{ query }}» ({{ results_count }} نتیجه)
+        {% else %}
+            لطفاً عبارتی برای جستجو وارد کنید
+        {% endif %}
+    </h4>
+
+    <div class="row g-4">
+        {% for lawyer in lawyers %}
+        <div class="col-md-4">
+            <div class="card h-100">
+                {% if lawyer.profile_image %}
+                    <img src="{{ lawyer.profile_image.url }}" class="card-img-top" alt="{{ lawyer.user.get_full_name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ lawyer.user.get_full_name }}</h5>
+                    <p class="card-text text-muted">
+                        {{ lawyer.speciality }}
+                        {% if lawyer.sub_speciality %} - {{ lawyer.sub_speciality }}{% endif %}
+                        | {{ lawyer.city }}
+                    </p>
+                    <a href="{{ lawyer.get_absolute_url }}" class="btn btn-outline-primary btn-sm">مشاهده پروفایل</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>نتیجه‌ای یافت نشد.</p>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}">قبلی</a>
+                </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                    <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">بعدی</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
