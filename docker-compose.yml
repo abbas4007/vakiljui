@@ -25,7 +25,7 @@ services:
       - dadvar_net
 
   web:
-    image: abbas4007/dadvar:latest
+    build: .
     container_name: dadvar_web
     restart: unless-stopped
     env_file: .env
@@ -78,7 +78,7 @@ services:
       - dadvar_net
 
   celery:
-    image: abbas4007/dadvar:latest
+    build: .
     container_name: dadvar_celery
     restart: unless-stopped
     command: celery -A dadvar worker -l info
@@ -92,7 +92,7 @@ services:
       - dadvar_net
 
   celery-beat:
-    image: abbas4007/dadvar:latest
+    build: .
     container_name: dadvar_celery_beat
     restart: unless-stopped
     command: celery -A dadvar beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
