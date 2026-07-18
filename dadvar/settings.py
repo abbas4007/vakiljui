@@ -12,7 +12,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config(
     'DEBUG',
-    default=False,
+    default=True,
     cast=bool
 )
 
