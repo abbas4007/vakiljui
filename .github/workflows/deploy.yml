@@ -66,30 +66,33 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/dadvar:latest
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
+ deploy:
+  needs: build-and-push
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /home/dadvar
+  steps:
+    - name: Deploy to VPS via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          cd /home/dadvar
 
-            echo "Pulling latest changes..."
-            docker compose pull web
+          echo "Pull latest image..."
+          docker compose pull
 
-            echo "Rebuilding and restarting..."
-            docker compose up -d --build
+          echo "Restart containers..."
+          docker compose up -d --force-recreate
 
-            echo "Running migrations..."
-            docker compose exec -T web python manage.py migrate
+          echo "Run migrations..."
+          docker compose exec -T web python manage.py migrate
 
-            echo "Collect static..."
-            docker compose exec -T web python manage.py collectstatic --noinput
+          echo "Collect static..."
+          docker compose exec -T web python manage.py collectstatic --noinput
 
-            echo "Done!"
+          echo "Remove unused images..."
+          docker image prune -af
+
+          echo "Deployment completed."
