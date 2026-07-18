@@ -276,28 +276,27 @@
         }
 
         .btn-hero-primary {
-    background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
-    color: #fff !important;
-    border: none;
-}
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #1e3c72;
+            border: none;
+        }
 
-.btn-hero-primary:hover {
-    color: #fff !important;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
-}
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
+        }
 
-.btn-hero-outline {
-    background: transparent;
-    border: 2px solid #ffd700;
-    color: #fff !important;
-}
+        .btn-hero-outline {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+        }
 
-.btn-hero-outline:hover {
-    background: #ffd700;
-    color: #fff !important;
-    transform: translateY(-3px);
-}
+        .btn-hero-outline:hover {
+            background: #ffd700;
+            color: #1e3c72;
+            transform: translateY(-3px);
+        }
 
         .scroll-down {
             position: absolute;
@@ -561,15 +560,15 @@
     </form>
 </div>
 
-{#        <div class="hero-buttons">#}
-{#            <a href="{% url 'home:lawyer_list' speciality='طلاق' %}" class="btn btn-hero-primary">#}
-{#                <i class="bi bi-trophy"></i> وکلای برتر#}
-{#            </a>#}
-{#            <a href="{% url 'home:lawyer_register' %}" class="btn btn-hero-outline">#}
-{#                <i class="bi bi-pencil-square"></i> ثبت درخواست مشاوره#}
-{#            </a>#}
-{#        </div>#}
-{#    </div>#}
+        <div class="hero-buttons">
+            <a href="{% url 'home:lawyer_list' speciality='طلاق' %}" class="btn btn-hero-primary">
+                <i class="bi bi-trophy"></i> وکلای برتر
+            </a>
+            <a href="{% url 'home:lawyer_register' %}" class="btn btn-hero-outline">
+                <i class="bi bi-pencil-square"></i> ثبت درخواست مشاوره
+            </a>
+        </div>
+    </div>
 
     <div class="scroll-down">
         <a href="#mainContent" id="scrollDownBtn">
