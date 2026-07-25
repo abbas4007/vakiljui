@@ -12,7 +12,7 @@ from datetime import timedelta
 from django.core.cache import cache
 import json
 from django.views.generic import ListView
-from .models import LawyerProfile, City, Specialty
+from .models import LawyerProfile, City, Specialty, LandingPageContent
 import json
 from django.views.generic import DetailView
 from django.db.models import Q
@@ -368,6 +368,14 @@ class SeoLandingView(TemplateView) :
         ctx['city'] = city
         ctx['h1_title'] = f'بهترین وکیل {speciality} در {city}'
 
+        # محتوای اختصاصی که از پنل ادمین (مدل LandingPageContent) وارد شده،
+        # اگه برای این ترکیب تخصص/شهر ثبت شده باشه
+        landing_content = LandingPageContent.objects.filter(
+            speciality = speciality,
+            city = city,
+            is_active = True
+        ).first()
+
         if speciality and city :
             # وکلای مرتبط
             related_lawyers = LawyerProfile.objects.filter(
@@ -474,10 +482,45 @@ class SeoLandingView(TemplateView) :
 
             ctx['local_business_schema'] = local_business
 
-            # متا تگ‌ها
+            # متا تگ‌ها (پیش‌فرض)
             ctx['meta_title'] = f'بهترین وکیل {speciality} در {city} | وکیل جو'
             ctx[
                 'meta_description'] = f'لیست بهترین وکلای {speciality} در {city} به همراه رزومه، نرخ موفقیت و نظرات کاربران'
+
+            # ========== جایگزینی با محتوای واقعیِ ثبت‌شده در ادمین (اگر موجود باشد) ==========
+            # هر فیلد فقط زمانی override میشه که واقعاً پر شده باشه؛
+            # در غیر این صورت همون محتوای خودکار بالا باقی می‌مونه (fallback)
+            if landing_content :
+                if landing_content.meta_title :
+                    ctx['meta_title'] = landing_content.meta_title
+                if landing_content.meta_description :
+                    ctx['meta_description'] = landing_content.meta_description
+                if landing_content.h1_title :
+                    ctx['h1_title'] = landing_content.h1_title
+                if landing_content.intro_text :
+                    ctx['intro_text'] = landing_content.intro_text
+                if landing_content.main_content :
+                    ctx['main_content'] = landing_content.main_content
+                if landing_content.tips_content :
+                    ctx['tips_content'] = landing_content.tips_content
+                if landing_content.faq_content :
+                    # faq_content تو مدل به شکل JSON ذخیره میشه؛ برای سازگاری با
+                    # قالبی که faq_list انتظار داره (لیستی از دیکشنری‌های question/answer) تبدیلش می‌کنیم
+                    normalized_faq = []
+                    for item in landing_content.faq_content :
+                        if isinstance(item, dict) :
+                            question = item.get('question') or item.get('سوال')
+                            answer = item.get('answer') or item.get('پاسخ')
+                            if question and answer :
+                                normalized_faq.append({'question' : question, 'answer' : answer})
+                    if normalized_faq :
+                        ctx['faq_list'] = normalized_faq
+                if landing_content.total_lawyers :
+                    ctx['total_lawyers'] = landing_content.total_lawyers
+                if landing_content.avg_success_rate :
+                    ctx['avg_success_rate'] = landing_content.avg_success_rate
+
+            ctx['landing_content'] = landing_content
 
         else :
             # مقادیر پیش‌فرض
