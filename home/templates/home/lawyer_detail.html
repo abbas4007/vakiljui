@@ -102,19 +102,20 @@
                         <h3 class="h4 fw-bold mb-3">
                             <i class="bi bi-star text-warning"></i> تخصص‌ها و زمینه‌های فعالیت
                         </h3>
-                        <div class="d-flex flex-wrap gap-2">
-    <span class="badge bg-primary fs-6 py-2 px-3 text-break" style="max-width: 100%;">
-        {{ lawyer.speciality }}
-    </span>
+                        <div class="d-flex flex-wrap gap-2" style="max-width: 100%;">
+            <span class="badge bg-primary fs-6 py-2 px-3"
+                  style="word-break: break-word; white-space: normal; max-width: 100%;">
+                {{ lawyer.speciality }}
+            </span>
                             {% if lawyer.sub_speciality %}
-                                <span class="badge bg-secondary fs-6 py-2 px-3 text-break" style="max-width: 100%;">
-        {{ lawyer.sub_speciality }}
-    </span>
+                                <span class="badge bg-secondary fs-6 py-2 px-3"
+                                      style="word-break: break-word; white-space: normal; max-width: 100%;">
+                    {{ lawyer.sub_speciality }}
+                </span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-
                 <!-- آدرس دفتر -->
                 {% if lawyer.address %}
                     <div class="card shadow-sm border-0 mb-4">
