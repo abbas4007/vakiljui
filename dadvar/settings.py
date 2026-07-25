@@ -333,6 +333,25 @@ CKEDITOR_CONFIGS = {
 
         'versionCheck': False,
     },
+
+    # کانفیگ سبک‌تر - برای فیلدهایی مثل «راهنمای انتخاب» که نیازی به تولبار کامل ندارن
+    'simple': {
+
+        'toolbar': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source'],
+        ],
+
+        'height': 250,
+
+        'width': '100%',
+
+        'language': 'fa',
+
+        'versionCheck': False,
+    },
 }
 
 # =========================================================
