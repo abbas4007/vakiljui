@@ -152,18 +152,18 @@
     {% endif %}
 
     <!-- محتوای اصلی -->
-    <div class="card shadow-sm p-4 mb-5">
+    <div class="card shadow-sm p-4 mb-5" id="main-content">
         {{ main_content|safe }}
     </div>
 
     <!-- راهنمای انتخاب -->
-    <div class="card shadow-sm p-4 mb-5 bg-light">
+    <div class="card shadow-sm p-4 mb-5 bg-light" id="tips-content">
         {{ tips_content|safe }}
     </div>
 
     <!-- سوالات متداول (FAQ) -->
     {% if faq_list %}
-    <div class="card shadow-sm p-4 mb-5">
+    <div class="card shadow-sm p-4 mb-5" id="faq-section">
         <h2 class="mb-4">سوالات متداول درباره وکیل {{ speciality }} در {{ city }}</h2>
         <div class="accordion" id="faqAccordion">
             {% for faq in faq_list %}

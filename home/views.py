@@ -402,13 +402,12 @@ class SeoLandingView(TemplateView) :
             other_specialties = Specialty.objects.filter(is_active = True).exclude(name = speciality)[:6]
             ctx['other_specialties'] = other_specialties
 
-            # لینک‌های راهنما
+            # لینک‌های راهنما - به بخش‌های همین صفحه (anchor) لینک می‌دن، نه صفحات جداگانه‌ی ناموجود
+            current_path = self.request.path
             ctx['related_guides'] = [
-                {'title' : f'هزینه وکیل {speciality} در {city}', 'url' : f'/هزینه-وکیل-{speciality}-در-{city}/'},
-                {'title' : f'مدارک لازم برای {speciality}', 'url' : f'/مدارک-لازم-{speciality}/'},
-                {'title' : f'مراحل {speciality} در {city}', 'url' : f'/مراحل-{speciality}-در-{city}/'},
-                {'title' : f'بهترین وکیل {speciality} در {city}', 'url' : f'/بهترین-وکیل-{speciality}-{city}/'},
-                {'title' : f'سوالات متداول {speciality}', 'url' : f'/سوالات-متداول-{speciality}/'},
+                {'title' : f'مراحل {speciality} در {city}', 'url' : f'{current_path}#main-content'},
+                {'title' : f'نکات انتخاب وکیل {speciality}', 'url' : f'{current_path}#tips-content'},
+                {'title' : f'سوالات متداول درباره {speciality}', 'url' : f'{current_path}#faq-section'},
             ]
 
             # لینک به صفحه لیست
