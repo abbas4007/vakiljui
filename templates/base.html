@@ -26,6 +26,8 @@
             
             
             
+            
+            
             {% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
     <meta property="og:image:alt" content="وکیل جوی - بهترین وکلای ایران">
     <meta property="og:site_name" content="وکیل جوی">
@@ -36,6 +38,8 @@
     <meta name="twitter:description"
           content="{% block twitter_description %}{{ meta_description|default:'' }}{% endblock %}">
     <meta name="twitter:image" content="
+            
+            
             
             
             
@@ -660,40 +664,49 @@
     #ai-widget-fab {
         position: fixed;
         bottom: 24px;
-        left: 24px;
-        z-index: 1050;
-        width: 60px;
-        height: 60px;
+        right: 24px;
+        left: auto;
+        z-index: 99999;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
         color: #fff;
         border: none;
-        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-        font-size: 1.6rem;
+        box-shadow: 0 12px 35px rgba(37, 99, 235, .35);
+        font-size: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform .2s;
+        transition: .3s;
     }
-    #ai-widget-fab:hover { transform: scale(1.08); }
+
+    #ai-widget-fab:hover {
+        transform: scale(1.08);
+    }
 
     #ai-widget-panel {
         position: fixed;
-        bottom: 96px;
-        left: 24px;
-        z-index: 1050;
-        width: 340px;
-        max-width: calc(100vw - 32px);
-        max-height: 70vh;
-        overflow-y: auto;
+        bottom: 100px;
+        right: 24px;
+        left: auto;
+        z-index: 99999;
+        width: 370px;
+        max-width: calc(100vw - 24px);
+        max-height: 75vh;
+        overflow: auto;
         background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,.2);
-        padding: 18px;
+        border-radius: 18px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+        padding: 20px;
         display: none;
+        animation: fadeUp .3s ease;
     }
-    #ai-widget-panel.open { display: block; }
+
+    #ai-widget-panel.open {
+        display: block;
+    }
 
     .ai-widget-specialty-btn {
         display: block;
@@ -708,23 +721,235 @@
         font-size: .9rem;
         border: 1px solid #ddd6fe;
     }
-    .ai-widget-specialty-btn:hover { background: #ede9fe; color: #4c1d95; }
+
+    .ai-widget-specialty-btn:hover {
+        background: #ede9fe;
+        color: #4c1d95;
+    }
+
+    @keyframes pulseAttention {
+
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, .5);
+        }
+
+        70% {
+            transform: scale(1.12);
+            box-shadow: 0 0 0 18px rgba(37, 99, 235, 0);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
+    }
+
+    @keyframes shakeAttention {
+
+        0% {
+            transform: translateX(0);
+        }
+
+        20% {
+            transform: translateX(-6px);
+        }
+
+        40% {
+            transform: translateX(6px);
+        }
+
+        60% {
+            transform: translateX(-6px);
+        }
+
+        80% {
+            transform: translateX(6px);
+        }
+
+        100% {
+            transform: translateX(0);
+        }
+
+    }
+
+    @keyframes fadeUp {
+
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    }
+
+    .ai-attention {
+
+        animation: pulseAttention 1.8s infinite,
+        shakeAttention .7s infinite;
+
+    }
+
+    /* پیام معرفی دستیار */
+
+    #ai-widget-tip {
+
+        position: fixed;
+
+        bottom: 104px;
+
+        right: 100px;
+
+        z-index: 99998;
+
+        background: #ffffff;
+
+        padding: 12px 16px;
+
+        border-radius: 14px;
+
+        box-shadow: 0 10px 35px rgba(0, 0, 0, .15);
+
+        max-width: 260px;
+
+        font-size: .9rem;
+
+        line-height: 1.8;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        transform: translateX(20px);
+
+        transition: .35s;
+
+    }
+
+    #ai-widget-tip.show {
+
+        opacity: 1;
+
+        visibility: visible;
+
+        transform: translateX(0);
+
+    }
+
+    #ai-widget-tip::after {
+
+        content: "";
+
+        position: absolute;
+
+        right: -8px;
+
+        bottom: 22px;
+
+        width: 16px;
+
+        height: 16px;
+
+        background: #fff;
+
+        transform: rotate(45deg);
+
+    }
+
+    #ai-widget-tip .emoji {
+
+        font-size: 24px;
+
+    }
+
+    #ai-widget-tip .close {
+
+        cursor: pointer;
+
+        font-size: 18px;
+
+        color: #999;
+
+        margin-right: auto;
+
+    }
+
+    #ai-widget-tip .close:hover {
+
+        color: #333;
+
+    }
+
+    @media (max-width: 768px) {
+
+        #ai-widget-tip {
+
+            right: 20px;
+
+            bottom: 96px;
+
+            max-width: 220px;
+
+        }
+
+        #ai-widget-tip::after {
+
+            display: none;
+
+        }
+
+    }
 </style>
 
 <button id="ai-widget-fab" type="button" aria-label="دستیار هوشمند وکیل جو">
     <i class="bi bi-robot"></i>
 </button>
+<div id="ai-widget-tip">
+
+    <div class="emoji">👋</div>
+
+    <div>
+
+        <strong>دستیار هوشمند وکیل‌جو</strong>
+
+        <div style="font-size:13px;color:#666">
+
+            سوال حقوقی داری؟
+
+            من رایگان راهنماییت می‌کنم.
+
+        </div>
+
+    </div>
+
+    <span class="close" id="ai-tip-close">
+
+<i class="bi bi-x"></i>
+
+</span>
+
+</div>
 
 <div id="ai-widget-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <strong><i class="bi bi-robot"></i> دستیار هوشمند وکیل‌جو</strong>
         <button type="button" id="ai-widget-close" class="btn-close" aria-label="بستن"></button>
     </div>
-    <p class="text-muted small mb-2">مشکل حقوقی‌ت رو با زبان خودت بنویس، بهترین وکیل مرتبط رو پیدا می‌کنیم.</p>
+    <p class="text-muted small mb-2">مشکل حقوقیت رو با زبان خودت بنویس، بهترین وکیل مرتبط رو پیدا می‌کنیم.</p>
 
     <textarea id="ai-widget-input" class="form-control mb-2" rows="3"
-        placeholder="مثلاً: شوهرم نفقه نمی‌ده و می‌خوام طلاق بگیرم، همدان هستم..."
-        maxlength="1000"></textarea>
+              placeholder="مثلاً: شوهرم نفقه نمی‌ده و می‌خوام طلاق بگیرم، همدان هستم..."
+              maxlength="1000"></textarea>
 
     <button id="ai-widget-submit" type="button" class="btn btn-primary w-100 btn-sm">
         <span id="ai-widget-btn-text">پیدا کردن وکیل مناسب</span>
@@ -741,91 +966,140 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    var fab = document.getElementById('ai-widget-fab');
-    var panel = document.getElementById('ai-widget-panel');
-    var closeBtn = document.getElementById('ai-widget-close');
-    var submitBtn = document.getElementById('ai-widget-submit');
-    var input = document.getElementById('ai-widget-input');
-    var btnText = document.getElementById('ai-widget-btn-text');
-    var spinner = document.getElementById('ai-widget-spinner');
-    var errorBox = document.getElementById('ai-widget-error');
-    var resultBox = document.getElementById('ai-widget-result');
-    var summaryEl = document.getElementById('ai-widget-summary');
-    var disclaimerEl = document.getElementById('ai-widget-disclaimer');
-    var specialtiesEl = document.getElementById('ai-widget-specialties');
+    document.addEventListener('DOMContentLoaded', function () {
+        var fab = document.getElementById('ai-widget-fab');
+        var tip = document.getElementById('ai-widget-tip');
 
-    fab.addEventListener('click', function () {
-        panel.classList.toggle('open');
-        if (panel.classList.contains('open')) { input.focus(); }
-    });
-    closeBtn.addEventListener('click', function () {
-        panel.classList.remove('open');
-    });
+        var tipClose = document.getElementById('ai-tip-close');
+        setTimeout(function () {
 
-    function getCookie(name) {
-        var value = '; ' + document.cookie;
-        var parts = value.split('; ' + name + '=');
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
+            if (!panel.classList.contains('open')) {
 
-    submitBtn.addEventListener('click', async function () {
-        var description = input.value.trim();
-        errorBox.classList.add('d-none');
-        resultBox.classList.add('d-none');
+                fab.classList.add('ai-attention');
 
-        if (description.length < 10) {
-            errorBox.textContent = 'لطفاً کمی بیشتر توضیح دهید.';
-            errorBox.classList.remove('d-none');
-            return;
+            }
+
+        }, 5000);
+        setTimeout(function () {
+
+            if (!panel.classList.contains('open')) {
+
+                tip.classList.add('show');
+
+            }
+
+        }, 8000);
+
+        setTimeout(function () {
+
+            tip.classList.remove('show');
+
+        }, 12000);
+
+        tipClose.addEventListener('click', function (e) {
+
+            e.stopPropagation();
+
+            tip.classList.remove('show');
+
+        });
+
+        fab.addEventListener('click', function () {
+
+            tip.classList.remove('show');
+
+        });
+
+        fab.addEventListener('click', function () {
+
+            fab.classList.remove('ai-attention');
+
+        });
+        var panel = document.getElementById('ai-widget-panel');
+        var closeBtn = document.getElementById('ai-widget-close');
+        var submitBtn = document.getElementById('ai-widget-submit');
+        var input = document.getElementById('ai-widget-input');
+        var btnText = document.getElementById('ai-widget-btn-text');
+        var spinner = document.getElementById('ai-widget-spinner');
+        var errorBox = document.getElementById('ai-widget-error');
+        var resultBox = document.getElementById('ai-widget-result');
+        var summaryEl = document.getElementById('ai-widget-summary');
+        var disclaimerEl = document.getElementById('ai-widget-disclaimer');
+        var specialtiesEl = document.getElementById('ai-widget-specialties');
+
+        fab.addEventListener('click', function () {
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                input.focus();
+            }
+        });
+        closeBtn.addEventListener('click', function () {
+            panel.classList.remove('open');
+        });
+
+        function getCookie(name) {
+            var value = '; ' + document.cookie;
+            var parts = value.split('; ' + name + '=');
+            if (parts.length === 2) return parts.pop().split(';').shift();
         }
 
-        submitBtn.disabled = true;
-        btnText.textContent = 'در حال بررسی...';
-        spinner.classList.remove('d-none');
+        submitBtn.addEventListener('click', async function () {
+            var description = input.value.trim();
+            errorBox.classList.add('d-none');
+            resultBox.classList.add('d-none');
 
-        try {
-            var resp = await fetch('{% url "home:ai_match" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify({description: description}),
-            });
-            var data = await resp.json();
-
-            if (!resp.ok) {
-                errorBox.textContent = data.error || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
+            if (description.length < 10) {
+                errorBox.textContent = 'لطفاً کمی بیشتر توضیح دهید.';
                 errorBox.classList.remove('d-none');
                 return;
             }
 
-            summaryEl.textContent = data.summary;
-            disclaimerEl.textContent = data.disclaimer;
-            specialtiesEl.innerHTML = '';
+            submitBtn.disabled = true;
+            btnText.textContent = 'در حال بررسی...';
+            spinner.classList.remove('d-none');
 
-            if (data.specialties && data.specialties.length > 0) {
-                data.specialties.forEach(function (sp) {
-                    var a = document.createElement('a');
-                    a.href = sp.url;
-                    a.className = 'ai-widget-specialty-btn';
-                    a.textContent = 'مشاهده‌ی وکلای ' + sp.name + (data.city ? ' در ' + data.city : '');
-                    specialtiesEl.appendChild(a);
+            try {
+                var resp = await fetch('{% url "home:ai_match" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({description: description}),
                 });
-            }
+                var data = await resp.json();
 
-            resultBox.classList.remove('d-none');
-        } catch (err) {
-            errorBox.textContent = 'خطا در ارتباط با سرور. اتصال اینترنت خود را بررسی کنید.';
-            errorBox.classList.remove('d-none');
-        } finally {
-            submitBtn.disabled = false;
-            btnText.textContent = 'پیدا کردن وکیل مناسب';
-            spinner.classList.add('d-none');
-        }
+                if (!resp.ok) {
+                    errorBox.textContent = data.error || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
+                    errorBox.classList.remove('d-none');
+                    return;
+                }
+
+                summaryEl.textContent = data.summary;
+                disclaimerEl.textContent = data.disclaimer;
+                specialtiesEl.innerHTML = '';
+
+                if (data.specialties && data.specialties.length > 0) {
+                    data.specialties.forEach(function (sp) {
+                        var a = document.createElement('a');
+                        a.href = sp.url;
+                        a.className = 'ai-widget-specialty-btn';
+                        a.textContent = 'مشاهده‌ی وکلای ' + sp.name + (data.city ? ' در ' + data.city : '');
+                        specialtiesEl.appendChild(a);
+                    });
+                }
+
+                resultBox.classList.remove('d-none');
+            } catch (err) {
+                errorBox.textContent = 'خطا در ارتباط با سرور. اتصال اینترنت خود را بررسی کنید.';
+                errorBox.classList.remove('d-none');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'پیدا کردن وکیل مناسب';
+                spinner.classList.add('d-none');
+            }
+        });
     });
-});
 </script>
 
 {% block extra_js %}{% endblock %}
