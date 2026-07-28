@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.views.generic import TemplateView, View
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from .ai_matcher import analyze_legal_query, AIMatcherError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -20,6 +21,11 @@ from .models import LawyerProfile, LawyerProfile as Lawyer
 from django.utils import timezone
 
 
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class HomeView(TemplateView) :
     template_name = 'home/index.html'
 
@@ -831,3 +837,92 @@ class LawyerSearchView(ListView):
         # تا کوئری دیتابیس فقط یک‌بار اجرا بشه
         context['results_count'] = context['paginator'].count
         return context
+
+
+class AIMatchView(View):
+    """
+    دستیار هوشمند: توضیح مشکل کاربر رو می‌گیره، تشخیص می‌ده به کدوم تخصص(ها)
+    مرتبطه، و بهترین وکلای فعال همون تخصص/شهر رو پیشنهاد می‌ده.
+
+    محدودیت نرخ درخواست ساده (بر اساس session) برای جلوگیری از سوءاستفاده
+    از API که هزینه‌بره.
+    """
+    MAX_REQUESTS_PER_HOUR = 8
+    SESSION_KEY = 'ai_match_requests'
+
+    def _is_rate_limited(self, request):
+        now = timezone.now().timestamp()
+        history = request.session.get(self.SESSION_KEY, [])
+        # فقط درخواست‌های یک ساعت اخیر رو نگه دار
+        history = [t for t in history if now - t < 3600]
+        if len(history) >= self.MAX_REQUESTS_PER_HOUR:
+            request.session[self.SESSION_KEY] = history
+            return True
+        history.append(now)
+        request.session[self.SESSION_KEY] = history
+        return False
+
+    def post(self, request):
+        if self._is_rate_limited(request):
+            return JsonResponse(
+                {'error': 'تعداد درخواست‌های شما در این ساعت به حد مجاز رسیده است. کمی بعد دوباره تلاش کنید.'},
+                status=429
+            )
+
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({'error': 'درخواست نامعتبر است.'}, status=400)
+
+        description = (body.get('description') or '').strip()
+        if not description:
+            return JsonResponse({'error': 'لطفاً مشکل خود را توضیح دهید.'}, status=400)
+        if len(description) < 10:
+            return JsonResponse({'error': 'لطفاً کمی بیشتر توضیح دهید تا بتوانیم بهتر راهنمایی کنیم.'}, status=400)
+
+        # لیست معتبر شهرها و تخصص‌ها (از کش، مثل HomeView)
+        cities = cache.get('active_cities')
+        if not cities:
+            cities = list(City.objects.filter(is_active=True))
+            cache.set('active_cities', cities, 3600)
+
+        specialties = cache.get('active_specialties')
+        if not specialties:
+            specialties = list(Specialty.objects.filter(is_active=True))
+            cache.set('active_specialties', specialties, 3600)
+
+        valid_specialty_names = [s.name for s in specialties]
+        valid_city_names = [c.name for c in cities]
+
+        try:
+            result = analyze_legal_query(description, valid_specialty_names, valid_city_names)
+        except AIMatcherError as e:
+            return JsonResponse({'error': str(e)}, status=503)
+
+        if not result['specialties']:
+            return JsonResponse({
+                'summary': result['summary'] or 'متوجه ارتباط توضیح شما با تخصص‌های موجود در سایت نشدیم. لطفاً کمی واضح‌تر توضیح دهید یا مستقیماً از لیست تخصص‌ها انتخاب کنید.',
+                'city': result['city'],
+                'specialties': [],
+                'primary_url': None,
+                'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
+            })
+
+        # برای هر تخصص تشخیص‌داده‌شده، لینک صفحه‌ی لیست وکلای همون تخصص (+ شهر در صورت وجود) رو می‌سازیم
+        specialties_data = []
+        for sp in result['specialties']:
+            sp_slug = sp.replace(' ', '-')
+            if result['city']:
+                url = reverse('home:lawyer_list_city', kwargs={'speciality': sp_slug, 'city': result['city']})
+            else:
+                url = reverse('home:lawyer_list', kwargs={'speciality': sp_slug})
+            specialties_data.append({'name': sp, 'url': url})
+
+        return JsonResponse({
+            'summary': result['summary'],
+            'city': result['city'],
+            'specialties': specialties_data,
+            # لینک پیشنهادی اصلی برای رفتن مستقیم (بهترین/اولین تخصص تشخیص‌داده‌شده)
+            'primary_url': specialties_data[0]['url'] if specialties_data else None,
+            'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
+        })
