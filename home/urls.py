@@ -24,5 +24,6 @@ urlpatterns = [
     path('payment-verify/', views.payment_verify, name='payment_verify'),
     path('landingpage/',views.LandingPage.as_view(),name='landingpage'),
     path('جستجو', views.LawyerSearchView.as_view(), name = 'search'),
+    path('ai_match/', views.AIMatchView, name='ai_match'),
 
 ]
