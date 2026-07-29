@@ -28,6 +28,8 @@
             
             
             
+            
+            
             {% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
     <meta property="og:image:alt" content="وکیل جوی - بهترین وکلای ایران">
     <meta property="og:site_name" content="وکیل جوی">
@@ -38,6 +40,8 @@
     <meta name="twitter:description"
           content="{% block twitter_description %}{{ meta_description|default:'' }}{% endblock %}">
     <meta name="twitter:image" content="
+            
+            
             
             
             
@@ -356,6 +360,27 @@
             box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
         }
 
+        .developer-credit {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .developer-credit i {
+            color: #ffc107;
+            margin-left: 5px;
+        }
+
+        .developer-name {
+            color: #fff;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .developer-name:hover {
+            color: #ffc107;
+        }
+
         .footer {
             background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             color: #e0e0e0;
@@ -633,8 +658,14 @@
                 </ul>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p class="mb-0">&copy; 1405 وکیل جوی | تمامی حقوق محفوظ است</p>
+        <div class="footer-bottom text-center">
+            <p class="mb-1">&copy; 1405 وکیل جوی | تمامی حقوق محفوظ است</p>
+
+            <div class="developer-credit">
+                <i class="bi bi-code-slash"></i>
+                طراحی و پیاده‌سازی
+                <span class="developer-name">عباس اسماعیلی</span>
+            </div>
         </div>
     </div>
 </footer>
