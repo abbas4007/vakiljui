@@ -16,7 +16,7 @@ from django.views.generic import ListView
 from .models import LawyerProfile, City, Specialty, LandingPageContent
 import json
 from django.views.generic import DetailView
-from django.db.models import Q
+from django.db.models import Q, Max
 from .models import LawyerProfile, LawyerProfile as Lawyer
 from django.utils import timezone
 
@@ -904,6 +904,8 @@ class AIMatchView(View):
                 'summary': result['summary'] or 'متوجه ارتباط توضیح شما با تخصص‌های موجود در سایت نشدیم. لطفاً کمی واضح‌تر توضیح دهید یا مستقیماً از لیست تخصص‌ها انتخاب کنید.',
                 'city': result['city'],
                 'specialties': [],
+                'lawyers': [],
+                'ai_powered': result.get('source') == 'ai',
                 'primary_url': None,
                 'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
             })
@@ -918,10 +920,39 @@ class AIMatchView(View):
                 url = reverse('home:lawyer_list', kwargs={'speciality': sp_slug})
             specialties_data.append({'name': sp, 'url': url})
 
+        # وقتی پاسخ واقعاً از AI اومده (نه fallback محلی)، وکلای واقعی رو هم مستقیم پیشنهاد می‌دیم
+        lawyers_data = []
+        if result.get('source') == 'ai':
+            specialty_query = Q()
+            for sp in result['specialties']:
+                specialty_query |= Q(speciality=sp)
+
+            lawyers_qs = LawyerProfile.objects.filter(specialty_query, is_active=True).select_related('user')
+            if result['city']:
+                lawyers_qs = lawyers_qs.filter(city=result['city'])
+
+            lawyers_qs = lawyers_qs.annotate(
+                top_priority=Max(
+                    'subscriptions__plan__priority',
+                    filter=Q(subscriptions__is_paid=True, subscriptions__end_date__gt=timezone.now())
+                )
+            ).order_by('-top_priority', '-success_rate')[:6]
+
+            for lawyer in lawyers_qs:
+                lawyers_data.append({
+                    'name': lawyer.user.get_full_name(),
+                    'speciality': lawyer.speciality,
+                    'city': lawyer.city,
+                    'years_of_experience': lawyer.years_of_experience,
+                    'url': lawyer.get_absolute_url(),
+                })
+
         return JsonResponse({
             'summary': result['summary'],
             'city': result['city'],
             'specialties': specialties_data,
+            'lawyers': lawyers_data,
+            'ai_powered': result.get('source') == 'ai',
             # لینک پیشنهادی اصلی برای رفتن مستقیم (بهترین/اولین تخصص تشخیص‌داده‌شده)
             'primary_url': specialties_data[0]['url'] if specialties_data else None,
             'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
