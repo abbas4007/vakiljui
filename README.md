@@ -4,7 +4,7 @@ Production-oriented Django platform designed for legal services, lawyer discover
 
 ---
 
-## 🚀 Overview
+## Overview
 
 VakilJui is a Django-based web platform developed with a focus on maintainability, modular architecture, and real-world deployment requirements.
 
@@ -12,7 +12,7 @@ The project demonstrates backend development practices for legal and service-ori
 
 ---
 
-## 🧠 Project Goals
+##  Project Goals
 
 - Provide a structured legal services platform
 - Maintain clean and extensible backend architecture
@@ -21,7 +21,7 @@ The project demonstrates backend development practices for legal and service-ori
 
 ---
 
-## 🏗 Architecture
+##  Architecture
 
 The system follows a modular Django architecture:
 
@@ -39,7 +39,7 @@ Designed with future support for:
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - Python
 - Django
@@ -52,7 +52,7 @@ Designed with future support for:
 
 ---
 
-## ✨ Features
+##  Features
 
 - User authentication
 - Lawyer profile management
@@ -63,7 +63,7 @@ Designed with future support for:
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 vakiljui/
@@ -78,7 +78,7 @@ vakiljui/
 
 ---
 
-## ⚙️ Installation
+##  Installation
 
 ### Clone repository
 
@@ -133,7 +133,7 @@ The architecture emphasizes simplicity, maintainability, and production readines
 
 ---
 
-## 📈 Engineering Focus
+##  Engineering Focus
 
 This repository reflects practical experience with:
 
@@ -145,7 +145,7 @@ This repository reflects practical experience with:
 
 ---
 
-## 👤 Author
+##  Author
 
 Abbas Esmaili
 
