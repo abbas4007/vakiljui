@@ -1,20 +1,23 @@
 """
-دستیار تشخیص تخصص وکیل مورد نیاز - نسخه‌ی محلی و رایگان (بدون API خارجی)
---------------------------------------------------------------------------
-به‌جای فراخوانی یه سرویس هوش مصنوعی خارجی (که یا پولیه یا به خاطر تحریم در
-دسترس نیست)، این ماژول با یه دیکشنری جامع از کلمات و عبارات رایجی که مردم
-موقع توضیح مشکل حقوقی‌شون به کار می‌برن، تخصص مرتبط رو تشخیص می‌ده.
-
-مزیت: صفر هزینه، صفر وابستگی به سرویس خارجی، صفر مشکل تحریم/پرداخت.
-محدودیت: برای جمله‌های ساده و رایج خوب کار می‌کنه؛ برای جمله‌های خیلی پیچیده
-یا غیرمستقیم به اندازه‌ی یه مدل زبانی واقعی هوشمند نیست.
+دستیار تشخیص تخصص وکیل مورد نیاز
+------------------------------------
+اولویت اول: فراخوانی مدل واقعی Claude از طریق سرویس لیارا (پرداخت pay-as-you-go).
+اگر این فراخوانی به هر دلیلی (قطعی سرویس، تمام شدن اعتبار، مشکل شبکه) شکست
+بخوره، به‌جای نمایش خطا به کاربر، به‌صورت خودکار به یه دیکشنری محلی رایگان
+(کلمات کلیدی رایج فارسی) سوییچ می‌کنه تا سایت هیچ‌وقت کامل از کار نیفته.
 
 نکته‌ی مهم: خروجی این ماژول هرگز نباید به‌عنوان مشاوره‌ی حقوقی قطعی به کاربر
 نمایش داده بشه؛ همیشه باید با یادآوری «این جایگزین مشاوره با وکیل واقعی
 نیست» همراه باشه (این کار تو views.py انجام میشه).
 """
 
+import json
+import logging
 import re
+import requests
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class AIMatcherError(Exception) :
@@ -161,12 +164,9 @@ def _normalize(text) :
     return text.strip()
 
 
-def analyze_legal_query(description, valid_specialties, valid_cities) :
+def _analyze_local(description, valid_specialties, valid_cities) :
     """
-    توضیح مشکل کاربر رو با تطبیق کلمات کلیدی تحلیل می‌کنه و دیکشنری برمی‌گردونه:
-    {'specialties': [...], 'city': str|None, 'summary': str}
-
-    این نسخه کاملاً محلی و رایگانه، هیچ فراخوانی شبکه‌ای نداره.
+    نسخه‌ی محلی و رایگان (fallback): تطبیق کلمات کلیدی، بدون فراخوانی شبکه.
     """
     if not description or not description.strip() :
         raise AIMatcherError("توضیح مشکل نمی‌تواند خالی باشد.")
@@ -215,3 +215,107 @@ def analyze_legal_query(description, valid_specialties, valid_cities) :
         'city' : detected_city,
         'summary' : summary,
     }
+
+
+def _build_system_prompt(valid_specialties, valid_cities) :
+    specialties_str = '، '.join(valid_specialties)
+    cities_str = '، '.join(valid_cities)
+
+    return f"""شما دستیار اولیه‌ی سایت «وکیل جو» هستید که به کاربران کمک می‌کنید بفهمند مشکل حقوقی‌شان به چه تخصصی مربوط است.
+
+تخصص‌های موجود در سایت (فقط از همین لیست انتخاب کن، هیچ مورد دیگری اضافه نکن): {specialties_str}
+شهرهای موجود در سایت (فقط اگر کاربر به یکی از این‌ها اشاره کرد یا خیلی نزدیک بود انتخاب کن، وگرنه null): {cities_str}
+
+وظیفه‌ی شما:
+۱. از روی توضیح کاربر، تشخیص بده مشکلش با کدام یک یا چند مورد از تخصص‌های بالا مرتبط است.
+۲. اگر کاربر نام شهری را ذکر کرد که در لیست بالا هست یا خیلی به یکی از آن‌ها نزدیک است، همان را انتخاب کن؛ در غیر این صورت مقدار null بگذار.
+۳. یک خلاصه‌ی کوتاه (حداکثر ۳ تا ۴ جمله) و کاملاً اطلاعاتی/آموزشی بنویس که:
+   - فقط توضیح کلی درباره‌ی نوع پرونده و اینکه معمولاً چه مواردی در آن مطرح می‌شود بدهد
+   - هرگز پیش‌بینی قطعی از نتیجه‌ی پرونده (مثل «شما حتماً می‌برید» یا مبالغ دقیق) ندهد
+   - هرگز خودش را جای مشاوره‌ی حقوقی واقعی نگذارد
+
+فقط و فقط یک JSON خام و معتبر برگردان، دقیقاً با این ساختار و بدون هیچ متن یا توضیح اضافه قبل یا بعدش (نه Markdown، نه backtick):
+{{"specialties": ["..."], "city": "..." یا null, "summary": "..."}}
+
+اگر توضیح کاربر اصلاً به هیچ‌کدام از تخصص‌های بالا مرتبط نبود یا نامفهوم بود، آرایه‌ی specialties را خالی برگردان و در summary مؤدبانه توضیح بده که متوجه موضوع نشدی."""
+
+
+def _analyze_via_liara(description, valid_specialties, valid_cities) :
+    """
+    فراخوانی مدل واقعی Claude از طریق سرویس لیارا (فرمت API سازگار با OpenAI).
+    در صورت هر نوع خطا، AIMatcherError پرتاب می‌کنه تا تابع اصلی به نسخه‌ی
+    محلی سوییچ کنه.
+    """
+    api_key = getattr(settings, 'LIARA_AI_API_KEY', '')
+    base_url = getattr(settings, 'LIARA_AI_BASE_URL', '')
+    model_name = getattr(settings, 'LIARA_AI_MODEL', '')
+
+    if not api_key or not base_url :
+        raise AIMatcherError("سرویس هوش مصنوعی لیارا تنظیم نشده است.")
+
+    system_prompt = _build_system_prompt(valid_specialties, valid_cities)
+    url = f"{base_url.rstrip('/')}/chat/completions"
+
+    payload = {
+        "model" : model_name,
+        "messages" : [
+            {"role" : "system", "content" : system_prompt},
+            {"role" : "user", "content" : description},
+        ],
+        "temperature" : 0.3,
+    }
+    headers = {
+        "Content-Type" : "application/json",
+        "Authorization" : f"Bearer {api_key}",
+    }
+
+    try :
+        response = requests.post(url, headers = headers, data = json.dumps(payload), timeout = 20)
+    except requests.RequestException as e :
+        raise AIMatcherError("خطا در ارتباط با سرویس هوش مصنوعی لیارا.") from e
+
+    if response.status_code != 200 :
+        logger.error("پاسخ غیرمنتظره از سرویس لیارا: %s - %s", response.status_code, response.text[:500])
+        raise AIMatcherError("سرویس هوش مصنوعی لیارا خطا برگرداند.")
+
+    try :
+        data = response.json()
+        raw_text = data["choices"][0]["message"]["content"]
+    except (ValueError, KeyError, IndexError) as e :
+        raise AIMatcherError("ساختار پاسخ سرویس لیارا غیرمنتظره بود.") from e
+
+    cleaned = raw_text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+
+    try :
+        result = json.loads(cleaned)
+    except json.JSONDecodeError as e :
+        raise AIMatcherError("پاسخ مدل JSON معتبر نبود.") from e
+
+    specialties = [s for s in (result.get("specialties") or []) if s in valid_specialties]
+    city = result.get("city")
+    if city not in valid_cities :
+        city = None
+
+    return {
+        'specialties' : specialties,
+        'city' : city,
+        'summary' : result.get("summary") or '',
+    }
+
+
+def analyze_legal_query(description, valid_specialties, valid_cities) :
+    """
+    نقطه‌ی ورود اصلی. اول سعی می‌کنه از مدل واقعی Claude (از طریق لیارا)
+    استفاده کنه؛ اگه شکست خورد (قطعی سرویس/اتمام اعتبار/مشکل شبکه)، به‌طور
+    خودکار به دیکشنری محلی رایگان سوییچ می‌کنه تا کاربر همیشه یه پاسخ بگیره.
+    """
+    if not description or not description.strip() :
+        raise AIMatcherError("توضیح مشکل نمی‌تواند خالی باشد.")
+
+    description = description.strip()[:MAX_DESCRIPTION_LENGTH]
+
+    try :
+        return _analyze_via_liara(description, valid_specialties, valid_cities)
+    except AIMatcherError as e :
+        logger.warning("فراخوانی لیارا شکست خورد، سوییچ به نسخه‌ی محلی: %s", e)
+        return _analyze_local(description, valid_specialties, valid_cities)

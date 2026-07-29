@@ -296,6 +296,11 @@ SITE_URL = config(
     default='https://vakiljuy.ir'
 )
 
+
+LIARA_AI_BASE_URL = config('LIARA_AI_BASE_URL', default='')
+LIARA_AI_API_KEY = config('LIARA_AI_API_KEY', default='')
+LIARA_AI_MODEL = config('LIARA_AI_MODEL', default='anthropic/claude-haiku-4.5')
+
 # =========================================================
 # زرین پال
 # =========================================================
