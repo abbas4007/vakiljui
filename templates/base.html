@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <title>{% block title %}{{ meta_title|default:"وکیل جوی | سامانه تخصصی وکلای جهان" }}{% endblock %}</title>
+    <title>{% block title %}{{ meta_title|default:"وکیل جوی | سامانه تخصصی وکلای ایران" }}{% endblock %}</title>
     <meta name="description"
-          content="{{ meta_description|default:'بهترین وکلای طلاق، مهریه، کیفری و حقوقی در تهران و سایر شهرها با رتبه‌بندی هوشمند' }}">
+          content="{{ meta_description|default:'بهترین وکلای طلاق، مهریه، کیفری و حقوقی در همدان و سایر شهرها با رتبه‌بندی هوشمند' }}">
     <meta name="robots" content="{{ robots|default:'index, follow' }}">
 
     <!-- ========== CANONICAL ========== -->
@@ -54,442 +54,64 @@
     <link rel="icon" sizes="128x128" href="{% static 'favicon-128.svg' %}">
     <!-- ========== STYLESHEETS ========== -->
     <link href="{% static 'css/bootstrap.min.rtl.css' %}" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="https://unpkg.ir/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="https://unpkg.ir/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.iran.liara.run/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css"> -->
-
     <link href="{% static 'css/all.min.css' %}" rel="stylesheet">
-    {#    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css" rel="stylesheet">#}
-    {#  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">#}
-    {#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">#}
-    {#    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">#}
-    {#   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">#}
-    {#<link rel="stylesheet" href="https://unpkg.ir/aos@2.3.1/dist/aos.css">#}
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        @font-face {
-            font-family: 'Sahel';
-            src: url('/static/fonts/Sahel.woff') format('woff');
-            font-weight: normal;
-        }
-
-        @font-face {
-            font-family: 'Sahel';
-            src: url('/static/fonts/Sahel-Bold.ttf') format('truetype');
-            font-weight: bold;
-        }
-
-        @font-face {
-            font-family: 'Sahel';
-            src: url('/static/fonts/Sahel-Light.ttf') format('truetype');
-            font-weight: 300;
-        }
-
-        body {
-            font-family: 'Sahel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            background: #f8f9fc;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            padding: 0.8rem 0;
-            transition: all 0.3s ease;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-        .navbar-scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
-            padding: 0.5rem 0;
-        }
-
-        .navbar-brand {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1e3c72 0%, #ffd700 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: #2c3e50 !important;
-            transition: all 0.3s ease;
-            margin: 0 0.3rem;
-        }
-
-        .nav-link:hover {
-            color: #ffd700 !important;
-            transform: translateY(-2px);
-        }
-
-        .hero {
-            position: relative;
-            height: 85vh;
-            min-height: 550px;
-            background-image: url('{% static 'img/back.jpg' %}');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            margin-top: 0;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(10, 22, 40, 0.85) 0%, rgba(26, 42, 74, 0.75) 100%);
-            z-index: 0;
-        }
-
-        .hero::after {
-            content: '⚖️';
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
-            font-size: 5rem;
-            opacity: 0.1;
-            z-index: 0;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-15px);
-            }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            padding: 0 1rem;
-        }
-
-        .hero-title {
-            font-size: 3.2rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-title span {
-            color: #ffd700;
-            display: inline-block;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.02);
-            }
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 2rem;
-        }
-
-        .hero-search {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border-radius: 60px;
-            padding: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .hero-search:focus-within {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: #ffd700;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
-            transform: scale(1.02);
-        }
-
-        .hero-search input {
-            background: transparent;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .hero-search input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .hero-search input:focus {
-            outline: none;
-            box-shadow: none;
-        }
-
-        .hero-search button {
-            border-radius: 50px;
-            padding: 0.7rem 2rem;
-            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
-            border: none;
-            color: #1e3c72;
-            font-weight: bold;
-        }
-
-        .hero-search button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .hero-buttons {
-            margin-top: 2rem;
-        }
-
-        .hero-buttons .btn {
-            margin: 0 0.5rem;
-            padding: 0.7rem 1.8rem;
-            border-radius: 40px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-hero-primary {
-            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
-            color: #1e3c72;
-            border: none;
-        }
-
-        .btn-hero-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
-        }
-
-        .btn-hero-outline {
-            background: transparent;
-            border: 2px solid #ffd700;
-            color: #ffd700;
-        }
-
-        .btn-hero-outline:hover {
-            background: #ffd700;
-            color: #1e3c72;
-            transform: translateY(-3px);
-        }
-
-        .scroll-down {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            cursor: pointer;
-            animation: bounce 2s infinite;
-        }
-
-        .scroll-down a {
-            color: white;
-            font-size: 2rem;
-            opacity: 0.8;
-            transition: all 0.3s ease;
-        }
-
-        .scroll-down a:hover {
-            opacity: 1;
-            transform: translateY(5px);
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            50% {
-                transform: translateX(-50%) translateY(10px);
-            }
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
-        }
-
-        .developer-credit {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.75);
-        }
-
-        .developer-credit i {
-            color: #ffc107;
-            margin-left: 5px;
-        }
-
-        .developer-name {
-            color: #fff;
-            font-weight: 700;
-            transition: color 0.3s ease;
-        }
-
-        .developer-name:hover {
-            color: #ffc107;
-        }
-
-        .footer {
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            color: #e0e0e0;
-            padding: 3rem 0 1.5rem;
-            margin-top: 3rem;
-            position: relative;
-        }
-
-        .footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
-        }
-
-        .footer h5 {
-            color: #ffd700;
-            font-weight: 700;
-            margin-bottom: 1.2rem;
-        }
-
-        .footer a {
-            color: #ccc;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: #ffd700;
-            padding-right: 5px;
-        }
-
-        .footer .social-icons a {
-            display: inline-block;
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 36px;
-            margin-left: 0.5rem;
-        }
-
-        .footer .social-icons a:hover {
-            background: #ffd700;
-            color: #0f2027;
-            transform: translateY(-3px);
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 1.5rem;
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.4rem;
-            }
-
-            .hero {
-                height: 70vh;
-                min-height: 500px;
-            }
-
-            .hero-title {
-                font-size: 1.8rem;
-            }
-
-            .hero-subtitle {
-                font-size: 0.9rem;
-            }
-
-            .hero-search {
-                margin: 0 1rem;
-            }
-
-            .hero-search input {
-                font-size: 0.8rem;
-                padding: 0.5rem 1rem;
-            }
-
-            .hero-search button {
-                padding: 0.5rem 1.2rem;
-                font-size: 0.8rem;
-            }
-
-            .hero-buttons .btn {
-                padding: 0.5rem 1.2rem;
-                font-size: 0.8rem;
-                margin: 0.3rem;
-            }
-
-            .scroll-down {
-                bottom: 15px;
-            }
-        }
-
-        main {
-            flex: 1;
-        }
-
-        .text-gold {
-            color: #ffd700;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel.woff') format('woff'); font-weight: normal; }
+        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel-Bold.ttf') format('truetype'); font-weight: bold; }
+        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel-Light.ttf') format('truetype'); font-weight: 300; }
+        body { font-family: 'Sahel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; background: #f8f9fc; min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 0.8rem 0; transition: all 0.3s ease; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+        .navbar-scrolled { background: rgba(255,255,255,0.98); box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 0.5rem 0; }
+        .navbar-brand { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #1e3c72 0%, #ffd700 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-link { font-weight: 500; color: #2c3e50 !important; transition: all 0.3s ease; margin: 0 0.3rem; }
+        .nav-link:hover { color: #ffd700 !important; transform: translateY(-2px); }
+        .hero { position: relative; height: 85vh; min-height: 550px; background-image: url('{% static 'img/back.jpg' %}'); background-size: cover; background-position: center; background-attachment: fixed; display: flex; align-items: center; justify-content: center; text-align: center; margin-top: 0; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(10,22,40,0.85) 0%, rgba(26,42,74,0.75) 100%); z-index: 0; }
+        .hero::after { content: '⚖️'; position: absolute; bottom: 20px; right: 30px; font-size: 5rem; opacity: 0.1; z-index: 0; animation: float 4s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 0 1rem; }
+        .hero-title { font-size: 3.2rem; font-weight: 800; color: white; margin-bottom: 1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .hero-title span { color: #ffd700; display: inline-block; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .hero-subtitle { font-size: 1.2rem; color: rgba(255,255,255,0.9); margin-bottom: 2rem; }
+        .hero-search { background: rgba(255,255,255,0.15); backdrop-filter: blur(15px); border-radius: 60px; padding: 0.5rem; border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s ease; max-width: 600px; margin: 0 auto; }
+        .hero-search:focus-within { background: rgba(255,255,255,0.25); border-color: #ffd700; box-shadow: 0 0 25px rgba(255,215,0,0.3); transform: scale(1.02); }
+        .hero-search input { background: transparent; border: none; padding: 0.8rem 1.5rem; color: white; font-size: 1rem; }
+        .hero-search input::placeholder { color: rgba(255,255,255,0.7); }
+        .hero-search input:focus { outline: none; box-shadow: none; }
+        .hero-search button { border-radius: 50px; padding: 0.7rem 2rem; background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%); border: none; color: #1e3c72; font-weight: bold; }
+        .hero-search button:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .hero-buttons { margin-top: 2rem; }
+        .hero-buttons .btn { margin: 0 0.5rem; padding: 0.7rem 1.8rem; border-radius: 40px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-hero-primary { background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%); color: #1e3c72; border: none; }
+        .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(255,215,0,0.3); }
+        .btn-hero-outline { background: transparent; border: 2px solid #ffd700; color: #ffd700; }
+        .btn-hero-outline:hover { background: #ffd700; color: #1e3c72; transform: translateY(-3px); }
+        .scroll-down { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2; cursor: pointer; animation: bounce 2s infinite; }
+        .scroll-down a { color: white; font-size: 2rem; opacity: 0.8; transition: all 0.3s ease; }
+        .scroll-down a:hover { opacity: 1; transform: translateY(5px); }
+        @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+        .btn-primary { background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%); border: none; border-radius: 12px; padding: 0.6rem 1.5rem; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(30,60,114,0.3); }
+        .developer-credit { margin-top: 10px; font-size: 0.9rem; color: rgba(255,255,255,0.75); }
+        .developer-credit i { color: #ffc107; margin-left: 5px; }
+        .developer-name { color: #fff; font-weight: 700; transition: color 0.3s ease; }
+        .developer-name:hover { color: #ffc107; }
+        .footer { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); color: #e0e0e0; padding: 3rem 0 1.5rem; margin-top: 3rem; position: relative; }
+        .footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700); }
+        .footer h5 { color: #ffd700; font-weight: 700; margin-bottom: 1.2rem; }
+        .footer a { color: #ccc; text-decoration: none; transition: all 0.3s ease; }
+        .footer a:hover { color: #ffd700; padding-right: 5px; }
+        .footer .social-icons a { display: inline-block; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 50%; text-align: center; line-height: 36px; margin-left: 0.5rem; }
+        .footer .social-icons a:hover { background: #ffd700; color: #0f2027; transform: translateY(-3px); }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; margin-top: 2rem; text-align: center; }
+        @media (max-width: 768px) { .navbar-brand { font-size: 1.4rem; } .hero { height: 70vh; min-height: 500px; } .hero-title { font-size: 1.8rem; } .hero-subtitle { font-size: 0.9rem; } .hero-search { margin: 0 1rem; } .hero-search input { font-size: 0.8rem; padding: 0.5rem 1rem; } .hero-search button { padding: 0.5rem 1.2rem; font-size: 0.8rem; } .hero-buttons .btn { padding: 0.5rem 1.2rem; font-size: 0.8rem; margin: 0.3rem; } .scroll-down { bottom: 15px; } }
+        main { flex: 1; }
+        .text-gold { color: #ffd700; }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -513,7 +135,10 @@
     {% if article_schema %}
         <script type="application/ld+json">{{ article_schema|safe }}</script>
     {% endif %}
-
+    <!-- اضافه شده برای سئوی هوش مصنوعی (سوال و جواب) -->
+    {% if faq_schema_for_seo %}
+        <script type="application/ld+json">{{ faq_schema_for_seo|safe }}</script>
+    {% endif %}
 </head>
 <body>
 
@@ -536,14 +161,10 @@
                         تخصص‌ها
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='طلاق' %}">وکیل طلاق</a>
-                        </li>
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='مهریه' %}">وکیل
-                            مهریه</a></li>
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='کیفری' %}">وکیل
-                            کیفری</a></li>
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='ملکی' %}">وکیل ملکی</a>
-                        </li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='طلاق' %}">وکیل طلاق</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='مهریه' %}">وکیل مهریه</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='کیفری' %}">وکیل کیفری</a></li>
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='ملکی' %}">وکیل ملکی</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -562,9 +183,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{% url 'home:subscription_plans' %}">اشتراک</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">خروج</a></li>
                         </ul>
                     </div>
@@ -590,8 +209,7 @@
 
         <div class="hero-search">
             <form action="{% url 'home:search' %}" method="get" class="d-flex gap-2">
-                <input type="text" name="q" class="form-control" placeholder="مثال: وکیل طلاق تهران ..."
-                       aria-label="جستجو">
+                <input type="text" name="q" class="form-control" placeholder="مثال: وکیل طلاق تهران ..." aria-label="جستجو">
                 <button type="submit">
                     <i class="bi bi-search"></i> جستجو
                 </button>
@@ -599,12 +217,7 @@
         </div>
 
         <div class="hero-buttons">
-            {#            <a href="{% url 'home:lawyer_list' speciality='طلاق' %}" class="btn btn-hero-primary">#}
-            {#                <i class="bi bi-trophy"></i> وکلای برتر#}
-            {#            </a>#}
-            {#            <a href="{% url 'home:lawyer_register' %}" class="btn btn-hero-outline">#}
-            {#                <i class="bi bi-pencil-square"></i> ثبت درخواست مشاوره#}
-            {#            </a>#}
+            {# دکمه‌های اضافی در صورت نیاز #}
         </div>
     </div>
 
@@ -627,8 +240,7 @@
         <div class="row g-4">
             <div class="col-md-4">
                 <h5><i class="bi bi-gavel"></i> وکیل جوی</h5>
-                <p class="mt-3">سامانه تخصصی معرفی و رتبه‌بندی بهترین وکلای ایران با استفاده از هوش مصنوعی و نظرات
-                    کاربران.</p>
+                <p class="mt-3">سامانه تخصصی معرفی و رتبه‌بندی بهترین وکلای ایران با استفاده از هوش مصنوعی و نظرات کاربران.</p>
                 <div class="social-icons mt-3">
                     <a href="#"><i class="bi bi-telegram"></i></a>
                     <a href="#"><i class="bi bi-instagram"></i></a>
@@ -638,29 +250,22 @@
             <div class="col-md-4">
                 <h5>دسترسی سریع</h5>
                 <ul class="list-unstyled mt-3">
-                    <li class="mb-2"><a href="{% url 'home:index' %}"><i class="bi bi-chevron-left small"></i> صفحه اصلی</a>
-                    </li>
-                    <li class="mb-2"><a href="{% url 'home:lawyer_list' speciality='طلاق' %}"><i
-                            class="bi bi-chevron-left small"></i> وکلای طلاق</a></li>
-                    <li class="mb-2"><a href="/راهنمای-انتخاب-وکیل/"><i class="bi bi-chevron-left small"></i> راهنمای
-                        وکلا</a></li>
-                    <li class="mb-2"><a href="/قوانین-و-مقررات/"><i class="bi bi-chevron-left small"></i> قوانین و
-                        مقررات</a></li>
+                    <li class="mb-2"><a href="{% url 'home:index' %}"><i class="bi bi-chevron-left small"></i> صفحه اصلی</a></li>
+                    <li class="mb-2"><a href="{% url 'home:lawyer_list' speciality='طلاق' %}"><i class="bi bi-chevron-left small"></i> وکلای طلاق</a></li>
+                    <li class="mb-2"><a href="/راهنمای-انتخاب-وکیل/"><i class="bi bi-chevron-left small"></i> راهنمای وکلا</a></li>
+                    <li class="mb-2"><a href="/قوانین-و-مقررات/"><i class="bi bi-chevron-left small"></i> قوانین و مقررات</a></li>
                 </ul>
             </div>
             <div class="col-md-4">
                 <h5>تماس با ما</h5>
                 <ul class="list-unstyled mt-3">
-                    {#                    <li class="mb-2"><i class="bi bi-geo-alt"></i> تهران، خیابان ولیعصر</li>#}
-                    <li class="mb-2"><i class="bi bi-envelope"></i> <a href="mailto:info@vakiljo.ir">info@vakiljo.ir</a>
-                    </li>
+                    <li class="mb-2"><i class="bi bi-envelope"></i> <a href="mailto:info@vakiljo.ir">info@vakiljo.ir</a></li>
                     <li class="mb-2"><i class="bi bi-telephone"></i> <a href="tel:+982112345678">09188140263</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom text-center">
             <p class="mb-1">&copy; 1405 وکیل جوی | تمامی حقوق محفوظ است</p>
-
             <div class="developer-credit">
                 <i class="bi bi-code-slash"></i>
                 طراحی و پیاده‌سازی
@@ -670,15 +275,13 @@
     </div>
 </footer>
 
-<!-- ========== SCRIPTS (بدون defer برای اطمینان از لود شدن) ========== -->
+<!-- ========== SCRIPTS ========== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
-<!-- در base.html، به جای لود مستقیم AOS -->
 <script>
-    // لود AOS فقط بعد از لود کامل صفحه
     window.addEventListener('load', function () {
         var aosScript = document.createElement('script');
         aosScript.src = 'https://unpkg.com/aos@2.3.1/dist/aos.js';
@@ -690,6 +293,7 @@
 </script>
 
 {% csrf_token %}
+
 <!-- ========== دستیار هوشمند شناور (سراسر سایت) ========== -->
 <style>
     #ai-widget-fab {
@@ -712,11 +316,7 @@
         cursor: pointer;
         transition: .3s;
     }
-
-    #ai-widget-fab:hover {
-        transform: scale(1.08);
-    }
-
+    #ai-widget-fab:hover { transform: scale(1.08); }
     #ai-widget-panel {
         position: fixed;
         bottom: 100px;
@@ -729,16 +329,12 @@
         overflow: auto;
         background: #fff;
         border-radius: 18px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+        box-shadow: 0 20px 60px rgba(0,0,0,.18);
         padding: 20px;
         display: none;
         animation: fadeUp .3s ease;
     }
-
-    #ai-widget-panel.open {
-        display: block;
-    }
-
+    #ai-widget-panel.open { display: block; }
     .ai-widget-specialty-btn {
         display: block;
         width: 100%;
@@ -752,193 +348,66 @@
         font-size: .9rem;
         border: 1px solid #ddd6fe;
     }
-
-    .ai-widget-specialty-btn:hover {
-        background: #ede9fe;
-        color: #4c1d95;
-    }
-
+    .ai-widget-specialty-btn:hover { background: #ede9fe; color: #4c1d95; }
     @keyframes pulseAttention {
-
-        0% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(37, 99, 235, .5);
-        }
-
-        70% {
-            transform: scale(1.12);
-            box-shadow: 0 0 0 18px rgba(37, 99, 235, 0);
-        }
-
-        100% {
-            transform: scale(1);
-        }
-
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,99,235,.5); }
+        70% { transform: scale(1.12); box-shadow: 0 0 0 18px rgba(37,99,235,0); }
+        100% { transform: scale(1); }
     }
-
     @keyframes shakeAttention {
-
-        0% {
-            transform: translateX(0);
-        }
-
-        20% {
-            transform: translateX(-6px);
-        }
-
-        40% {
-            transform: translateX(6px);
-        }
-
-        60% {
-            transform: translateX(-6px);
-        }
-
-        80% {
-            transform: translateX(6px);
-        }
-
-        100% {
-            transform: translateX(0);
-        }
-
+        0% { transform: translateX(0); }
+        20% { transform: translateX(-6px); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-6px); }
+        80% { transform: translateX(6px); }
+        100% { transform: translateX(0); }
     }
-
     @keyframes fadeUp {
-
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
-    .ai-attention {
-
-        animation: pulseAttention 1.8s infinite,
-        shakeAttention .7s infinite;
-
-    }
-
-    /* پیام معرفی دستیار */
-
+    .ai-attention { animation: pulseAttention 1.8s infinite, shakeAttention .7s infinite; }
     #ai-widget-tip {
-
         position: fixed;
-
         bottom: 104px;
-
         right: 100px;
-
         z-index: 99998;
-
         background: #ffffff;
-
         padding: 12px 16px;
-
         border-radius: 14px;
-
-        box-shadow: 0 10px 35px rgba(0, 0, 0, .15);
-
+        box-shadow: 0 10px 35px rgba(0,0,0,.15);
         max-width: 260px;
-
         font-size: .9rem;
-
         line-height: 1.8;
-
         display: flex;
-
         align-items: center;
-
         gap: 10px;
-
         opacity: 0;
-
         visibility: hidden;
-
         transform: translateX(20px);
-
         transition: .35s;
-
     }
-
     #ai-widget-tip.show {
-
         opacity: 1;
-
         visibility: visible;
-
         transform: translateX(0);
-
     }
-
     #ai-widget-tip::after {
-
         content: "";
-
         position: absolute;
-
         right: -8px;
-
         bottom: 22px;
-
         width: 16px;
-
         height: 16px;
-
         background: #fff;
-
         transform: rotate(45deg);
-
     }
-
-    #ai-widget-tip .emoji {
-
-        font-size: 24px;
-
-    }
-
-    #ai-widget-tip .close {
-
-        cursor: pointer;
-
-        font-size: 18px;
-
-        color: #999;
-
-        margin-right: auto;
-
-    }
-
-    #ai-widget-tip .close:hover {
-
-        color: #333;
-
-    }
-
+    #ai-widget-tip .emoji { font-size: 24px; }
+    #ai-widget-tip .close { cursor: pointer; font-size: 18px; color: #999; margin-right: auto; }
+    #ai-widget-tip .close:hover { color: #333; }
     @media (max-width: 768px) {
-
-        #ai-widget-tip {
-
-            right: 20px;
-
-            bottom: 96px;
-
-            max-width: 220px;
-
-        }
-
-        #ai-widget-tip::after {
-
-            display: none;
-
-        }
-
+        #ai-widget-tip { right: 20px; bottom: 96px; max-width: 220px; }
+        #ai-widget-tip::after { display: none; }
     }
 </style>
 
@@ -946,32 +415,17 @@
     <i class="bi bi-robot"></i>
 </button>
 <div id="ai-widget-tip">
-
     <div class="emoji">👋</div>
-
     <div>
-
         <strong>دستیار هوشمند وکیل‌جو</strong>
-
         <div style="font-size:13px;color:#666">
-
-            سوال حقوقی داری؟
-
-            من رایگان راهنماییت می‌کنم.
-
+            سوال حقوقی داری؟ من رایگان راهنماییت می‌کنم.
         </div>
-
     </div>
-
-    <span class="close" id="ai-tip-close">
-
-<i class="bi bi-x"></i>
-
-</span>
-
+    <span class="close" id="ai-tip-close"><i class="bi bi-x"></i></span>
 </div>
 
-<div id="ai-widget-panel">
+<div id="ai-widget-panel" class="{% if panel_should_open %}open{% endif %}">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <strong><i class="bi bi-robot"></i> دستیار هوشمند وکیل‌جو</strong>
         <button type="button" id="ai-widget-close" class="btn-close" aria-label="بستن"></button>
@@ -980,7 +434,7 @@
 
     <textarea id="ai-widget-input" class="form-control mb-2" rows="3"
               placeholder="مثلاً: شوهرم نفقه نمی‌ده و می‌خوام طلاق بگیرم، همدان هستم..."
-              maxlength="1000"></textarea>
+              maxlength="1000">{% if initial_ai_query %}{{ initial_ai_query }}{% endif %}</textarea>
 
     <button id="ai-widget-submit" type="button" class="btn btn-primary w-100 btn-sm">
         <span id="ai-widget-btn-text">پیدا کردن وکیل مناسب</span>
@@ -989,10 +443,20 @@
 
     <div id="ai-widget-error" class="alert alert-danger mt-2 py-2 small d-none"></div>
 
-    <div id="ai-widget-result" class="mt-3 d-none">
-        <p id="ai-widget-summary" class="small mb-2"></p>
-        <div id="ai-widget-specialties"></div>
-        <small class="text-muted d-block mt-2" id="ai-widget-disclaimer"></small>
+    <div id="ai-widget-result" class="mt-3 {% if not initial_ai_result %}d-none{% endif %}">
+        <p id="ai-widget-summary" class="small mb-2">
+            {% if initial_ai_result %}{{ initial_ai_result.summary }}{% endif %}
+        </p>
+        <div id="ai-widget-specialties">
+            {% if initial_ai_result %}
+                {% for sp in initial_ai_result.specialties %}
+                    <a href="#" class="ai-widget-specialty-btn">مشاهده‌ی وکلای {{ sp }}</a>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <small class="text-muted d-block mt-2" id="ai-widget-disclaimer">
+            {% if initial_ai_result %}این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره حضوری نیست.{% endif %}
+        </small>
     </div>
 </div>
 
@@ -1000,52 +464,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         var fab = document.getElementById('ai-widget-fab');
         var tip = document.getElementById('ai-widget-tip');
-
         var tipClose = document.getElementById('ai-tip-close');
-        setTimeout(function () {
-
-            if (!panel.classList.contains('open')) {
-
-                fab.classList.add('ai-attention');
-
-            }
-
-        }, 5000);
-        setTimeout(function () {
-
-            if (!panel.classList.contains('open')) {
-
-                tip.classList.add('show');
-
-            }
-
-        }, 8000);
-
-        setTimeout(function () {
-
-            tip.classList.remove('show');
-
-        }, 12000);
-
-        tipClose.addEventListener('click', function (e) {
-
-            e.stopPropagation();
-
-            tip.classList.remove('show');
-
-        });
-
-        fab.addEventListener('click', function () {
-
-            tip.classList.remove('show');
-
-        });
-
-        fab.addEventListener('click', function () {
-
-            fab.classList.remove('ai-attention');
-
-        });
         var panel = document.getElementById('ai-widget-panel');
         var closeBtn = document.getElementById('ai-widget-close');
         var submitBtn = document.getElementById('ai-widget-submit');
@@ -1058,12 +477,34 @@
         var disclaimerEl = document.getElementById('ai-widget-disclaimer');
         var specialtiesEl = document.getElementById('ai-widget-specialties');
 
+        // مدیریت تذکر اولیه
+        setTimeout(function () {
+            if (!panel.classList.contains('open')) {
+                fab.classList.add('ai-attention');
+            }
+        }, 5000);
+        setTimeout(function () {
+            if (!panel.classList.contains('open')) {
+                tip.classList.add('show');
+            }
+        }, 8000);
+        setTimeout(function () {
+            tip.classList.remove('show');
+        }, 12000);
+
+        tipClose.addEventListener('click', function (e) {
+            e.stopPropagation();
+            tip.classList.remove('show');
+        });
         fab.addEventListener('click', function () {
+            tip.classList.remove('show');
+            fab.classList.remove('ai-attention');
             panel.classList.toggle('open');
             if (panel.classList.contains('open')) {
                 input.focus();
             }
         });
+
         closeBtn.addEventListener('click', function () {
             panel.classList.remove('open');
         });

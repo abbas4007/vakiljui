@@ -11,7 +11,7 @@ from .models import SubscriptionPlan, LawyerSubscription
 from django.utils import timezone
 from datetime import timedelta
 from django.core.cache import cache
-import logging
+import json
 from django.views.generic import ListView
 from .models import LawyerProfile, City, Specialty, LandingPageContent
 import json
@@ -26,27 +26,27 @@ from django.utils.decorators import method_decorator
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
-class HomeView(TemplateView) :
+class HomeView(TemplateView):
     template_name = 'home/index.html'
 
-    def get_context_data(self, **kwargs) :
+    def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
         # ============ شهرها ============
         cities = cache.get('active_cities')
-        if not cities :
-            cities = list(City.objects.filter(is_active = True))
+        if not cities:
+            cities = list(City.objects.filter(is_active=True))
             cache.set('active_cities', cities, 3600)
 
         # ============ تخصص‌ها ============
         specialties = cache.get('active_specialties')
-        if not specialties :
-            specialties = list(Specialty.objects.filter(is_active = True))
+        if not specialties:
+            specialties = list(Specialty.objects.filter(is_active=True))
             cache.set('active_specialties', specialties, 3600)
 
         # تعداد واقعی وکلا در هر شهر
-        for city in cities :
-            real_count = LawyerProfile.objects.filter(is_active = True, city = city.name).count()
+        for city in cities:
+            real_count = LawyerProfile.objects.filter(is_active=True, city=city.name).count()
             city.real_lawyer_count = real_count if real_count > 0 else city.lawyer_count
 
         ctx['cities'] = cities
@@ -55,47 +55,41 @@ class HomeView(TemplateView) :
         # ============ وکلای طلایی ============
         top_lawyers = cache.get('top_lawyers')
 
-        if top_lawyers is None :
-            try :
-                # پیدا کردن طرح طلایی
+        if top_lawyers is None:
+            try:
                 gold_plan = SubscriptionPlan.objects.get(
-                    Q(name__icontains = 'طلا') | Q(name__iexact = 'gold'),
-                    is_active = True
+                    Q(name__icontains='طلا') | Q(name__iexact='gold'),
+                    is_active=True
                 )
-            except SubscriptionPlan.DoesNotExist :
-                # اگر طرح طلایی وجود نداشت، طرح با بالاترین اولویت
+            except SubscriptionPlan.DoesNotExist:
                 gold_plan = SubscriptionPlan.objects.filter(
-                    is_active = True
+                    is_active=True
                 ).order_by('-priority').first()
 
-            if gold_plan :
-                # وکلایی که اشتراک طلایی فعال دارند
+            if gold_plan:
                 top_lawyers = list(LawyerProfile.objects.filter(
-                    is_active = True,
-                    subscriptions__plan = gold_plan,
-                    subscriptions__is_paid = True,
-                    subscriptions__end_date__gt = timezone.now()
+                    is_active=True,
+                    subscriptions__plan=gold_plan,
+                    subscriptions__is_paid=True,
+                    subscriptions__end_date__gt=timezone.now()
                 ).select_related('user').distinct().order_by(
                     '-subscriptions__start_date'
                 )[:8])
 
-                # اگر وکیل طلایی پیدا نشد، وکلای دارای اشتراک فعال
-                if not top_lawyers :
+                if not top_lawyers:
                     top_lawyers = list(LawyerProfile.objects.filter(
-                        is_active = True,
-                        subscriptions__is_paid = True,
-                        subscriptions__end_date__gt = timezone.now()
+                        is_active=True,
+                        subscriptions__is_paid=True,
+                        subscriptions__end_date__gt=timezone.now()
                     ).select_related('user').distinct().order_by(
                         '-subscriptions__plan__priority',
                         '-subscriptions__start_date'
                     )[:8])
-            else :
-                # اگر هیچ طرح اشتراکی وجود نداشت، وکلای با موفقیت بالا
+            else:
                 top_lawyers = list(LawyerProfile.objects.filter(
-                    is_active = True
+                    is_active=True
                 ).select_related('user').order_by('-success_rate')[:8])
 
-            # ذخیره در کش به مدت ۵ دقیقه (برای تست)
             cache.set('top_lawyers', top_lawyers, 300)
 
         ctx['top_lawyers'] = top_lawyers
@@ -108,22 +102,60 @@ class HomeView(TemplateView) :
 
         # ============ Schema برای صفحه اصلی ============
         ctx['site_schema'] = json.dumps({
-            "@context" : "https://schema.org",
-            "@type" : "WebSite",
-            "name" : "وکیل جو",
-            "url" : self.request.build_absolute_uri('/'),
-            "description" : ctx['meta_description'],
-            "potentialAction" : {
-                "@type" : "SearchAction",
-                "target" : {
-                    "@type" : "EntryPoint",
-                    "urlTemplate" : self.request.build_absolute_uri('/') + "جستجو?q={search_term_string}"
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "وکیل جو",
+            "url": self.request.build_absolute_uri('/'),
+            "description": ctx['meta_description'],
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": self.request.build_absolute_uri('/') + "جستجو?q={search_term_string}"
                 },
-                "query-input" : "required name=search_term_string"
+                "query-input": "required name=search_term_string"
             }
-        }, ensure_ascii = False)
+        }, ensure_ascii=False)
+
+        # ============ پردازش پارامتر q برای سئو ============
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            valid_specialty_names = [s.name for s in specialties]
+            valid_city_names = [c.name for c in cities]
+
+            try:
+                result = analyze_legal_query(query, valid_specialty_names, valid_city_names)
+                ctx['initial_ai_query'] = query
+                ctx['initial_ai_result'] = result
+                ctx['panel_should_open'] = True
+
+                # برای ریچ‌اسنیپت گوگل، یک FAQPage با سوال و جواب تولید می‌کنیم
+                if result.get('summary'):
+                    ctx['faq_schema_for_seo'] = json.dumps({
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": [{
+                            "@type": "Question",
+                            "name": query,
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": result['summary']
+                            }
+                        }]
+                    }, ensure_ascii=False)
+                # کانونیکال رو به صفحه اصلی بدون پارامتر تنظیم می‌کنیم تا محتوای تکراری نداشته باشیم
+                ctx['canonical_url'] = self.request.build_absolute_uri('/')
+
+            except AIMatcherError:
+                # در صورت خطا، پنل باز نمی‌شه
+                ctx['panel_should_open'] = False
+                ctx['initial_ai_result'] = None
+        else:
+            ctx['panel_should_open'] = False
+            ctx['initial_ai_result'] = None
 
         return ctx
+
 
 class LawyerListView(ListView) :
     model = LawyerProfile
@@ -843,9 +875,6 @@ class AIMatchView(View):
     """
     دستیار هوشمند: توضیح مشکل کاربر رو می‌گیره، تشخیص می‌ده به کدوم تخصص(ها)
     مرتبطه، و بهترین وکلای فعال همون تخصص/شهر رو پیشنهاد می‌ده.
-
-    محدودیت نرخ درخواست ساده (بر اساس session) برای جلوگیری از سوءاستفاده
-    از API که هزینه‌بره.
     """
     MAX_REQUESTS_PER_HOUR = 8
     SESSION_KEY = 'ai_match_requests'
@@ -853,7 +882,6 @@ class AIMatchView(View):
     def _is_rate_limited(self, request):
         now = timezone.now().timestamp()
         history = request.session.get(self.SESSION_KEY, [])
-        # فقط درخواست‌های یک ساعت اخیر رو نگه دار
         history = [t for t in history if now - t < 3600]
         if len(history) >= self.MAX_REQUESTS_PER_HOUR:
             request.session[self.SESSION_KEY] = history
@@ -880,7 +908,6 @@ class AIMatchView(View):
         if len(description) < 10:
             return JsonResponse({'error': 'لطفاً کمی بیشتر توضیح دهید تا بتوانیم بهتر راهنمایی کنیم.'}, status=400)
 
-        # لیست معتبر شهرها و تخصص‌ها (از کش، مثل HomeView)
         cities = cache.get('active_cities')
         if not cities:
             cities = list(City.objects.filter(is_active=True))
@@ -896,10 +923,6 @@ class AIMatchView(View):
 
         try:
             result = analyze_legal_query(description, valid_specialty_names, valid_city_names)
-
-            logger = logging.getLogger(__name__)
-            logger.error("VALID SPECIALTIES: %s", valid_specialty_names)
-            logger.error("AI RESULT: %s", result)
         except AIMatcherError as e:
             return JsonResponse({'error': str(e)}, status=503)
 
@@ -914,7 +937,6 @@ class AIMatchView(View):
                 'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
             })
 
-        # برای هر تخصص تشخیص‌داده‌شده، لینک صفحه‌ی لیست وکلای همون تخصص (+ شهر در صورت وجود) رو می‌سازیم
         specialties_data = []
         for sp in result['specialties']:
             sp_slug = sp.replace(' ', '-')
@@ -924,7 +946,6 @@ class AIMatchView(View):
                 url = reverse('home:lawyer_list', kwargs={'speciality': sp_slug})
             specialties_data.append({'name': sp, 'url': url})
 
-        # وقتی پاسخ واقعاً از AI اومده (نه fallback محلی)، وکلای واقعی رو هم مستقیم پیشنهاد می‌دیم
         lawyers_data = []
         if result.get('source') == 'ai':
             specialty_query = Q()
@@ -957,7 +978,6 @@ class AIMatchView(View):
             'specialties': specialties_data,
             'lawyers': lawyers_data,
             'ai_powered': result.get('source') == 'ai',
-            # لینک پیشنهادی اصلی برای رفتن مستقیم (بهترین/اولین تخصص تشخیص‌داده‌شده)
             'primary_url': specialties_data[0]['url'] if specialties_data else None,
             'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
         })
