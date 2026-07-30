@@ -299,13 +299,32 @@ def _analyze_via_liara(description, valid_specialties, valid_cities) :
 
     try :
         result = json.loads(cleaned)
-    except json.JSONDecodeError as e :
-        raise AIMatcherError("پاسخ مدل JSON معتبر نبود.") from e
+    except json.JSONDecodeError :
+        # اگه مدل به‌جای JSON خالص، متنی همراه با JSON نوشته باشه، سعی می‌کنیم
+        # فقط بخش {...} رو از داخلش استخراج کنیم قبل از اینکه کلاً شکست بخوریم
+        match = re.search(r'\{.*\}', cleaned, re.DOTALL)
+        if not match :
+            raise AIMatcherError("پاسخ مدل JSON معتبر نبود.")
+        try :
+            result = json.loads(match.group(0))
+        except json.JSONDecodeError as e :
+            raise AIMatcherError("پاسخ مدل JSON معتبر نبود.") from e
 
     specialties = [s for s in (result.get("specialties") or []) if s in valid_specialties]
     city = result.get("city")
     if city not in valid_cities :
         city = None
+
+    # اگر مدل تخصص یا شهر معتبری برنگردوند (یا اسمی نوشت که دقیقاً با لیست ما
+    # یکی نبود)، به‌عنوان پشتیبان، از همون دیکشنری محلی رو متن اصلی کاربر
+    # کمک می‌گیریم تا حداقل تشخیص تخصص/شهر از کار نیفته - ولی خلاصه‌ی متنی
+    # همیشه همون چیزیه که خود مدل نوشته (طبیعی‌تر و دقیق‌تره)
+    if not specialties or not city :
+        local_result = _analyze_local(description, valid_specialties, valid_cities)
+        if not specialties :
+            specialties = local_result['specialties']
+        if not city :
+            city = local_result['city']
 
     return {
         'specialties' : specialties,
@@ -329,5 +348,5 @@ def analyze_legal_query(description, valid_specialties, valid_cities) :
     try :
         return _analyze_via_liara(description, valid_specialties, valid_cities)
     except AIMatcherError as e :
-        logger.warning("فراخوانی لیارا شکست خورد، سوییچ به نسخه‌ی محلیم: %s", e)
+        logger.warning("فراخوانی لیارا شکست خورد، سوییچ به نسخه‌ی محلی: %s", e)
         return _analyze_local(description, valid_specialties, valid_cities)
