@@ -329,5 +329,5 @@ def analyze_legal_query(description, valid_specialties, valid_cities) :
     try :
         return _analyze_via_liara(description, valid_specialties, valid_cities)
     except AIMatcherError as e :
-        logger.warning("فراخوانی لیارا شکست خورد، سوییچ به نسخه‌ی محلی: %s", e)
+        logger.warning("فراخوانی لیارا شکست خورد، سوییچ به نسخه‌ی محلیم: %s", e)
         return _analyze_local(description, valid_specialties, valid_cities)
