@@ -51,7 +51,7 @@ def robots_txt(request) :
 
 
 urlpatterns = [
-                  path('admin/', admin.site.urls, name = 'admin'),
+                  path('admin/manager/', admin.site.urls, name = 'admin'),
                   path('sitemap.xml', sitemap, {'sitemaps' : sitemaps}, name = 'sitemap'),
                   path('robots.txt', robots_txt, name = 'robots_txt'),
 
