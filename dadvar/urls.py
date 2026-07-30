@@ -4,7 +4,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-from home.sitemaps import LawyerSitemap, StaticSitemap, LandingPageSitemap, LawyerListSitemap,LawyerListCitySitemap
+from home.sitemaps import LawyerSitemap, StaticSitemap, LandingPageSitemap, LawyerListSitemap,LawyerListCitySitemap,AiQuerySitemap
 
 sitemaps = {
     'lawyers' : LawyerSitemap,
@@ -12,6 +12,8 @@ sitemaps = {
     'lawyer_lists' : LawyerListSitemap,
     "lawyer_lists_city" : LawyerListCitySitemap,
     'static' : StaticSitemap,
+    'ai_queries' : AiQuerySitemap,
+
 }
 
 

@@ -1,7 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from .models import LawyerProfile, City, Specialty, LandingPageContent
-
+from django.utils import timezone
 
 class LawyerSitemap(Sitemap) :
     protocol = "https"
@@ -100,6 +100,64 @@ class LawyerListCitySitemap(Sitemap) :
             'city' : item['city']
         })
 
+
+class AiQuerySitemap(Sitemap):
+    """
+    Sitemap برای صفحات سوالات هوش مصنوعی (?q=...)
+    """
+    changefreq = 'monthly'
+    priority = 0.8
+
+    def items(self):
+        """
+        لیست تمام سوالاتی که می‌خواهید در sitemap باشد.
+        این لیست را می‌توانید از دیتابیس، فایل یا لیست ثابت بگیرید.
+        """
+        # ========== لیست اولیه (برای شروع) ==========
+        queries = [
+            # خانواده و طلاق
+            'طلاق',
+            'نفقه',
+            'مهریه',
+            'حضانت فرزند',
+            'اجبار به طلاق',
+            'طلاق توافقی',
+
+            # ملکی
+            'اجاره خانه',
+            'تخلیه',
+            'سند رسمی',
+            'مشاوره ملکی',
+            'خرید ملک',
+            'قولنامه',
+
+            # کیفری
+            'شکایت کیفری',
+            'حبس',
+            'تخلفات رانندگی',
+            'کلاهبرداری',
+            'چک برگشتی',
+
+            # حقوقی و قراردادها
+            'تنظیم قرارداد',
+            'حقوق کارگر',
+            'جریمه',
+            'وصیت‌نامه',
+            'ارث',
+        ]
+        return queries
+
+    def location(self, item):
+        """
+        آدرس کامل صفحه با پارامتر q
+        """
+        return f'/?q={item}'
+
+    def lastmod(self, item):
+        """
+        تاریخ آخرین تغییر (اختیاری)
+        """
+        return timezone.now()
 
 class StaticSitemap(Sitemap) :
     protocol = "https"
