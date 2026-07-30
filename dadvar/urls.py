@@ -28,8 +28,8 @@ def robots_txt(request) :
         "Allow: /",
         "",
         "Disallow: /admin/",
-        "Disallow: /accounts/login/",
-        "Disallow: /accounts/signup/",
+        "Disallow: /accounts/admin/login/",
+        "Disallow: /accounts/admin/signup/",
         "Disallow: /ckeditor/",
         "Disallow: /media/uploads/",
         "Disallow: /payment-verify/",
@@ -55,7 +55,7 @@ urlpatterns = [
                   path('sitemap.xml', sitemap, {'sitemaps' : sitemaps}, name = 'sitemap'),
                   path('robots.txt', robots_txt, name = 'robots_txt'),
 
-                  path('accounts/', include('accounts.urls')),
+                  path('accounts/admin/', include('accounts.urls')),
 
                   path('', include('home.urls')),
                   path('ckeditor/', include('ckeditor_uploader.urls')),
