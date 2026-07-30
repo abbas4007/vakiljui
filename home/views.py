@@ -11,7 +11,7 @@ from .models import SubscriptionPlan, LawyerSubscription
 from django.utils import timezone
 from datetime import timedelta
 from django.core.cache import cache
-import json
+import logging
 from django.views.generic import ListView
 from .models import LawyerProfile, City, Specialty, LandingPageContent
 import json
@@ -896,6 +896,10 @@ class AIMatchView(View):
 
         try:
             result = analyze_legal_query(description, valid_specialty_names, valid_city_names)
+
+            logger = logging.getLogger(__name__)
+            logger.error("VALID SPECIALTIES: %s", valid_specialty_names)
+            logger.error("AI RESULT: %s", result)
         except AIMatcherError as e:
             return JsonResponse({'error': str(e)}, status=503)
 
