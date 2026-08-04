@@ -2,8 +2,58 @@
 {% load static %}
 
 {% block title %}وکیل جو | بهترین وکلای ایران - رتبه‌بندی هوشمند{% endblock %}
-{% block meta_description %}بهترین وکلای طلاق، مهریه، کیفری و حقوقی در تهران و سایر شهرها با رتبه‌بندی هوشمند و نظرات
-    واقعی کاربران{% endblock %}
+
+{% block meta_description %}بهترین وکلای طلاق، مهریه، کیفری و ملکی در تهران، همدان و سایر شهرهای ایران را با رتبه‌بندی هوشمند، نرخ موفقیت واقعی و نظرات کاربران در وکیل جوی پیدا کنید.{% endblock %}
+{% block meta_description_og %}بهترین وکلای طلاق، مهریه، کیفری و ملکی در تهران، همدان و سایر شهرهای ایران را با رتبه‌بندی هوشمند، نرخ موفقیت واقعی و نظرات کاربران در وکیل جوی پیدا کنید.{% endblock %}
+{% block meta_description_twitter %}بهترین وکلای طلاق، مهریه، کیفری و ملکی در تهران، همدان و سایر شهرهای ایران با رتبه‌بندی هوشمند.{% endblock %}
+
+<!-- ========== FAQPage Schema ==========
+     نکته: بخش سوالات متداول پایین صفحه از قبل وجود داشت ولی هیچ schema ای برایش
+     تعریف نشده بود. با اضافه کردن FAQPage، شانس نمایش Rich Snippet (آکاردئون سوالات)
+     در نتایج گوگل بالا می‌رود و می‌تواند CTR را افزایش دهد. اگر متن سوالات/جواب‌ها را
+     بعداً عوض کردی، حتماً این بخش را هم هماهنگ کن. -->
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "چگونه بهترین وکیل را پیدا کنم؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "شما می‌توانید با استفاده از باکس جستجو، تخصص و شهر مورد نظر خود را وارد کنید. سپس لیست وکلای مرتبط با رتبه‌بندی، نرخ موفقیت و نظرات کاربران نمایش داده می‌شود."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "هزینه مشاوره با وکیل چقدر است؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "هزینه مشاوره بسته به تجربه وکیل و پیچیدگی پرونده متغیر است. شما می‌توانید در صفحه هر وکیل، هزینه مشاوره را مشاهده کرده و به صورت آنلاین وقت بگیرید."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "چگونه وکیل ثبت‌نام کنم؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "وکلا می‌توانند از طریق لینک ثبت‌نام وکیل اقدام به ساخت پروفایل کنند. عضویت پایه رایگان است و با خرید اشتراک، در صدر نتایج دیده می‌شوید."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "آیا اطلاعات من در سایت محفوظ است؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "بله، تمامی اطلاعات کاربران و وکلا در سایت وکیل جوی با بالاترین استانداردهای امنیتی محافظت می‌شود."
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
     <div class="container py-5">
@@ -367,7 +417,16 @@
             background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%);
         }
            </style>
-        {% block extra_js %}
+{% endblock %}
+
+<!-- ========== مهم: extra_js دیگر داخل content بلاک تعریف نمی‌شود ==========
+     باگ اصلی همینجا بود: قبلاً {% block extra_js %} داخل {% block content %}
+     تعریف شده بود (nested). چون در base.html هم یک {% block extra_js %} مستقل
+     نزدیک انتهای body وجود دارد، جنگو محتوای این بلاک هم‌نام را در هر دو محل
+     (یکبار داخل main، یکبار قبل از پایان body) رندر می‌کرد و همین باعث تکرار
+     دقیق اسکریپت شمارنده در HTML خروجی می‌شد. با بستن content و باز کردن
+     extra_js به‌عنوان یک بلاک هم‌سطح و مستقل، این تکرار برطرف شده است. -->
+{% block extra_js %}
 <script>
     // انیمیشن شمارنده برای آمار
     document.addEventListener('DOMContentLoaded', function() {
@@ -381,8 +440,7 @@
                 const remainingTime = duration - (Date.now() - startTime);
 
                 if (remainingTime > 0 && current < target) {
-                    // محاسبه مرحله بعدی (پیشرفت خطی)
-                    const increment = Math.ceil(target / (duration / 6)); // 16ms ~ 60fps
+                    const increment = Math.ceil(target / (duration / 6));
                     const nextValue = Math.min(current + increment, target);
                     counter.innerText = nextValue;
                     requestAnimationFrame(updateCount);
@@ -405,6 +463,4 @@
         });
     });
 </script>
-{% endblock %}
-
 {% endblock %}

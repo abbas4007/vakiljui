@@ -6,69 +6,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>{% block title %}{{ meta_title|default:"وکیل جوی | سامانه تخصصی وکلای ایران" }}{% endblock %}</title>
-    <meta name="description"
-          content="{{ meta_description|default:'بهترین وکلای طلاق، مهریه، کیفری و حقوقی در همدان و سایر شهرها با رتبه‌بندی هوشمند' }}">
+
+     <meta name="description" content="{% block meta_description %}بهترین وکلای طلاق، مهریه، کیفری و ملکی سراسر ایران را با رتبه‌بندی هوشمند، نرخ موفقیت واقعی و نظرات کاربران در وکیل جوی پیدا کنید.{% endblock %}">
     <meta name="robots" content="{{ robots|default:'index, follow' }}">
 
-    <!-- ========== CANONICAL ========== -->
-    <link rel="canonical" href="{{ canonical_url }}">
+ 
+    <link rel="canonical" href="{% if canonical_url %}{{ canonical_url }}{% else %}https://{{ request.get_host }}{{ request.path }}{% endif %}">
+
     <!-- Preconnect برای CDNها -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
     <!-- ========== OPEN GRAPH (یکبار) ========== -->
-    <meta property="og:title"
-          content="{% block og_title %}{{ meta_title|default:'وکیل جوی | سامانه تخصصی وکلای ایران' }}{% endblock %}">
-    <meta property="og:description" content="
-            {% block og_description %}{{ meta_description|default:'بهترین وکلای ایران را پیدا کنید' }}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ meta_title|default:'وکیل جوی | سامانه تخصصی وکلای ایران' }}{% endblock %}">
+    <meta property="og:description" content="{% block meta_description_og %}بهترین وکلای طلاق، مهریه، کیفری و ملکی سراسر ایران را با رتبه‌بندی هوشمند، نرخ موفقیت واقعی و نظرات کاربران در وکیل جوی پیدا کنید.{% endblock %}">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ canonical_url }}">
-    <meta property="og:image" content="
-            
-            
-            
-            
-            
-            
-            
-            {% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
+    <meta property="og:url" content="{% if canonical_url %}{{ canonical_url }}{% else %}https://{{ request.get_host }}{{ request.path }}{% endif %}">
+    <!-- نکته: og:image قبلاً فرمت jfif داشت که خیلی از پلتفرم‌ها (واتساپ، لینکدین) درست
+         نمایشش نمی‌دهند. اینجا به back.jpg تغییر کرده؛ بهتر است فایل اصلی هم jpg/png/webp
+         استاندارد باشد. -->
+    <meta property="og:image" content="{% block og_image %}https://{{ request.get_host }}{% static 'img/back.jpg' %}{% endblock %}">
     <meta property="og:image:alt" content="وکیل جوی - بهترین وکلای ایران">
     <meta property="og:site_name" content="وکیل جوی">
 
     <!-- ========== TWITTER CARD ========== -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twitter_title %}{{ meta_title|default:'وکیل جوی' }}{% endblock %}">
-    <meta name="twitter:description"
-          content="{% block twitter_description %}{{ meta_description|default:'' }}{% endblock %}">
-    <meta name="twitter:image" content="
-            
-            
-            
-            
-            
-            
-            
-            {% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/back.jfif' %}{% endblock %}">
+    <meta name="twitter:description" content="{% block meta_description_twitter %}بهترین وکلای طلاق، مهریه، کیفری و ملکی سراسر ایران را با رتبه‌بندی هوشمند پیدا کنید.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://{{ request.get_host }}{% static 'img/back.jpg' %}{% endblock %}">
+
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon-16.svg' %}">
     <link rel="icon" sizes="32x32" href="{% static 'favicon-32.svg' %}">
     <link rel="icon" sizes="64x64" href="{% static 'favicon-64.svg' %}">
     <link rel="icon" sizes="128x128" href="{% static 'favicon-128.svg' %}">
-    <!-- ========== STYLESHEETS ========== -->
+
+    <!-- ========== STYLESHEETS ==========
+         نکته: نسخه bootstrap.min.css (غیر RTL) که قبلاً پایین صفحه دوباره لود می‌شد حذف
+         شد، چون نسخه RTL آن همین الان در بالا لود شده و لود دوباره هم اتلاف پهنای‌باند
+         بود و هم می‌توانست استایل‌های non-RTL را روی RTL بازنویسی کند. -->
     <link href="{% static 'css/bootstrap.min.rtl.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/all.min.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel.woff') format('woff'); font-weight: normal; }
-        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel-Bold.ttf') format('truetype'); font-weight: bold; }
-        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel-Light.ttf') format('truetype'); font-weight: 300; }
+        /* font-display: swap اضافه شد تا متن قبل از لود کامل فونت مخفی نماند (بهبود LCP/FOIT) */
+        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel.woff') format('woff'); font-weight: normal; font-display: swap; }
+        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel-Bold.ttf') format('truetype'); font-weight: bold; font-display: swap; }
+        @font-face { font-family: 'Sahel'; src: url('/static/fonts/Sahel-Light.ttf') format('truetype'); font-weight: 300; font-display: swap; }
         body { font-family: 'Sahel', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; background: #f8f9fc; min-height: 100vh; display: flex; flex-direction: column; }
         .navbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 0.8rem 0; transition: all 0.3s ease; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .navbar-scrolled { background: rgba(255,255,255,0.98); box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 0.5rem 0; }
         .navbar-brand { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #1e3c72 0%, #ffd700 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .nav-link { font-weight: 500; color: #2c3e50 !important; transition: all 0.3s ease; margin: 0 0.3rem; }
         .nav-link:hover { color: #ffd700 !important; transform: translateY(-2px); }
+        /* background-attachment: fixed روی موبایل حذف شد؛ خیلی از مرورگرهای موبایل درست
+           رندرش نمی‌کنند و باعث لگ اسکرول می‌شود (media query پایین را ببینید) */
         .hero { position: relative; height: 85vh; min-height: 550px; background-image: url('{% static 'img/back.jpg' %}'); background-size: cover; background-position: center; background-attachment: fixed; display: flex; align-items: center; justify-content: center; text-align: center; margin-top: 0; overflow: hidden; }
         .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(10,22,40,0.85) 0%, rgba(26,42,74,0.75) 100%); z-index: 0; }
         .hero::after { content: '⚖️'; position: absolute; bottom: 20px; right: 30px; font-size: 5rem; opacity: 0.1; z-index: 0; animation: float 4s ease-in-out infinite; }
@@ -109,10 +104,19 @@
         .footer .social-icons a { display: inline-block; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 50%; text-align: center; line-height: 36px; margin-left: 0.5rem; }
         .footer .social-icons a:hover { background: #ffd700; color: #0f2027; transform: translateY(-3px); }
         .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; margin-top: 2rem; text-align: center; }
-        @media (max-width: 768px) { .navbar-brand { font-size: 1.4rem; } .hero { height: 70vh; min-height: 500px; } .hero-title { font-size: 1.8rem; } .hero-subtitle { font-size: 0.9rem; } .hero-search { margin: 0 1rem; } .hero-search input { font-size: 0.8rem; padding: 0.5rem 1rem; } .hero-search button { padding: 0.5rem 1.2rem; font-size: 0.8rem; } .hero-buttons .btn { padding: 0.5rem 1.2rem; font-size: 0.8rem; margin: 0.3rem; } .scroll-down { bottom: 15px; } }
+        @media (max-width: 768px) {
+            .navbar-brand { font-size: 1.4rem; }
+            .hero { height: 70vh; min-height: 500px; background-attachment: scroll; }
+            .hero-title { font-size: 1.8rem; }
+            .hero-subtitle { font-size: 0.9rem; }
+            .hero-search { margin: 0 1rem; }
+            .hero-search input { font-size: 0.8rem; padding: 0.5rem 1rem; }
+            .hero-search button { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
+            .hero-buttons .btn { padding: 0.5rem 1.2rem; font-size: 0.8rem; margin: 0.3rem; }
+            .scroll-down { bottom: 15px; }
+        }
         main { flex: 1; }
         .text-gold { color: #ffd700; }
-        
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -136,10 +140,13 @@
     {% if article_schema %}
         <script type="application/ld+json">{{ article_schema|safe }}</script>
     {% endif %}
-    <!-- اضافه شده برای سئوی هوش مصنوعی (سوال و جواب) -->
     {% if faq_schema_for_seo %}
         <script type="application/ld+json">{{ faq_schema_for_seo|safe }}</script>
     {% endif %}
+
+    <!-- هوک جدید: صفحات فرزند می‌توانند JSON-LD یا تگ‌های اضافی head-only اینجا تزریق کنند
+         (مثلاً FAQPage schema برای صفحه اصلی) بدون نیاز به تغییر ویو -->
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
@@ -238,7 +245,6 @@
 <!-- ========== FOOTER ========== -->
 <footer class="footer">
     <div class="container">
-        <!-- ردیف اول: ۳ ستون اصلی -->
         <div class="row g-4">
             <div class="col-md-4">
                 <h5><i class="bi bi-gavel"></i> وکیل جوی</h5>
@@ -267,7 +273,6 @@
             </div>
         </div>
 
-        <!-- ردیف دوم: سوالات رایج حقوقی (لینک‌دهی داخلی برای سئو) -->
         <div class="row mt-5 pt-3 border-top border-light border-opacity-25">
             <div class="col-12">
                 <h5 class="text-gold mb-3 text-center">
@@ -295,7 +300,6 @@
             </div>
         </div>
 
-        <!-- ردیف سوم: کپی‌رایت -->
         <div class="footer-bottom text-center">
             <p class="mb-1">&copy; ۱۴۰۵ وکیل جوی | تمامی حقوق محفوظ است</p>
             <div class="developer-credit">
@@ -306,20 +310,16 @@
         </div>
     </div>
 </footer>
-<!-- ========== SCRIPTS ========== -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
+<!-- ========== SCRIPTS ==========
+     نکته: قبلاً بوت‌استرپ CSS و AOS هرکدام دو بار لود می‌شدند (یک‌بار در head و یک‌بار
+     اینجا، به‌علاوه AOS با fetch جاوااسکریپتی دوباره از منبع دیگری لود می‌شد). همه اینها
+     حذف و به یک لود تمیز تبدیل شد. -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>
-    window.addEventListener('load', function () {
-        var aosScript = document.createElement('script');
-        aosScript.src = 'https://unpkg.com/aos@2.3.1/dist/aos.js';
-        aosScript.onload = function () {
-            AOS.init({duration: 600, once: true});
-        };
-        document.body.appendChild(aosScript);
+    document.addEventListener('DOMContentLoaded', function () {
+        AOS.init({ duration: 600, once: true });
     });
 </script>
 
@@ -508,7 +508,6 @@
         var disclaimerEl = document.getElementById('ai-widget-disclaimer');
         var specialtiesEl = document.getElementById('ai-widget-specialties');
 
-        // مدیریت تذکر اولیه
         setTimeout(function () {
             if (!panel.classList.contains('open')) {
                 fab.classList.add('ai-attention');
