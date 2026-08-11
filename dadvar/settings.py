@@ -12,13 +12,13 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config(
     'DEBUG',
-    default=True,
-    cast=bool
+    default = True,
+    cast = bool
 )
 
 ENVIRONMENT = config(
     'ENVIRONMENT',
-    default='production'
+    default = 'production'
 )
 
 # =========================================================
@@ -29,7 +29,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in config(
         'ALLOWED_HOSTS',
-        default='localhost,127.0.0.1'
+        default = 'localhost,127.0.0.1'
     ).split(',')
 ]
 
@@ -39,15 +39,14 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = []
 
-for host in ALLOWED_HOSTS:
+for host in ALLOWED_HOSTS :
 
     if (
-        host and
-        host != '*' and
-        not host.startswith('127.') and
-        host != 'localhost'
-    ):
-
+            host and
+            host != '*' and
+            not host.startswith('127.') and
+            host != 'localhost'
+    ) :
         CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
         CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
 
@@ -62,14 +61,14 @@ CSRF_TRUSTED_ORIGINS += [
 
 USE_X_FORWARDED_HOST = config(
     'USE_X_FORWARDED_HOST',
-    default=True,
-    cast=bool
+    default = True,
+    cast = bool
 )
 
 USE_X_FORWARDED_PORT = config(
     'USE_X_FORWARDED_PORT',
-    default=True,
-    cast=bool
+    default = True,
+    cast = bool
 )
 
 SECURE_PROXY_SSL_HEADER = (
@@ -91,7 +90,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
     'django.contrib.sites',
-
+    'django.contrib.humanize',
     'home.apps.HomeConfig',
     'accounts',
     'django_celery_beat',
@@ -130,16 +129,16 @@ ROOT_URLCONF = 'dadvar.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'BACKEND' : 'django.template.backends.django.DjangoTemplates',
 
-        'DIRS': [
+        'DIRS' : [
             BASE_DIR / 'templates'
         ],
 
-        'APP_DIRS': True,
+        'APP_DIRS' : True,
 
-        'OPTIONS': {
-            'context_processors': [
+        'OPTIONS' : {
+            'context_processors' : [
 
                 'django.template.context_processors.debug',
 
@@ -159,49 +158,49 @@ WSGI_APPLICATION = 'dadvar.wsgi.application'
 # Database
 # =========================================================
 
-if ENVIRONMENT == 'production':
+if ENVIRONMENT == 'production' :
 
     DATABASES = {
-        'default': {
+        'default' : {
 
-            'ENGINE': config(
+            'ENGINE' : config(
                 'DB_ENGINE',
-                default='django.db.backends.postgresql'
+                default = 'django.db.backends.postgresql'
             ),
 
-            'NAME': config(
+            'NAME' : config(
                 'DB_NAME',
-                default='dadvar_db'
+                default = 'dadvar_db'
             ),
 
-            'USER': config(
+            'USER' : config(
                 'DB_USER',
-                default='dadvar_user'
+                default = 'dadvar_user'
             ),
 
-            'PASSWORD': config(
+            'PASSWORD' : config(
                 'DB_PASSWORD',
-                default=''
+                default = ''
             ),
 
-            'HOST': config(
+            'HOST' : config(
                 'DB_HOST',
-                default='postgres'
+                default = 'postgres'
             ),
 
-            'PORT': config(
+            'PORT' : config(
                 'DB_PORT',
-                default='5432'
+                default = '5432'
             ),
         }
     }
 
-else:
+else :
 
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        'default' : {
+            'ENGINE' : 'django.db.backends.sqlite3',
+            'NAME' : BASE_DIR / 'db.sqlite3',
         }
     }
 
@@ -212,23 +211,23 @@ else:
 AUTH_PASSWORD_VALIDATORS = [
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'
+        'NAME' :
+            'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'
     },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.MinimumLengthValidator'
+        'NAME' :
+            'django.contrib.auth.password_validation.MinimumLengthValidator'
     },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.CommonPasswordValidator'
+        'NAME' :
+            'django.contrib.auth.password_validation.CommonPasswordValidator'
     },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.NumericPasswordValidator'
+        'NAME' :
+            'django.contrib.auth.password_validation.NumericPasswordValidator'
     },
 ]
 
@@ -256,7 +255,7 @@ STATICFILES_DIRS = []
 
 static_dir = BASE_DIR / 'static'
 
-if static_dir.exists():
+if static_dir.exists() :
     STATICFILES_DIRS.append(static_dir)
 
 MEDIA_URL = '/media/'
@@ -283,23 +282,22 @@ SITE_ID = 1
 
 SITE_NAME = config(
     'SITE_NAME',
-    default='دادور'
+    default = 'دادور'
 )
 
 SITE_DOMAIN = config(
     'SITE_DOMAIN',
-    default='vakiljuy.ir'
+    default = 'vakiljuy.ir'
 )
 
 SITE_URL = config(
     'SITE_URL',
-    default='https://vakiljuy.ir'
+    default = 'https://vakiljuy.ir'
 )
 
-
-LIARA_AI_BASE_URL = config('LIARA_AI_BASE_URL', default='')
-LIARA_AI_API_KEY = config('LIARA_AI_API_KEY', default='')
-LIARA_AI_MODEL = config('LIARA_AI_MODEL', default='anthropic/claude-haiku-4.5')
+LIARA_AI_BASE_URL = config('LIARA_AI_BASE_URL', default = '')
+LIARA_AI_API_KEY = config('LIARA_AI_API_KEY', default = '')
+LIARA_AI_MODEL = config('LIARA_AI_MODEL', default = 'anthropic/claude-haiku-4.5')
 
 # =========================================================
 # زرین پال
@@ -307,13 +305,13 @@ LIARA_AI_MODEL = config('LIARA_AI_MODEL', default='anthropic/claude-haiku-4.5')
 
 ZARINPAL_MERCHANT_ID = config(
     'ZARINPAL_MERCHANT_ID',
-    default=''
+    default = ''
 )
 
 ZARINPAL_SANDBOX = config(
     'ZARINPAL_SANDBOX',
-    default=True,
-    cast=bool
+    default = True,
+    cast = bool
 )
 
 # =========================================================
@@ -326,36 +324,36 @@ CKEDITOR_IMAGE_BACKEND = "pillow"
 
 CKEDITOR_CONFIGS = {
 
-    'default': {
+    'default' : {
 
-        'toolbar': 'full',
+        'toolbar' : 'full',
 
-        'height': 400,
+        'height' : 400,
 
-        'width': '100%',
+        'width' : '100%',
 
-        'language': 'fa',
+        'language' : 'fa',
 
-        'versionCheck': False,
+        'versionCheck' : False,
     },
 
     # کانفیگ سبک‌تر - برای فیلدهایی مثل «راهنمای انتخاب» که نیازی به تولبار کامل ندارن
-    'simple': {
+    'simple' : {
 
-        'toolbar': [
+        'toolbar' : [
             ['Bold', 'Italic', 'Underline'],
             ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink'],
             ['RemoveFormat', 'Source'],
         ],
 
-        'height': 250,
+        'height' : 250,
 
-        'width': '100%',
+        'width' : '100%',
 
-        'language': 'fa',
+        'language' : 'fa',
 
-        'versionCheck': False,
+        'versionCheck' : False,
     },
 }
 
@@ -363,31 +361,31 @@ CKEDITOR_CONFIGS = {
 # Cache
 # =========================================================
 
-try:
+try :
 
     CACHES = {
-        "default": {
+        "default" : {
 
-            "BACKEND":
-            "django_redis.cache.RedisCache",
+            "BACKEND" :
+                "django_redis.cache.RedisCache",
 
-            "LOCATION":
-            config("REDIS_URL"),
+            "LOCATION" :
+                config("REDIS_URL"),
 
-            "OPTIONS": {
+            "OPTIONS" : {
 
-                "CLIENT_CLASS":
-                "django_redis.client.DefaultClient",
+                "CLIENT_CLASS" :
+                    "django_redis.client.DefaultClient",
             }
         }
     }
 
-except Exception:
+except Exception :
 
     CACHES = {
-        "default": {
-            "BACKEND":
-            "django.core.cache.backends.locmem.LocMemCache",
+        "default" : {
+            "BACKEND" :
+                "django.core.cache.backends.locmem.LocMemCache",
         }
     }
 
@@ -401,69 +399,68 @@ CACHE_MIDDLEWARE_KEY_PREFIX = 'vakiljuy'
 
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
-    default='django.core.mail.backends.smtp.EmailBackend'
+    default = 'django.core.mail.backends.smtp.EmailBackend'
 )
 
 EMAIL_HOST = config(
     'EMAIL_HOST',
-    default=''
+    default = ''
 )
 
 EMAIL_PORT = config(
     'EMAIL_PORT',
-    default=587,
-    cast=int
+    default = 587,
+    cast = int
 )
 
 EMAIL_USE_TLS = config(
     'EMAIL_USE_TLS',
-    default=True,
-    cast=bool
+    default = True,
+    cast = bool
 )
 
 EMAIL_HOST_USER = config(
     'EMAIL_HOST_USER',
-    default=''
+    default = ''
 )
 
 EMAIL_HOST_PASSWORD = config(
     'EMAIL_HOST_PASSWORD',
-    default=''
+    default = ''
 )
 
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL',
-    default='noreply@vakiljuy.ir'
+    default = 'noreply@vakiljuy.ir'
 )
 
 # =========================================================
 # Security
 # =========================================================
 
-if ENVIRONMENT == 'production':
-
+if ENVIRONMENT == 'production' :
     SECURE_SSL_REDIRECT = config(
         'SECURE_SSL_REDIRECT',
-        default=False,
-        cast=bool
+        default = False,
+        cast = bool
     )
 
     SESSION_COOKIE_SECURE = config(
         'SESSION_COOKIE_SECURE',
-        default=False,
-        cast=bool
+        default = False,
+        cast = bool
     )
 
     CSRF_COOKIE_SECURE = config(
         'CSRF_COOKIE_SECURE',
-        default=False,
-        cast=bool
+        default = False,
+        cast = bool
     )
 
     SECURE_HSTS_SECONDS = config(
         'SECURE_HSTS_SECONDS',
-        default=0,
-        cast=int
+        default = 0,
+        cast = int
     )
 
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -482,45 +479,45 @@ if ENVIRONMENT == 'production':
 
 LOG_LEVEL = config(
     'LOG_LEVEL',
-    default='INFO'
+    default = 'INFO'
 )
 
 LOGGING = {
 
-    'version': 1,
+    'version' : 1,
 
-    'disable_existing_loggers': False,
+    'disable_existing_loggers' : False,
 
-    'formatters': {
+    'formatters' : {
 
-        'simple': {
+        'simple' : {
 
-            'format':
-            '{levelname} {asctime} {message}',
+            'format' :
+                '{levelname} {asctime} {message}',
 
-            'style': '{',
+            'style' : '{',
         },
     },
 
-    'handlers': {
+    'handlers' : {
 
-        'console': {
+        'console' : {
 
-            'class':
-            'logging.StreamHandler',
+            'class' :
+                'logging.StreamHandler',
 
-            'formatter':
-            'simple',
+            'formatter' :
+                'simple',
         },
     },
 
-    'root': {
+    'root' : {
 
-        'handlers':
-        ['console'],
+        'handlers' :
+            ['console'],
 
-        'level':
-        LOG_LEVEL,
+        'level' :
+            LOG_LEVEL,
     },
 }
 
@@ -543,3 +540,4 @@ CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_ENABLE_UTC = False
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+CONSULTATION_COMMISSION_PERCENT = 20

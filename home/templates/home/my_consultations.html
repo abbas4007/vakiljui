@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="h4 mb-4">مشاوره‌های من</h1>
+
+    {% if as_client %}
+    <h2 class="h6">مشاوره‌هایی که درخواست دادم</h2>
+    <ul class="list-group mb-4">
+        {% for c in as_client %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ c.lawyer.user.get_full_name }} — {{ c.get_format_display }} — {{ c.get_status_display }}</span>
+            {% if c.status == 'paid' %}
+            <a href="{% url 'home:consultation_room' c.id %}" class="btn btn-sm btn-primary">ورود به اتاق</a>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">هنوز مشاوره‌ای درخواست نداده‌ای.</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if as_lawyer %}
+    <h2 class="h6">مشاوره‌هایی که برام ثبت شده (به‌عنوان وکیل)</h2>
+    <ul class="list-group">
+        {% for c in as_lawyer %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ c.user.get_full_name|default:c.user.username }} — {{ c.get_format_display }} — {{ c.get_status_display }}</span>
+            {% if c.status == 'paid' %}
+            <a href="{% url 'home:consultation_room' c.id %}" class="btn btn-sm btn-primary">ورود به اتاق</a>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">هنوز مشاوره‌ای برات ثبت نشده.</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}

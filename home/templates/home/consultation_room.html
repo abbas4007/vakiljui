@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h5 mb-0">
+                {% if is_lawyer_side %}
+                    مشاوره با {{ consultation.user.get_full_name|default:consultation.user.username }}
+                {% else %}
+                    مشاوره با {{ consultation.lawyer.user.get_full_name }}
+                {% endif %}
+            </h1>
+            <small class="text-muted" id="session-status-label">
+                {% if consultation.status == 'completed' %}این جلسه پایان یافته است{% else %}جلسه‌ی فعال{% endif %}
+            </small>
+        </div>
+        {% if consultation.status == 'paid' %}
+        <button id="complete-btn" class="btn btn-outline-danger btn-sm">پایان مشاوره</button>
+        {% endif %}
+    </div>
+
+    <div id="chat-box" class="border rounded p-3 mb-3" style="height: 400px; overflow-y: auto; background: #f8f9fa;"></div>
+
+    {% if consultation.status == 'paid' %}
+    <div class="input-group">
+        <input type="text" id="msg-input" class="form-control" placeholder="پیامت رو بنویس..." maxlength="5000">
+        <button id="send-btn" class="btn btn-primary">ارسال</button>
+    </div>
+    <div id="room-error" class="alert alert-danger mt-2 d-none py-2 small"></div>
+    {% else %}
+    <div class="alert alert-secondary">این جلسه دیگر فعال نیست.</div>
+    {% endif %}
+</div>
+
+<script>
+(function () {
+    var consultationId = {{ consultation.id }};
+    var chatBox = document.getElementById('chat-box');
+    var msgInput = document.getElementById('msg-input');
+    var sendBtn = document.getElementById('send-btn');
+    var completeBtn = document.getElementById('complete-btn');
+    var errorBox = document.getElementById('room-error');
+    var lastId = 0;
+    var pollTimer = null;
+
+    function getCookie(name) {
+        var value = '; ' + document.cookie;
+        var parts = value.split('; ' + name + '=');
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function renderMessage(m) {
+        var div = document.createElement('div');
+        div.className = 'mb-2 d-flex ' + (m.is_mine ? 'justify-content-start' : 'justify-content-end');
+        var bubble = document.createElement('div');
+        bubble.className = 'p-2 rounded';
+        bubble.style.maxWidth = '75%';
+        bubble.style.background = m.is_mine ? '#6366f1' : '#e5e7eb';
+        bubble.style.color = m.is_mine ? '#fff' : '#111';
+        bubble.textContent = m.content;
+        div.appendChild(bubble);
+        chatBox.appendChild(div);
+        lastId = Math.max(lastId, m.id);
+    }
+
+    async function poll() {
+        try {
+            var resp = await fetch('/مشاوره/اتاق/' + consultationId + '/پیام‌ها/?after_id=' + lastId);
+            var data = await resp.json();
+            if (data.messages) {
+                data.messages.forEach(renderMessage);
+                if (data.messages.length > 0) {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            }
+            if (data.status !== 'paid') {
+                clearInterval(pollTimer);
+                if (msgInput) msgInput.disabled = true;
+                if (sendBtn) sendBtn.disabled = true;
+            }
+        } catch (e) { /* silent retry next tick */ }
+    }
+
+    if (sendBtn) {
+        sendBtn.addEventListener('click', async function () {
+            var content = msgInput.value.trim();
+            if (!content) return;
+            errorBox.classList.add('d-none');
+            try {
+                var resp = await fetch('/مشاوره/اتاق/' + consultationId + '/ارسال/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                    body: JSON.stringify({content: content}),
+                });
+                var data = await resp.json();
+                if (!resp.ok) {
+                    errorBox.textContent = data.error || 'خطا در ارسال پیام.';
+                    errorBox.classList.remove('d-none');
+                    return;
+                }
+                msgInput.value = '';
+                poll();
+            } catch (e) {
+                errorBox.textContent = 'خطا در ارتباط با سرور.';
+                errorBox.classList.remove('d-none');
+            }
+        });
+        msgInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+    }
+
+    if (completeBtn) {
+        completeBtn.addEventListener('click', async function () {
+            if (!confirm('مطمئنی می‌خوای این مشاوره رو پایان بدی؟')) return;
+            await fetch('/مشاوره/اتاق/' + consultationId + '/پایان/', {
+                method: 'POST',
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+            });
+            location.reload();
+        });
+    }
+
+    poll();
+    pollTimer = setInterval(poll, 3000);
+})();
+</script>
+{% endblock %}

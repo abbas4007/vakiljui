@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.utils import timezone
+from datetime import timedelta
 from accounts.models import User
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
@@ -16,7 +18,6 @@ class LawyerProfile(models.Model):
         verbose_name="توضیحات حرفه‌ای",
         config_name='default'
     )
-    # فیلد خلاصه هوش مصنوعی (برای SEO)
     ai_summary = models.TextField(
         blank=True,
         null=True,
@@ -27,7 +28,6 @@ class LawyerProfile(models.Model):
     phone_display = models.CharField(max_length=20, blank=True)
     bar_number = models.CharField(max_length=50, blank=True, verbose_name="شماره پروانه وکالت")
 
-    # years_of_experience به عنوان فیلد اصلی + پراپرتی برای سازگاری با view
     years_of_experience = models.PositiveSmallIntegerField(default=0, verbose_name="سال‌های تجربه")
 
     success_rate = models.PositiveSmallIntegerField(default=0, help_text="درصد موفقیت (۰ تا ۱۰۰)")
@@ -36,14 +36,12 @@ class LawyerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # فیلدهای سئوی اختصاصی
     meta_title = models.CharField(max_length=70, blank=True,null=True)
     meta_description = models.CharField(max_length=160, blank=True,null = True)
     faq_data = models.JSONField(default=dict, blank=True, help_text="مثلاً {'سوال':'پاسخ'}")
 
     slug = models.SlugField(unique=True, allow_unicode=True, max_length=200)
 
-    # پراپرتی برای سازگاری view قدیمی
     @property
     def years_experience(self):
         return self.years_of_experience
@@ -56,42 +54,6 @@ class LawyerProfile(models.Model):
 
     def get_absolute_url(self):
         return reverse('home:lawyer_detail', args=[self.slug])
-
-    def get_structured_data(self, request=None):
-        """تولید JSON-LD برای وکیل (نوع Attorney + LegalService)"""
-        if request:
-            url = request.build_absolute_uri(self.get_absolute_url())
-        else:
-            url = self.get_absolute_url()
-
-        data = {
-            "@context": "https://schema.org",
-            "@type": "Attorney",
-            "name": self.user.get_full_name(),
-            "url": url,
-            "description": self.ai_summary or self.description[:150] if self.description else "",
-            "specialty": self.speciality,
-            "address": {
-                "@type": "PostalAddress",
-                "addressLocality": self.city,
-                "addressCountry": "IR"
-            },
-            "telephone": self.phone_display if self.phone_display else "",
-            "yearsInBusiness": self.years_of_experience,
-        }
-
-        # aggregateRating فقط اگه success_rate > 0 و rating_count > 0 باشه
-        if self.success_rate > 0 and self.rating_count > 0:
-            data["aggregateRating"] = {
-                "@type": "AggregateRating",
-                "ratingValue": str(self.success_rate),
-                "bestRating": "100",
-                "worstRating": "0",
-                "ratingCount": str(self.rating_count),
-            }
-
-        # حذف کلیدهای خالی
-        return {k: v for k, v in data.items() if v}
 
     def __str__(self):
         return f"{self.user.get_full_name()} | {self.speciality} | {self.city}"
@@ -108,7 +70,6 @@ class LawyerProfile(models.Model):
 
 
 class SubscriptionPlan(models.Model):
-    """طرح‌های اشتراک (برنز، نقره، طلا)"""
     name = models.CharField(max_length=50, verbose_name="نام طرح")
     price = models.PositiveIntegerField(verbose_name="قیمت (تومان)")
     duration_days = models.PositiveIntegerField(default=30, verbose_name="مدت (روز)")
@@ -126,7 +87,6 @@ class SubscriptionPlan(models.Model):
 
 
 class LawyerSubscription(models.Model):
-    """اشتراک خریداری شده توسط وکیل"""
     lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE, related_name='subscriptions')
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE)
     start_date = models.DateTimeField(auto_now_add=True)
@@ -149,7 +109,6 @@ class LawyerSubscription(models.Model):
 
 
 class LandingPageContent(models.Model):
-    """محتوای اختصاصی هر صفحه لندینگ"""
     speciality = models.CharField(max_length=100, verbose_name="تخصص")
     city = models.CharField(max_length=100, verbose_name="شهر")
 
@@ -190,11 +149,6 @@ class City(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) :
-        # برای لینک به صفحه لندینگ "بهترین وکیل همه در همدان"
-        # اگه می‌خوای به صفحه لیست وکلا بره، از این استفاده کن:
-        # return reverse('home:lawyer_list_city', kwargs={'speciality': 'همه', 'city': self.slug})
-
-        # اگه می‌خوای به صفحه لندینگ بره:
         from django.urls import reverse
         return reverse('home:seo_landing', kwargs = {'speciality' : 'همه', 'city' : self.slug})
 
@@ -229,3 +183,149 @@ class Specialty(models.Model):
         ordering = ['order', 'name']
         verbose_name = "تخصص"
         verbose_name_plural = "تخصص‌ها"
+
+
+# =========================================================
+# سیستم مشاوره‌ی آنلاین پولی
+# =========================================================
+
+class ConsultationSetting(models.Model):
+    """تنظیمات مشاوره‌ی هر وکیل - قیمت و در دسترس بودن رو خود وکیل تعیین می‌کنه"""
+    lawyer = models.OneToOneField(
+        LawyerProfile, on_delete=models.CASCADE, related_name='consultation_setting'
+    )
+    is_available = models.BooleanField(default=False, verbose_name="آماده‌ی پذیرش مشاوره")
+
+    chat_enabled = models.BooleanField(default=True, verbose_name="مشاوره‌ی متنی فعال")
+    chat_price = models.PositiveIntegerField(default=0, verbose_name="قیمت مشاوره‌ی متنی (تومان)")
+
+    voice_enabled = models.BooleanField(default=False, verbose_name="مشاوره‌ی تلفنی فعال")
+    voice_price = models.PositiveIntegerField(default=0, verbose_name="قیمت مشاوره‌ی تلفنی (تومان)")
+
+    session_minutes = models.PositiveSmallIntegerField(
+        default=30, verbose_name="مدت هر جلسه (دقیقه)"
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"تنظیمات مشاوره‌ی {self.lawyer.user.get_full_name()}"
+
+    class Meta:
+        verbose_name = "تنظیمات مشاوره‌ی وکیل"
+        verbose_name_plural = "تنظیمات مشاوره‌ی وکلا"
+
+
+class ConsultationRequest(models.Model):
+    """یک جلسه‌ی مشاوره‌ی رزروشده/خریداری‌شده توسط کاربر"""
+
+    class Format(models.TextChoices):
+        CHAT = 'chat', 'متنی'
+        VOICE = 'voice', 'تلفنی'
+
+    class Status(models.TextChoices):
+        PENDING_PAYMENT = 'pending_payment', 'در انتظار پرداخت'
+        PAID = 'paid', 'پرداخت‌شده / در حال انجام'
+        COMPLETED = 'completed', 'پایان‌یافته'
+        CANCELLED = 'cancelled', 'لغوشده'
+
+    user = models.ForeignKey(
+        'accounts.User', on_delete=models.CASCADE, related_name='consultation_requests',
+        verbose_name="کاربر متقاضی"
+    )
+    lawyer = models.ForeignKey(
+        LawyerProfile, on_delete=models.CASCADE, related_name='consultation_requests',
+        verbose_name="وکیل"
+    )
+    format = models.CharField(max_length=10, choices=Format.choices, default=Format.CHAT)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING_PAYMENT)
+
+    # قیمت و مدت رو لحظه‌ی رزرو snapshot می‌کنیم؛ اگه وکیل بعداً قیمتش رو
+    # عوض کرد، رو جلسات قبلی اثر نذاره
+    price = models.PositiveIntegerField(verbose_name="قیمت (تومان)")
+    commission_percent = models.PositiveSmallIntegerField(verbose_name="درصد کمیسیون سایت")
+    session_minutes = models.PositiveSmallIntegerField()
+
+    payment_authority = models.CharField(max_length=100, blank=True, verbose_name="شناسه‌ی پرداخت زرین‌پال")
+    payment_ref_id = models.CharField(max_length=100, blank=True, verbose_name="کد رهگیری پرداخت")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    # وقتی این جلسه تسویه شد (به LawyerPayout وصل میشه)
+    payout = models.ForeignKey(
+        'LawyerPayout', on_delete=models.SET_NULL, null=True, blank=True, related_name='consultations'
+    )
+
+    @property
+    def commission_amount(self):
+        return (self.price * self.commission_percent) // 100
+
+    @property
+    def lawyer_net_amount(self):
+        return self.price - self.commission_amount
+
+    @property
+    def session_ends_at(self):
+        if not self.paid_at:
+            return None
+        return self.paid_at + timedelta(minutes=self.session_minutes)
+
+    @property
+    def is_session_expired(self):
+        ends_at = self.session_ends_at
+        return bool(ends_at and timezone.now() > ends_at)
+
+    def __str__(self):
+        return f"مشاوره‌ی {self.user} با {self.lawyer.user.get_full_name()} ({self.get_status_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "درخواست مشاوره"
+        verbose_name_plural = "درخواست‌های مشاوره"
+
+
+class ConsultationMessage(models.Model):
+    """پیام‌های چت داخل یک جلسه‌ی مشاوره‌ی متنی"""
+    consultation = models.ForeignKey(
+        ConsultationRequest, on_delete=models.CASCADE, related_name='messages'
+    )
+    sender = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = "پیام مشاوره"
+        verbose_name_plural = "پیام‌های مشاوره"
+
+
+class LawyerPayout(models.Model):
+    """تسویه‌ی دوره‌ای (هفتگی/ماهانه) - همه‌ی مشاوره‌های تکمیل‌شده‌ی یک بازه با هم جمع می‌شن"""
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'در انتظار پرداخت'
+        PAID = 'paid', 'پرداخت‌شده'
+
+    lawyer = models.ForeignKey(LawyerProfile, on_delete=models.CASCADE, related_name='payouts')
+    period_start = models.DateTimeField()
+    period_end = models.DateTimeField()
+
+    gross_amount = models.PositiveIntegerField(default=0, verbose_name="جمع مبلغ مشاوره‌ها")
+    commission_amount = models.PositiveIntegerField(default=0, verbose_name="کمیسیون سایت")
+    net_amount = models.PositiveIntegerField(default=0, verbose_name="مبلغ قابل‌پرداخت به وکیل")
+
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    note = models.CharField(max_length=255, blank=True, verbose_name="یادداشت (مثلاً کد پیگیری واریز)")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"تسویه‌ی {self.lawyer.user.get_full_name()} — {self.net_amount:,} تومان ({self.get_status_display()})"
+
+    class Meta:
+        ordering = ['-period_end']
+        verbose_name = "تسویه‌ی وکیل"
+        verbose_name_plural = "تسویه‌های وکلا"
