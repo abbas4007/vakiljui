@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
-{% load humanize %}
 
 {% block title %}{{ meta_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
@@ -76,33 +75,56 @@
                             </button>
                         {% endif %}
 
-                        <!-- ========== درخواست مشاوره‌ی آنلاین ========== -->
+                        <!-- ========== بخش مشاوره‌ی آنلاین ========== -->
                         {% if lawyer.consultation_setting.is_available %}
                             <hr>
                             <div class="text-start">
                                 <h3 class="h6 fw-bold mb-2 text-center">
-                                    <i class="bi bi-chat-dots"></i> درخواست مشاوره‌ی آنلاین
+                                    <i class="bi bi-chat-dots"></i> مشاوره‌ی آنلاین
                                 </h3>
-                                {% if lawyer.consultation_setting.chat_enabled and lawyer.consultation_setting.chat_price > 0 %}
-                                    <form method="post"
-                                          action="{% url 'home:request_consultation' lawyer.slug 'chat' %}"
-                                          class="mb-2">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="bi bi-chat-text"></i> مشاوره‌ی متنی —
-                                            {{ lawyer.consultation_setting.chat_price|intcomma:False }} تومان
-                                        </button>
-                                    </form>
+
+                                {# ۱. اگر کاربر جلسه‌ی فعال با این وکیل دارد، دکمه‌ی ورود به اتاق را نشان بده #}
+                                {% if active_consultation %}
+                                    <div class="alert alert-info py-2 text-center">
+                                        <i class="bi bi-clock"></i> شما یک جلسه‌ی مشاوره‌ی فعال با این وکیل دارید.
+                                    </div>
+                                    <a href="{% url 'home:consultation_room' pk=active_consultation.id %}"
+                                       class="btn btn-primary w-100 mb-2">
+                                        <i class="bi bi-door-open"></i> ورود به اتاق مشاوره
+                                    </a>
+
+                                {# ۲. در غیر این صورت، دکمه‌های درخواست مشاوره را نمایش بده #}
+                                {% else %}
+                                    {% if lawyer.consultation_setting.chat_enabled and lawyer.consultation_setting.chat_price > 0 %}
+                                        <form method="post"
+                                              action="{% url 'home:request_consultation' lawyer.slug 'chat' %}"
+                                              class="mb-2">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="bi bi-chat-text"></i> مشاوره‌ی متنی —
+                                                {{ lawyer.consultation_setting.chat_price|intcomma }} تومان
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    {% if lawyer.consultation_setting.voice_enabled and lawyer.consultation_setting.voice_price > 0 %}
+                                        <form method="post"
+                                              action="{% url 'home:request_consultation' lawyer.slug 'voice' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-primary w-100">
+                                                <i class="bi bi-telephone"></i> مشاوره‌ی تلفنی —
+                                                {{ lawyer.consultation_setting.voice_price|intcomma }} تومان
+                                            </button>
+                                        </form>
+                                    {% endif %}
                                 {% endif %}
-                                {% if lawyer.consultation_setting.voice_enabled and lawyer.consultation_setting.voice_price > 0 %}
-                                    <form method="post"
-                                          action="{% url 'home:request_consultation' lawyer.slug 'voice' %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-primary w-100">
-                                            <i class="bi bi-telephone"></i> مشاوره‌ی تلفنی —
-                                            {{ lawyer.consultation_setting.voice_price|intcomma:False }} تومان
-                                        </button>
-                                    </form>
+
+                                {# لینک به لیست مشاوره‌های من #}
+                                {% if user.is_authenticated %}
+                                    <div class="mt-2 text-center">
+                                        <a href="{% url 'home:my_consultations' %}" class="small text-muted">
+                                            <i class="bi bi-list"></i> مشاهده‌ی تمام مشاوره‌های من
+                                        </a>
+                                    </div>
                                 {% endif %}
                             </div>
                         {% endif %}
@@ -136,19 +158,20 @@
                             <i class="bi bi-star text-warning"></i> تخصص‌ها و زمینه‌های فعالیت
                         </h3>
                         <div class="d-flex flex-wrap gap-2" style="max-width: 100%;">
-            <span class="badge bg-primary fs-6 py-2 px-3"
-                  style="word-break: break-word; white-space: normal; max-width: 100%;">
-                {{ lawyer.speciality }}
-            </span>
+                            <span class="badge bg-primary fs-6 py-2 px-3"
+                                  style="word-break: break-word; white-space: normal; max-width: 100%;">
+                                {{ lawyer.speciality }}
+                            </span>
                             {% if lawyer.sub_speciality %}
                                 <span class="badge bg-secondary fs-6 py-2 px-3"
                                       style="word-break: break-word; white-space: normal; max-width: 100%;">
-                    {{ lawyer.sub_speciality }}
-                </span>
+                                    {{ lawyer.sub_speciality }}
+                                </span>
                             {% endif %}
                         </div>
                     </div>
                 </div>
+
                 <!-- آدرس دفتر -->
                 {% if lawyer.address %}
                     <div class="card shadow-sm border-0 mb-4">

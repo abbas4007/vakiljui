@@ -237,16 +237,16 @@ class LawyerListView(ListView) :
         return ctx
 
 
-class LawyerDetailView(DetailView) :
+class LawyerDetailView(DetailView):
     model = LawyerProfile
     template_name = 'home/lawyer_detail.html'
     context_object_name = 'lawyer'
     slug_url_kwarg = 'slug'
 
-    def get_queryset(self) :
-        return LawyerProfile.objects.filter(is_active = True).select_related('user')
+    def get_queryset(self):
+        return LawyerProfile.objects.filter(is_active=True).select_related('user')
 
-    def get_context_data(self, **kwargs) :
+    def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         lawyer = self.object
 
@@ -261,13 +261,27 @@ class LawyerDetailView(DetailView) :
             '/static/img/back.jfif')
 
         ctx['similar_lawyers'] = LawyerProfile.objects.filter(
-            is_active = True,
-            speciality = lawyer.speciality,
-            city = lawyer.city
-        ).exclude(id = lawyer.id).select_related('user')[:4]
+            is_active=True,
+            speciality=lawyer.speciality,
+            city=lawyer.city
+        ).exclude(id=lawyer.id).select_related('user')[:4]
+
+        # ======== اضافه کردن جلسه‌ی فعال کاربر ========
+        active_consultation = None
+        if self.request.user.is_authenticated:
+            active_consultation = ConsultationRequest.objects.filter(
+                user=self.request.user,
+                lawyer=lawyer,
+                status='paid',          # فقط جلسات پرداخت‌شده
+                paid_at__isnull=False,
+                completed_at__isnull=True   # هنوز پایان نیافته
+            ).first()
+            # اگر جلسه منقضی شده باشد، آن را نادیده بگیر (اختیاری)
+            if active_consultation and active_consultation.is_session_expired:
+                active_consultation = None
+        ctx['active_consultation'] = active_consultation
 
         return ctx
-
 
 class LLMsTextView(View) :
     def get(self, request) :
