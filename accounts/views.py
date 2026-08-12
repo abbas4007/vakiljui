@@ -6,22 +6,33 @@ from django.urls import reverse_lazy
 from .forms import SignupForm
 
 
-class SignupView(CreateView) :
+from django.contrib.auth import login
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
+from .forms import SignupForm
+
+
+class SignupView(CreateView):
     form_class = SignupForm
     template_name = 'accounts/signup.html'
     success_url = reverse_lazy('home:index')
 
-    def form_valid(self, form) :
-        response = super().form_valid(form)
-        login(self.request, self.object)
-        return response
+    def form_valid(self, form):
+        user = form.save()
 
-    def get_context_data(self, **kwargs) :
-        ctx = super().get_context_data(**kwargs)
-        ctx['robots'] = 'noindex, follow'
-        ctx['meta_title'] = 'ثبت‌نام در سامانه وکلا'
-        ctx['meta_description'] = 'ثبت‌نام وکلا و کاربران عادی'
-        return ctx
+        login(self.request, user)
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['robots'] = 'noindex, follow'
+        context['meta_title'] = 'ثبت‌نام در سامانه وکلا'
+        context['meta_description'] = 'ثبت‌نام وکلا و کاربران عادی'
+
+        return context
 
 def login_view(request):
     """صفحه ورود به حساب کاربری"""
@@ -33,9 +44,9 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None :
                 login(request, user)
-                return redirect('admin:index')
+                return redirect('home:index')
             else:
-                    return redirect('home:index')
+                    return redirect('accounts:login')
     else:
         form = AuthenticationForm()
 
