@@ -216,42 +216,42 @@
                 {% endif %}
 
                 <!-- وکلا مشابه -->
-                {% if similar_lawyers %}
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body p-4">
-                            <h3 class="h4 fw-bold mb-3">
-                                <i class="bi bi-people"></i> سایر وکلای {{ lawyer.speciality }} در {{ lawyer.city }}
-                            </h3>
-                            <div class="row g-3">
-                                {% for other_lawyer in similar_lawyers %}
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center gap-2 p-2 border rounded-3">
-                                            {% if other_lawyer.profile_image %}
-                                                <img src="{{ other_lawyer.profile_image.url }}"
-                                                     alt="{{ other_lawyer.user.get_full_name }}"
-                                                     style="width: 50px; height: 50px; object-fit: cover;"
-                                                     class="rounded-circle">
-                                            {% else %}
-                                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                     style="width: 50px; height: 50px;">
-                                                    <i class="bi bi-person text-white"></i>
-                                                </div>
-                                            {% endif %}
-                                            <div class="flex-grow-1">
-                                                <a href="{% url 'home:lawyer_detail' other_lawyer.slug %}"
-                                                   class="text-decoration-none fw-bold">
-                                                    {{ other_lawyer.user.get_full_name }}
-                                                </a>
-                                                <p class="small text-muted mb-0">{{ other_lawyer.success_rate }}% موفقیت
-                                                    | {{ other_lawyer.years_of_experience }} سال</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
+{#                {% if similar_lawyers %}#}
+{#                    <div class="card shadow-sm border-0">#}
+{#                        <div class="card-body p-4">#}
+{#                            <h3 class="h4 fw-bold mb-3">#}
+{#                                <i class="bi bi-people"></i> سایر وکلای {{ lawyer.speciality }} در {{ lawyer.city }}#}
+{#                            </h3>#}
+{#                            <div class="row g-3">#}
+{#                                {% for other_lawyer in similar_lawyers %}#}
+{#                                    <div class="col-md-6">#}
+{#                                        <div class="d-flex align-items-center gap-2 p-2 border rounded-3">#}
+{#                                            {% if other_lawyer.profile_image %}#}
+{#                                                <img src="{{ other_lawyer.profile_image.url }}"#}
+{#                                                     alt="{{ other_lawyer.user.get_full_name }}"#}
+{#                                                     style="width: 50px; height: 50px; object-fit: cover;"#}
+{#                                                     class="rounded-circle">#}
+{#                                            {% else %}#}
+{#                                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"#}
+{#                                                     style="width: 50px; height: 50px;">#}
+{#                                                    <i class="bi bi-person text-white"></i>#}
+{#                                                </div>#}
+{#                                            {% endif %}#}
+{#                                            <div class="flex-grow-1">#}
+{#                                                <a href="{% url 'home:lawyer_detail' other_lawyer.slug %}"#}
+{#                                                   class="text-decoration-none fw-bold">#}
+{#                                                    {{ other_lawyer.user.get_full_name }}#}
+{#                                                </a>#}
+{#                                                <p class="small text-muted mb-0">{{ other_lawyer.success_rate }}% موفقیت#}
+{#                                                    | {{ other_lawyer.years_of_experience }} سال</p>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                {% endfor %}#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                {% endif %}#}
             </div>
         </div>
     </div>
