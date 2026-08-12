@@ -106,16 +106,16 @@
                                             </button>
                                         </form>
                                     {% endif %}
-                                    {% if lawyer.consultation_setting.voice_enabled and lawyer.consultation_setting.voice_price > 0 %}
-                                        <form method="post"
-                                              action="{% url 'home:request_consultation' lawyer.slug 'voice' %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-primary w-100">
-                                                <i class="bi bi-telephone"></i> مشاوره‌ی تلفنی —
-                                                {{ lawyer.consultation_setting.voice_price|intcomma }} تومان
-                                            </button>
-                                        </form>
-                                    {% endif %}
+{#                                    {% if lawyer.consultation_setting.voice_enabled and lawyer.consultation_setting.voice_price > 0 %}#}
+{#                                        <form method="post"#}
+{#                                              action="{% url 'home:request_consultation' lawyer.slug 'voice' %}">#}
+{#                                            {% csrf_token %}#}
+{#                                            <button type="submit" class="btn btn-outline-primary w-100">#}
+{#                                                <i class="bi bi-telephone"></i> مشاوره‌ی تلفنی —#}
+{#                                                {{ lawyer.consultation_setting.voice_price|intcomma }} تومان#}
+{#                                            </button>#}
+{#                                        </form>#}
+{#                                    {% endif %}#}
                                 {% endif %}
 
                                 {# لینک به لیست مشاوره‌های من #}
