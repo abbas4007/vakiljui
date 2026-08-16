@@ -1,10 +1,40 @@
-from django.urls import re_path
+from django.urls import path
+
 from . import views
+
 
 app_name = 'accounts'
 
+
 urlpatterns = [
-    re_path(r'^ثبت-نام/$', views.SignupView.as_view(), name='signup'),
-    re_path(r'^ورود/$', views.login_view, name='login'),
-    re_path(r'^خروج/$', views.logout_view, name='logout'),
+
+    path(
+        'ثبت-نام/',
+        views.SignupView.as_view(),
+        name='signup'
+    ),
+
+    path(
+        'ورود/',
+        views.login_view,
+        name='login'
+    ),
+
+    path(
+        'درخواست-احراز-وکالت/',
+        views.LawyerVerificationCreateView.as_view(),
+        name='lawyer_verification'
+    ),
+
+    path(
+        'درخواست-احراز-وکالت/ثبت-شد/',
+        views.LawyerVerificationSuccessView.as_view(),
+        name='lawyer_verification_success'
+    ),
+
+    path(
+        'وضعیت-احراز-وکالت/',
+        views.LawyerVerificationStatusView.as_view(),
+        name='lawyer_verification_status'
+    ),
 ]

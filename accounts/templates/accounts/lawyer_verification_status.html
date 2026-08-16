@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}وضعیت احراز وکالت | وکیل جو{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card border-0 shadow rounded-4">
+
+                <div class="card-body p-5">
+
+                    <h1 class="h4 mb-4">
+                        وضعیت درخواست احراز وکالت
+                    </h1>
+
+                    {% if verification %}
+
+                        {% if verification.status == 'pending' %}
+
+                            <div class="alert alert-warning">
+                                <i class="bi bi-hourglass-split"></i>
+
+                                درخواست شما در حال بررسی است.
+                            </div>
+
+                        {% elif verification.status == 'approved' %}
+
+                            <div class="alert alert-success">
+                                <i class="bi bi-patch-check"></i>
+
+                                درخواست شما تأیید شده است.
+                                حساب شما به عنوان وکیل فعال شده است.
+                            </div>
+
+                        {% elif verification.status == 'rejected' %}
+
+                            <div class="alert alert-danger">
+
+                                <i class="bi bi-x-circle"></i>
+
+                                درخواست شما رد شده است.
+
+                                {% if verification.admin_note %}
+                                    <hr>
+                                    <strong>توضیح مدیریت:</strong>
+                                    <p class="mb-0 mt-2">
+                                        {{ verification.admin_note }}
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+                            <a
+                                href="{% url 'accounts:lawyer_verification' %}"
+                                class="btn btn-primary"
+                            >
+                                ارسال درخواست جدید
+                            </a>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <div class="alert alert-info">
+                            تاکنون درخواست احراز وکالت ثبت نکرده‌اید.
+                        </div>
+
+                        <a
+                            href="{% url 'accounts:lawyer_verification' %}"
+                            class="btn btn-primary"
+                        >
+                            درخواست احراز وکالت
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

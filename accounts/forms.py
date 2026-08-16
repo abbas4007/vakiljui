@@ -1,81 +1,79 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from .models import  LawyerVerification
+
+
 
 User = get_user_model()
 
 
-class SignupForm(forms.ModelForm):
-    password1 = forms.CharField(
-        label='رمز عبور',
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'autocomplete': 'new-password',
-        }),
-        min_length=8,
-    )
 
-    password2 = forms.CharField(
-        label='تکرار رمز عبور',
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control',
-            'autocomplete': 'new-password',
-        }),
+
+class SignupForm(UserCreationForm):
+
+    email = forms.EmailField(required=True)
+
+    phone = forms.CharField(
+        max_length=20,
+        required=False
     )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'phone')
+        fields = (
+            'username',
+            'email',
+            'phone',
+            'password1',
+            'password2',
+        )
 
-    def clean_username(self):
-        username = self.cleaned_data['username']
 
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError(
-                'این نام کاربری قبلاً ثبت شده است.'
-            )
+class LawyerVerificationForm(forms.ModelForm):
 
-        return username
+    class Meta:
+        model = LawyerVerification
 
-    def clean_email(self):
-        email = self.cleaned_data['email']
+        fields = (
+            'full_name',
+            'national_id',
+            'bar_association',
+            'license_number',
+            'document',
+        )
 
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError(
-                'این ایمیل قبلاً ثبت شده است.'
-            )
+        labels = {
+            'full_name': 'نام و نام خانوادگی',
+            'national_id': 'کد ملی',
+            'bar_association': 'کانون وکلا',
+            'license_number': 'شماره پروانه وکالت',
+            'document': 'تصویر یا فایل پروانه وکالت',
+        }
 
-        return email
+        widgets = {
+            'full_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'نام و نام خانوادگی'
+            }),
 
-    def clean_phone(self):
-        phone = self.cleaned_data.get('phone', '').strip()
+            'national_id': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'کد ملی'
+            }),
 
-        if phone and User.objects.filter(phone=phone).exists():
-            raise forms.ValidationError(
-                'این شماره تلفن قبلاً ثبت شده است.'
-            )
+            'bar_association': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'مثلاً کانون وکلای دادگستری همدان'
+            }),
 
-        return phone
+            'license_number': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'شماره پروانه وکالت'
+            }),
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        password1 = cleaned_data.get('password1')
-        password2 = cleaned_data.get('password2')
-
-        if password1 and password2 and password1 != password2:
-            self.add_error(
-                'password2',
-                'رمز عبور و تکرار آن یکسان نیستند.'
-            )
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-
-        user.set_password(self.cleaned_data['password1'])
-
-        if commit:
-            user.save()
-
-        return user
+            'document': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': '.jpg,.jpeg,.png,.pdf'
+            }),
+        }
