@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="h3 mb-2">مشاوره‌ی آنلاین با وکیل</h1>
+    <p class="text-muted mb-4">مستقیم و آنلاین با وکلای متخصص صحبت کن — چت متنی یا تماس تلفنی، بدون نیاز به مراجعه‌ی حضوری.</p>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-auto">
+            <select name="speciality" class="form-select" onchange="this.form.submit()">
+                <option value="">همه‌ی تخصص‌ها</option>
+                {% for s in specialties %}
+                <option value="{{ s.name }}" {% if s.name == selected_speciality %}selected{% endif %}>{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <select name="city" class="form-select" onchange="this.form.submit()">
+                <option value="">همه‌ی شهرها</option>
+                {% for c in cities %}
+                <option value="{{ c.name }}" {% if c.name == selected_city %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <div class="row g-3">
+        {% for lawyer in lawyers %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 p-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    {% if lawyer.profile_image %}
+                    <img src="{{ lawyer.profile_image.url }}" style="width:48px;height:48px;object-fit:cover;" class="rounded-circle">
+                    {% else %}
+                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                        <i class="bi bi-person text-white"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <div class="fw-bold">{{ lawyer.user.get_full_name }}</div>
+                        <small class="text-muted">{{ lawyer.speciality }} | {{ lawyer.city }}</small>
+                    </div>
+                </div>
+
+                {% if lawyer.consultation_setting.chat_enabled and lawyer.consultation_setting.chat_price > 0 %}
+                <p class="small mb-1"><i class="bi bi-chat-text"></i> مشاوره‌ی متنی: {{ lawyer.consultation_setting.chat_price|intcomma:False }} تومان</p>
+                {% endif %}
+                {% if lawyer.consultation_setting.voice_enabled and lawyer.consultation_setting.voice_price > 0 %}
+                <p class="small mb-2"><i class="bi bi-telephone"></i> مشاوره‌ی تلفنی: {{ lawyer.consultation_setting.voice_price|intcomma:False }} تومان</p>
+                {% endif %}
+
+                <a href="{% url 'home:lawyer_detail' lawyer.slug %}" class="btn btn-primary btn-sm mt-auto">
+                    مشاهده‌ی پروفایل و شروع مشاوره
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-secondary">
+                در حال حاضر هیچ وکیلی برای مشاوره‌ی آنلاین در دسترس نیست. کمی بعد دوباره سر بزنید.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

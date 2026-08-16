@@ -23,6 +23,7 @@ urlpatterns = [
     path('ai_match/', views.AIMatchView.as_view(), name = 'ai_match'),
 
     # ========== سیستم مشاوره‌ی آنلاین ==========
+    path('مشاوره/', views.consultation_lawyer_list_view, name='consultation_lawyers'),
     path('مشاوره/تنظیمات/', views.consultation_settings_view, name='consultation_settings'),
     path('مشاوره/من/', views.my_consultations_view, name='my_consultations'),
     path('مشاوره/درخواست/<path:slug>/<str:format>/', views.request_consultation_view, name='request_consultation'),

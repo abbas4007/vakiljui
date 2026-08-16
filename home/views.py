@@ -237,16 +237,16 @@ class LawyerListView(ListView) :
         return ctx
 
 
-class LawyerDetailView(DetailView):
+class LawyerDetailView(DetailView) :
     model = LawyerProfile
     template_name = 'home/lawyer_detail.html'
     context_object_name = 'lawyer'
     slug_url_kwarg = 'slug'
 
-    def get_queryset(self):
-        return LawyerProfile.objects.filter(is_active=True).select_related('user')
+    def get_queryset(self) :
+        return LawyerProfile.objects.filter(is_active = True).select_related('user')
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) :
         ctx = super().get_context_data(**kwargs)
         lawyer = self.object
 
@@ -261,27 +261,13 @@ class LawyerDetailView(DetailView):
             '/static/img/back.jfif')
 
         ctx['similar_lawyers'] = LawyerProfile.objects.filter(
-            is_active=True,
-            speciality=lawyer.speciality,
-            city=lawyer.city
-        ).exclude(id=lawyer.id).select_related('user')[:4]
-
-        # ======== اضافه کردن جلسه‌ی فعال کاربر ========
-        active_consultation = None
-        if self.request.user.is_authenticated:
-            active_consultation = ConsultationRequest.objects.filter(
-                user=self.request.user,
-                lawyer=lawyer,
-                status='paid',          # فقط جلسات پرداخت‌شده
-                paid_at__isnull=False,
-                completed_at__isnull=True   # هنوز پایان نیافته
-            ).first()
-            # اگر جلسه منقضی شده باشد، آن را نادیده بگیر (اختیاری)
-            if active_consultation and active_consultation.is_session_expired:
-                active_consultation = None
-        ctx['active_consultation'] = active_consultation
+            is_active = True,
+            speciality = lawyer.speciality,
+            city = lawyer.city
+        ).exclude(id = lawyer.id).select_related('user')[:4]
 
         return ctx
+
 
 class LLMsTextView(View) :
     def get(self, request) :
@@ -354,6 +340,38 @@ class AIMatchView(View):
 # =========================================================
 # سیستم مشاوره‌ی آنلاین پولی
 # =========================================================
+
+def consultation_lawyer_list_view(request):
+    """
+    صفحه‌ی عمومی (بدون نیاز به لاگین) که همه‌ی وکلای فعالی که مشاوره‌ی
+    آنلاین روشن کردن رو نشون می‌ده. این تنها ورودی عمومیه که کاربر عادی
+    (بدون این‌که از قبل بدونه کدوم وکیل) می‌تونه به مشاوره برسه.
+    """
+    lawyers_qs = LawyerProfile.objects.filter(
+        is_active=True,
+        consultation_setting__is_available=True,
+    ).select_related('user', 'consultation_setting')
+
+    speciality = request.GET.get('speciality', '').strip()
+    city = request.GET.get('city', '').strip()
+    if speciality:
+        lawyers_qs = lawyers_qs.filter(speciality=speciality)
+    if city:
+        lawyers_qs = lawyers_qs.filter(city=city)
+
+    lawyers_qs = lawyers_qs.order_by('-success_rate', '-years_of_experience')
+
+    return render(request, 'home/consultation_lawyers.html', {
+        'lawyers': lawyers_qs,
+        'specialties': Specialty.objects.filter(is_active=True),
+        'cities': City.objects.filter(is_active=True),
+        'selected_speciality': speciality,
+        'selected_city': city,
+        'meta_title': 'مشاوره‌ی آنلاین با وکیل | وکیل جو',
+        'meta_description': 'مستقیم و آنلاین با وکلای متخصص و تأییدشده مشاوره بگیرید؛ چت متنی یا تماس تلفنی.',
+        'canonical_url': request.build_absolute_uri(request.path),
+    })
+
 
 @login_required
 def consultation_settings_view(request):
