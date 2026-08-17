@@ -16,10 +16,11 @@ from django.views.generic import ListView
 from .models import (
     LawyerProfile, City, Specialty, LandingPageContent,
     ConsultationSetting, ConsultationRequest, ConsultationMessage, LawyerPayout,
+    Article,
 )
 import json
 from django.views.generic import DetailView
-from django.db.models import Q, Max
+from django.db.models import Q, Max, F
 from .models import LawyerProfile, LawyerProfile as Lawyer
 from django.utils import timezone
 
@@ -647,3 +648,113 @@ def my_consultations_view(request):
         'meta_title': 'مشاوره‌های من | وکیل جو',
         'robots': 'noindex, nofollow',
     })
+
+
+# =========================================================
+# بخش مقالات حقوقی
+# =========================================================
+
+class ArticleListView(ListView):
+    model = Article
+    template_name = 'home/article_list.html'
+    context_object_name = 'articles'
+    paginate_by = 12
+
+    def get_queryset(self):
+        qs = Article.objects.filter(is_published=True).select_related('specialty', 'author__user')
+
+        speciality_slug = self.request.GET.get('speciality', '').strip()
+        if speciality_slug:
+            qs = qs.filter(specialty__slug=speciality_slug)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['specialties'] = Specialty.objects.filter(is_active=True)
+        ctx['selected_speciality'] = self.request.GET.get('speciality', '')
+        ctx['meta_title'] = 'مقالات و راهنمای حقوقی | وکیل جو'
+        ctx['meta_description'] = 'مقالات آموزشی و راهنمای حقوقی در زمینه‌ی طلاق، مهریه، ملکی، کیفری و سایر تخصص‌ها.'
+        ctx['canonical_url'] = self.request.build_absolute_uri(self.request.path)
+        return ctx
+
+
+class ArticleDetailView(DetailView):
+    model = Article
+    template_name = 'home/article_detail.html'
+    context_object_name = 'article'
+    slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        return Article.objects.filter(is_published=True).select_related('specialty', 'author__user')
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        # شمارنده‌ی بازدید (ساده؛ برای شمارش دقیق‌تر می‌شه بعداً session-based کرد)
+        Article.objects.filter(pk=self.object.pk).update(view_count=F('view_count') + 1)
+        return response
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        article = self.object
+
+        ctx['meta_title'] = article.meta_title or f'{article.title} | وکیل جو'
+        ctx['meta_description'] = article.meta_description or article.excerpt or article.title
+        ctx['canonical_url'] = self.request.build_absolute_uri(article.get_absolute_url())
+        ctx['og_image'] = self.request.build_absolute_uri(
+            article.featured_image.url) if article.featured_image else self.request.build_absolute_uri(
+            '/static/img/back.jpg')
+
+        # مقالات مرتبط (همون تخصص)
+        related = Article.objects.filter(is_published=True, specialty=article.specialty).exclude(
+            id=article.id) if article.specialty else Article.objects.none()
+        ctx['related_articles'] = related.select_related('specialty')[:4]
+
+        # لینک به لیست وکلای همون تخصص (برای تبدیل بازدیدکننده به کاربر واقعی)
+        if article.specialty:
+            ctx['specialty_lawyers_url'] = reverse('home:lawyer_list', kwargs={'speciality': article.specialty.slug})
+
+        author_name = article.author.user.get_full_name() if article.author else 'تیم تحریریه‌ی وکیل جو'
+
+        # ========== Article/BlogPosting Schema ==========
+        article_schema = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": article.title,
+            "description": ctx['meta_description'],
+            "image": ctx['og_image'],
+            "datePublished": article.published_at.isoformat() if article.published_at else "",
+            "dateModified": article.updated_at.isoformat(),
+            "author": {
+                "@type": "Person" if article.author else "Organization",
+                "name": author_name,
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "وکیل جو",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": self.request.build_absolute_uri('/static/img/back.jpg')
+                }
+            },
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": ctx['canonical_url']
+            }
+        }
+        ctx['article_schema'] = json.dumps(article_schema, ensure_ascii=False)
+
+        # ========== Breadcrumb Schema ==========
+        breadcrumb_items = [
+            {"@type": "ListItem", "position": 1, "name": "خانه", "item": self.request.build_absolute_uri('/')},
+            {"@type": "ListItem", "position": 2, "name": "مقالات",
+             "item": self.request.build_absolute_uri(reverse('home:article_list'))},
+            {"@type": "ListItem", "position": 3, "name": article.title, "item": ctx['canonical_url']},
+        ]
+        ctx['breadcrumb_schema'] = json.dumps({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": breadcrumb_items
+        }, ensure_ascii=False)
+
+        return ctx

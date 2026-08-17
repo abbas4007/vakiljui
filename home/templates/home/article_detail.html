@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home:index' %}">خانه</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'home:article_list' %}">مقالات</a></li>
+            <li class="breadcrumb-item active">{{ article.title }}</li>
+        </ol>
+    </nav>
+
+    {% if article.specialty %}
+    <span class="badge bg-primary mb-2">{{ article.specialty.name }}</span>
+    {% endif %}
+    <h1 class="h3 fw-bold mb-3">{{ article.title }}</h1>
+
+    <p class="text-muted small mb-4">
+        {% if article.author %}
+            نویسنده: {{ article.author.user.get_full_name }} |
+        {% endif %}
+        {{ article.published_at|date:"Y/m/d" }}
+    </p>
+
+    {% if article.featured_image %}
+    <img src="{{ article.featured_image.url }}" class="img-fluid rounded mb-4" alt="{{ article.title }}">
+    {% endif %}
+
+    <div class="article-content">
+        {{ article.content|safe }}
+    </div>
+
+    {% if specialty_lawyers_url %}
+    <div class="card bg-light border-0 p-4 my-4 text-center">
+        <h2 class="h5">برای مشاوره‌ی تخصصی به وکیل نیاز دارید؟</h2>
+        <a href="{{ specialty_lawyers_url }}" class="btn btn-primary mt-2">مشاهده‌ی وکلای {{ article.specialty.name }}</a>
+    </div>
+    {% endif %}
+
+    {% if related_articles %}
+    <h2 class="h5 mt-5 mb-3">مقالات مرتبط</h2>
+    <div class="row g-3">
+        {% for related in related_articles %}
+        <div class="col-md-6">
+            <a href="{{ related.get_absolute_url }}" class="text-decoration-none">
+                <div class="border rounded p-3">{{ related.title }}</div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .article-content { line-height: 1.9; }
+    .article-content h2 { font-size: 1.3rem; margin-top: 1.5rem; }
+    .article-content h3 { font-size: 1.1rem; margin-top: 1.2rem; }
+</style>
+{% endblock %}

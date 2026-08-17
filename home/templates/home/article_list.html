@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="h3 mb-2">مقالات و راهنمای حقوقی</h1>
+    <p class="text-muted mb-4">راهنما و مقالات آموزشی در زمینه‌های مختلف حقوقی</p>
+
+    <form method="get" class="mb-4" style="max-width: 300px;">
+        <select name="speciality" class="form-select" onchange="this.form.submit()">
+            <option value="">همه‌ی تخصص‌ها</option>
+            {% for s in specialties %}
+            <option value="{{ s.slug }}" {% if s.slug == selected_speciality %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <div class="row g-4">
+        {% for article in articles %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if article.featured_image %}
+                    <img src="{{ article.featured_image.url }}" class="card-img-top" style="height:180px;object-fit:cover;" alt="{{ article.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        {% if article.specialty %}
+                        <span class="badge bg-light text-primary mb-2">{{ article.specialty.name }}</span>
+                        {% endif %}
+                        <h2 class="h6 fw-bold">{{ article.title }}</h2>
+                        <p class="small text-muted">{{ article.excerpt|truncatechars:100 }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-secondary">هنوز مقاله‌ای منتشر نشده است.</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_speciality %}&speciality={{ selected_speciality }}{% endif %}">قبلی</a></li>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_speciality %}&speciality={{ selected_speciality }}{% endif %}">بعدی</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

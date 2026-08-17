@@ -186,8 +186,62 @@ class Specialty(models.Model):
 
 
 # =========================================================
-# سیستم مشاوره‌ی آنلاین پولی
+# بخش مقالات حقوقی (برای سئوی محتوای اطلاعاتی)
 # =========================================================
+
+class Article(models.Model):
+    title = models.CharField(max_length=200, verbose_name="عنوان")
+    slug = models.SlugField(max_length=220, unique=True, allow_unicode=True, blank=True)
+
+    specialty = models.ForeignKey(
+        Specialty, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='articles', verbose_name="تخصص مرتبط"
+    )
+    # نویسنده اختیاریه؛ اگه به یه وکیل واقعی وصل بشه، اعتبار محتوا برای سئو
+    # (E-E-A-T گوگل) و اعتماد کاربر بیشتر میشه
+    author = models.ForeignKey(
+        LawyerProfile, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='articles', verbose_name="نویسنده (وکیل)"
+    )
+
+    excerpt = models.CharField(
+        max_length=300, blank=True, verbose_name="خلاصه‌ی کوتاه",
+        help_text="تو لیست مقالات و به‌عنوان پیش‌فرض meta description استفاده میشه"
+    )
+    content = RichTextUploadingField(verbose_name="متن مقاله", config_name='default')
+    featured_image = models.ImageField(upload_to='articles/', blank=True, verbose_name="تصویر شاخص")
+
+    meta_title = models.CharField(max_length=70, blank=True, null=True)
+    meta_description = models.CharField(max_length=160, blank=True, null=True)
+
+    is_published = models.BooleanField(default=False, verbose_name="منتشر شده")
+    published_at = models.DateTimeField(null=True, blank=True, verbose_name="تاریخ انتشار")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    view_count = models.PositiveIntegerField(default=0, verbose_name="تعداد بازدید")
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title, allow_unicode=True)
+        if self.is_published and not self.published_at:
+            self.published_at = timezone.now()
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('home:article_detail', args=[self.slug])
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['-published_at']
+        indexes = [
+            models.Index(fields=['slug']),
+            models.Index(fields=['is_published']),
+        ]
+        verbose_name = "مقاله"
+        verbose_name_plural = "مقالات"
 
 class ConsultationSetting(models.Model):
     """تنظیمات مشاوره‌ی هر وکیل - قیمت و در دسترس بودن رو خود وکیل تعیین می‌کنه"""
