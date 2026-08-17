@@ -64,8 +64,9 @@ class SpecialtyAdmin(admin.ModelAdmin) :
 
 
 @admin.register(Article)
-class ArticleAdmin(admin.ModelAdmin) :
-    list_display = ['title', 'slug', 'author', 'created_at','updated_at']
-    list_editable = ['author', 'slug','created_at','updated_at']
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ['title', 'slug', 'author', 'created_at', 'updated_at']
+    list_editable = ['slug', 'author']
     search_fields = ['title']
-    prepopulated_fields = {'slug' : ('title',)}
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ['created_at', 'updated_at']
