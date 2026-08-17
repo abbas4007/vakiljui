@@ -63,9 +63,9 @@ class SpecialtyAdmin(admin.ModelAdmin) :
     prepopulated_fields = {'slug' : ('name',)}
 
 
-@admin.register((Article))
+@admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin) :
-    list_display = ['title', 'slug', 'author', 'created_at', 'updated_at']
-    list_editable = ['author', 'created_at', 'updated_at']
+    list_display = ['title', 'slug', 'author', 'created_at','updated_at']
+    list_editable = ['author', 'slug','created_at','updated_at']
     search_fields = ['title']
     prepopulated_fields = {'slug' : ('title',)}
