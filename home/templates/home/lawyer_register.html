@@ -4,88 +4,343 @@
 {% block title %}ثبت‌نام وکیل | دادور{% endblock %}
 
 {% block content %}
+
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-7">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h3 class="mb-0">ثبت‌نام وکیل</h3>
-                    <p class="mb-0 mt-2">پروفایل خود را بسازید و در گوگل دیده شوید</p>
-                </div>
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">نام و نام خانوادگی</label>
-                                <input type="text" name="full_name" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">تخصص</label>
-                                <select name="speciality" class="form-select" required>
-                                    <option value="">انتخاب کنید</option>
-                                    <option>طلاق</option>
-                                    <option>مهریه</option>
-                                    <option>کیفری</option>
-                                    <option>ملکی</option>
-                                    <option>ارث و وصیت</option>
-                                    <option>خانواده</option>
-                                    <option>تجاری</option>
-                                </select>
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">شهر</label>
-                                <input type="text" name="city" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">سال سابقه</label>
-                                <input type="number" name="years_experience" class="form-control" min="0" max="50" required>
-                            </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">شماره تماس (عمومی)</label>
-                            <input type="tel" name="phone_display" class="form-control" placeholder="۰۲۱-۱۲۳۴۵۶۷۸" required>
-                            <small class="text-muted">این شماره در صفحه شما نمایش داده می‌شود</small>
-                        </div>
+    <div class="col-md-8 col-lg-7">
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">توضیحات حرفه‌ای</label>
-                            <textarea name="description" class="form-control" rows="5" placeholder="سوابق کاری، مدارک، افتخارات، تخصص‌ها..." required></textarea>
-                        </div>
+        <div class="card shadow-lg border-0">
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">خلاصه برای هوش مصنوعی (حداکثر ۱۶۰ کاراکتر)</label>
-                            <textarea name="ai_summary" class="form-control" rows="2" placeholder="وکیل پایه یک دادگستری با تخصص طلاق و مهریه..." maxlength="160"></textarea>
-                            <small class="text-muted">این متن در پاسخ‌های هوش مصنوعی مثل ChatGPT استفاده می‌شود</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">عکس پروفایل</label>
-                            <input type="file" name="profile_image" class="form-control" accept="image/*">
-                        </div>
-
-                        <div class="form-check mb-4">
-                            <input type="checkbox" class="form-check-input" id="terms" required>
-                            <label class="form-check-label" for="terms">
-                                قوانین و شرایط استفاده را می‌پذیرم
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                            <i class="bi bi-check-circle"></i> ثبت‌نام و شروع رایگان
-                        </button>
-                    </form>
-                </div>
-                <div class="card-footer bg-light text-center py-3">
-                    <p class="mb-0">قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'accounts:login' %}">ورود</a></p>
-                </div>
+            <!-- Header -->
+            <div class="card-header bg-primary text-white text-center py-4">
+                <h3 class="mb-1">ثبت‌نام وکیل</h3>
+                <p class="mb-0 mt-2">
+                    پروفایل خود را بسازید و در گوگل دیده شوید
+                </p>
             </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="بستن"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- شماره موبایل -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label fw-bold">
+                            شماره موبایل
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            class="form-control"
+                            placeholder="09121234567"
+                            required
+                            dir="ltr"
+                        >
+
+                        <small class="text-muted">
+                            از این شماره برای ورود به حساب استفاده می‌کنید.
+                        </small>
+                    </div>
+
+                    <!-- رمز عبور -->
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label fw-bold">
+                                رمز عبور
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control"
+                                minlength="8"
+                                required
+                                dir="ltr"
+                            >
+
+                            <small class="text-muted">
+                                حداقل ۸ کاراکتر
+                            </small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="password_confirm" class="form-label fw-bold">
+                                تکرار رمز عبور
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password_confirm"
+                                name="password_confirm"
+                                class="form-control"
+                                minlength="8"
+                                required
+                                dir="ltr"
+                            >
+                        </div>
+
+                    </div>
+
+                    <!-- نام و تخصص -->
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="full_name" class="form-label fw-bold">
+                                نام و نام خانوادگی
+                            </label>
+
+                            <input
+                                type="text"
+                                id="full_name"
+                                name="full_name"
+                                class="form-control"
+                                required
+                            >
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="speciality" class="form-label fw-bold">
+                                تخصص اصلی
+                            </label>
+
+                            <select
+                                id="speciality"
+                                name="speciality"
+                                class="form-select"
+                                required
+                            >
+                                <option value="">انتخاب کنید</option>
+                                <option value="طلاق">طلاق</option>
+                                <option value="مهریه">مهریه</option>
+                                <option value="کیفری">کیفری</option>
+                                <option value="ملکی">ملکی</option>
+                                <option value="ارث و وصیت">ارث و وصیت</option>
+                                <option value="خانواده">خانواده</option>
+                                <option value="تجاری">تجاری</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- شهر و سابقه -->
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="city" class="form-label fw-bold">
+                                شهر
+                            </label>
+
+                            <input
+                                type="text"
+                                id="city"
+                                name="city"
+                                class="form-control"
+                                placeholder="همدان"
+                                required
+                            >
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="years_experience" class="form-label fw-bold">
+                                سال سابقه
+                            </label>
+
+                            <input
+                                type="number"
+                                id="years_experience"
+                                name="years_experience"
+                                class="form-control"
+                                min="0"
+                                max="50"
+                                value="0"
+                                required
+                            >
+                        </div>
+
+                    </div>
+
+                    <!-- شماره پروانه -->
+                    <div class="mb-3">
+                        <label for="bar_number" class="form-label fw-bold">
+                            شماره پروانه وکالت
+                        </label>
+
+                        <input
+                            type="text"
+                            id="bar_number"
+                            name="bar_number"
+                            class="form-control"
+                            placeholder="شماره پروانه وکالت"
+                            required
+                            dir="ltr"
+                        >
+
+                        <small class="text-muted">
+                            این شماره برای بررسی و تأیید حساب شما توسط تیم ما استفاده می‌شود.
+                        </small>
+                    </div>
+
+                    <!-- شماره تماس عمومی -->
+                    <div class="mb-3">
+                        <label for="phone_display" class="form-label fw-bold">
+                            شماره تماس عمومی
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone_display"
+                            name="phone_display"
+                            class="form-control"
+                            placeholder="۰۲۱-۱۲۳۴۵۶۷۸"
+                            required
+                            dir="ltr"
+                        >
+
+                        <small class="text-muted">
+                            این شماره در صفحه عمومی پروفایل شما نمایش داده می‌شود.
+                        </small>
+                    </div>
+
+                    <!-- ایمیل -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">
+                            ایمیل
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-control"
+                            placeholder="example@gmail.com"
+                            dir="ltr"
+                        >
+
+                        <small class="text-muted">
+                            وارد کردن ایمیل اختیاری است.
+                        </small>
+                    </div>
+
+                    <!-- توضیحات -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">
+                            توضیحات حرفه‌ای
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            class="form-control"
+                            rows="6"
+                            placeholder="سوابق کاری، مدارک، افتخارات، زمینه‌های تخصصی و سایر توضیحات حرفه‌ای خود را وارد کنید..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <!-- خلاصه AI -->
+                    <div class="mb-3">
+                        <label for="ai_summary" class="form-label fw-bold">
+                            خلاصه برای هوش مصنوعی
+                        </label>
+
+                        <textarea
+                            id="ai_summary"
+                            name="ai_summary"
+                            class="form-control"
+                            rows="3"
+                            maxlength="160"
+                            placeholder="وکیل پایه یک دادگستری با تخصص طلاق، مهریه و دعاوی خانواده در همدان..."
+                        ></textarea>
+
+                        <small class="text-muted">
+                            حداکثر ۱۶۰ کاراکتر. این متن می‌تواند در نتایج و پاسخ‌های مبتنی بر هوش مصنوعی استفاده شود.
+                        </small>
+                    </div>
+
+                    <!-- عکس پروفایل -->
+                    <div class="mb-3">
+                        <label for="profile_image" class="form-label fw-bold">
+                            عکس پروفایل
+                        </label>
+
+                        <input
+                            type="file"
+                            id="profile_image"
+                            name="profile_image"
+                            class="form-control"
+                            accept="image/*"
+                        >
+
+                        <small class="text-muted">
+                            انتخاب عکس پروفایل اختیاری است.
+                        </small>
+                    </div>
+
+                    <!-- قوانین -->
+                    <div class="form-check mb-4">
+                        <input
+                            type="checkbox"
+                            class="form-check-input"
+                            id="terms"
+                            required
+                        >
+
+                        <label class="form-check-label" for="terms">
+                            قوانین و شرایط استفاده از سامانه را می‌پذیرم.
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100 py-3 fw-bold"
+                    >
+                        <i class="bi bi-check-circle me-1"></i>
+                        ثبت‌نام و شروع رایگان
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-light text-center py-3">
+                <p class="mb-0">
+                    قبلاً ثبت‌نام کرده‌اید؟
+                    <a href="{% url 'accounts:login' %}">
+                        ورود به حساب
+                    </a>
+                </p>
+            </div>
+
         </div>
+
     </div>
+
 </div>
+
+
+</div>
+
 {% endblock %}

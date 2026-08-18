@@ -739,85 +739,167 @@ def subscription_plans(request) :
     })
 
 
-def lawyer_register(request) :
-    if request.method == 'POST' :
-        from accounts.models import User
+from django.contrib import messages
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
 
-        username = request.POST.get('username') or request.POST.get('phone')
-        password = request.POST.get('password')
-        password_confirm = request.POST.get('password_confirm')
+from accounts.models import User
+from .models import LawyerProfile
 
-        if not username or not password :
-            messages.error(request, 'نام کاربری و رمز عبور الزامی است')
-            return render(request, 'home/lawyer_register.html')
 
-        if password != password_confirm :
-            messages.error(request, 'رمز عبور و تکرار آن یکسان نیستند')
-            return render(request, 'home/lawyer_register.html')
+def lawyer_register(request):
+    if request.method == 'POST':
 
-        if len(password) < 8 :
-            messages.error(request, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
-            return render(request, 'home/lawyer_register.html')
+        phone = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '')
+        password_confirm = request.POST.get('password_confirm', '')
 
-        if User.objects.filter(username = username).exists() :
-            messages.error(request, 'این نام کاربری قبلاً ثبت شده است')
-            return render(request, 'home/lawyer_register.html')
-
+        full_name = request.POST.get('full_name', '').strip()
+        speciality = request.POST.get('speciality', '').strip()
+        city = request.POST.get('city', '').strip()
+        years_experience = request.POST.get('years_experience', '0').strip()
+        phone_display = request.POST.get('phone_display', '').strip()
+        description = request.POST.get('description', '').strip()
+        ai_summary = request.POST.get('ai_summary', '').strip()
         bar_number = request.POST.get('bar_number', '').strip()
-        if not bar_number :
-            messages.error(request, 'شماره پروانه وکالت الزامی است')
+        email = request.POST.get('email', '').strip()
+
+        # -------------------------
+        # اعتبارسنجی
+        # -------------------------
+
+        if not phone or not password or not password_confirm:
+            messages.error(
+                request,
+                'شماره موبایل، رمز عبور و تکرار رمز عبور الزامی است.'
+            )
             return render(request, 'home/lawyer_register.html')
 
-        full_name = request.POST.get('full_name', '')
+        if password != password_confirm:
+            messages.error(
+                request,
+                'رمز عبور و تکرار آن یکسان نیستند.'
+            )
+            return render(request, 'home/lawyer_register.html')
+
+        if len(password) < 8:
+            messages.error(
+                request,
+                'رمز عبور باید حداقل ۸ کاراکتر باشد.'
+            )
+            return render(request, 'home/lawyer_register.html')
+
+        if not full_name:
+            messages.error(
+                request,
+                'نام و نام خانوادگی الزامی است.'
+            )
+            return render(request, 'home/lawyer_register.html')
+
+        if not bar_number:
+            messages.error(
+                request,
+                'شماره پروانه وکالت الزامی است.'
+            )
+            return render(request, 'home/lawyer_register.html')
+
+        if User.objects.filter(username=phone).exists():
+            messages.error(
+                request,
+                'این شماره موبایل قبلاً ثبت شده است.'
+            )
+            return render(request, 'home/lawyer_register.html')
+
+        if User.objects.filter(phone=phone).exists():
+            messages.error(
+                request,
+                'این شماره موبایل قبلاً ثبت شده است.'
+            )
+            return render(request, 'home/lawyer_register.html')
+
+        # -------------------------
+        # نام و نام خانوادگی
+        # -------------------------
+
         name_parts = full_name.split()
+
         first_name = name_parts[0] if name_parts else ''
-        last_name = ' '.join(name_parts[1 :]) if len(name_parts) > 1 else ''
+        last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+
+        # -------------------------
+        # سال سابقه
+        # -------------------------
+
+        try:
+            years_experience = int(years_experience or 0)
+        except ValueError:
+            years_experience = 0
+
+        # -------------------------
+        # ساخت User
+        # -------------------------
 
         user = User.objects.create_user(
-            username = username,
-            password = password,
-            first_name = first_name,
-            last_name = last_name,
-            email = request.POST.get('email', ''),
-            phone = request.POST.get('phone', ''),
-            is_lawyer = True
+            username=phone,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            is_lawyer=True
         )
+
+        # -------------------------
+        # ساخت LawyerProfile
+        # -------------------------
 
         lawyer_profile = LawyerProfile.objects.create(
-            user = user,
-            speciality = request.POST.get('speciality', ''),
-            city = request.POST.get('city', ''),
-            description = request.POST.get('description', ''),
-            ai_summary = request.POST.get('ai_summary', ''),
-            years_of_experience = int(request.POST.get('years_of_experience', 0) or 0),
-            phone_display = request.POST.get('phone_display', ''),
-            bar_number = bar_number,
-            # نکته‌ی مهم: is_active اینجا False می‌مونه تا خودت (ادمین) قبل از
-            # نمایش عمومی، صحت شماره پروانه رو بررسی کنی؛ قبلاً این مستقیم
-            # True بود که یعنی هرکسی بدون هیچ بررسی‌ای فوراً رو سایت لایو
-            # می‌شد - این ریسک واقعی داره (جعل هویت وکیل)
-            is_active = False
+            user=user,
+            speciality=speciality,
+            city=city,
+            description=description,
+            ai_summary=ai_summary,
+            years_of_experience=years_experience,
+            phone_display=phone_display,
+            bar_number=bar_number,
+
+            # بسیار مهم:
+            # تا وقتی ادمین تأیید نکرده، عمومی نباشد
+            is_active=False,
         )
 
-        if request.FILES.get('profile_image') :
-            lawyer_profile.profile_image = request.FILES['profile_image']
+        # -------------------------
+        # عکس پروفایل
+        # -------------------------
+
+        profile_image = request.FILES.get('profile_image')
+
+        if profile_image:
+            lawyer_profile.profile_image = profile_image
             lawyer_profile.save()
 
-        from django.contrib.auth import login
+        # -------------------------
+        # ورود خودکار کاربر
+        # -------------------------
+
         login(request, user)
 
         messages.success(
             request,
-            'ثبت‌نام با موفقیت انجام شد. پروفایل شما بعد از بررسی شماره پروانه‌ی وکالت توسط تیم ما فعال و رو سایت نمایش داده می‌شود.'
+            'ثبت‌نام با موفقیت انجام شد. پروفایل شما پس از بررسی شماره پروانه وکالت توسط تیم ما فعال خواهد شد.'
         )
+
         return redirect('home:index')
 
-    return render(request, 'home/lawyer_register.html', {
-        'meta_title' : 'ثبت‌نام وکیل | وکیل جو',
-        'meta_description' : 'در سامانه وکیل جو ثبت‌نام کنید و در گوگل دیده شوید',
-        'canonical_url' : request.build_absolute_uri(request.path),
-    })
-
+    return render(
+        request,
+        'home/lawyer_register.html',
+        {
+            'meta_title': 'ثبت‌نام وکیل | دادور',
+            'meta_description': 'در سامانه دادور ثبت‌نام کنید و در گوگل دیده شوید',
+            'canonical_url': request.build_absolute_uri(request.path),
+        }
+    )
 
 class LandingPage(View) :
 
