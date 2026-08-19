@@ -739,167 +739,85 @@ def subscription_plans(request) :
     })
 
 
-from django.contrib import messages
-from django.contrib.auth import login
-from django.shortcuts import render, redirect
+def lawyer_register(request) :
+    if request.method == 'POST' :
+        from accounts.models import User
 
-from accounts.models import User
-from .models import LawyerProfile
+        username = request.POST.get('username') or request.POST.get('phone')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
 
+        if not username or not password :
+            messages.error(request, 'نام کاربری و رمز عبور الزامی است')
+            return render(request, 'home/lawyer_register.html')
 
-def lawyer_register(request):
-    if request.method == 'POST':
+        if password != password_confirm :
+            messages.error(request, 'رمز عبور و تکرار آن یکسان نیستند')
+            return render(request, 'home/lawyer_register.html')
 
-        phone = request.POST.get('phone', '').strip()
-        password = request.POST.get('password', '')
-        password_confirm = request.POST.get('password_confirm', '')
+        if len(password) < 8 :
+            messages.error(request, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
+            return render(request, 'home/lawyer_register.html')
 
-        full_name = request.POST.get('full_name', '').strip()
-        speciality = request.POST.get('speciality', '').strip()
-        city = request.POST.get('city', '').strip()
-        years_experience = request.POST.get('years_experience', '0').strip()
-        phone_display = request.POST.get('phone_display', '').strip()
-        description = request.POST.get('description', '').strip()
-        ai_summary = request.POST.get('ai_summary', '').strip()
+        if User.objects.filter(username = username).exists() :
+            messages.error(request, 'این نام کاربری قبلاً ثبت شده است')
+            return render(request, 'home/lawyer_register.html')
+
         bar_number = request.POST.get('bar_number', '').strip()
-        email = request.POST.get('email', '').strip()
-
-        # -------------------------
-        # اعتبارسنجی
-        # -------------------------
-
-        if not phone or not password or not password_confirm:
-            messages.error(
-                request,
-                'شماره موبایل، رمز عبور و تکرار رمز عبور الزامی است.'
-            )
+        if not bar_number :
+            messages.error(request, 'شماره پروانه وکالت الزامی است')
             return render(request, 'home/lawyer_register.html')
 
-        if password != password_confirm:
-            messages.error(
-                request,
-                'رمز عبور و تکرار آن یکسان نیستند.'
-            )
-            return render(request, 'home/lawyer_register.html')
-
-        if len(password) < 8:
-            messages.error(
-                request,
-                'رمز عبور باید حداقل ۸ کاراکتر باشد.'
-            )
-            return render(request, 'home/lawyer_register.html')
-
-        if not full_name:
-            messages.error(
-                request,
-                'نام و نام خانوادگی الزامی است.'
-            )
-            return render(request, 'home/lawyer_register.html')
-
-        if not bar_number:
-            messages.error(
-                request,
-                'شماره پروانه وکالت الزامی است.'
-            )
-            return render(request, 'home/lawyer_register.html')
-
-        if User.objects.filter(username=phone).exists():
-            messages.error(
-                request,
-                'این شماره موبایل قبلاً ثبت شده است.'
-            )
-            return render(request, 'home/lawyer_register.html')
-
-        if User.objects.filter(phone=phone).exists():
-            messages.error(
-                request,
-                'این شماره موبایل قبلاً ثبت شده است.'
-            )
-            return render(request, 'home/lawyer_register.html')
-
-        # -------------------------
-        # نام و نام خانوادگی
-        # -------------------------
-
+        full_name = request.POST.get('full_name', '')
         name_parts = full_name.split()
-
         first_name = name_parts[0] if name_parts else ''
-        last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
-
-        # -------------------------
-        # سال سابقه
-        # -------------------------
-
-        try:
-            years_experience = int(years_experience or 0)
-        except ValueError:
-            years_experience = 0
-
-        # -------------------------
-        # ساخت User
-        # -------------------------
+        last_name = ' '.join(name_parts[1 :]) if len(name_parts) > 1 else ''
 
         user = User.objects.create_user(
-            username=phone,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            phone=phone,
-            is_lawyer=True
+            username = username,
+            password = password,
+            first_name = first_name,
+            last_name = last_name,
+            email = request.POST.get('email', ''),
+            phone = request.POST.get('phone', ''),
+            is_lawyer = True
         )
-
-        # -------------------------
-        # ساخت LawyerProfile
-        # -------------------------
 
         lawyer_profile = LawyerProfile.objects.create(
-            user=user,
-            speciality=speciality,
-            city=city,
-            description=description,
-            ai_summary=ai_summary,
-            years_of_experience=years_experience,
-            phone_display=phone_display,
-            bar_number=bar_number,
-
-            # بسیار مهم:
-            # تا وقتی ادمین تأیید نکرده، عمومی نباشد
-            is_active=False,
+            user = user,
+            speciality = request.POST.get('speciality', ''),
+            city = request.POST.get('city', ''),
+            description = request.POST.get('description', ''),
+            ai_summary = request.POST.get('ai_summary', ''),
+            years_of_experience = int(request.POST.get('years_of_experience', 0) or 0),
+            phone_display = request.POST.get('phone_display', ''),
+            bar_number = bar_number,
+            # نکته‌ی مهم: is_active اینجا False می‌مونه تا خودت (ادمین) قبل از
+            # نمایش عمومی، صحت شماره پروانه رو بررسی کنی؛ قبلاً این مستقیم
+            # True بود که یعنی هرکسی بدون هیچ بررسی‌ای فوراً رو سایت لایو
+            # می‌شد - این ریسک واقعی داره (جعل هویت وکیل)
+            is_active = False
         )
 
-        # -------------------------
-        # عکس پروفایل
-        # -------------------------
-
-        profile_image = request.FILES.get('profile_image')
-
-        if profile_image:
-            lawyer_profile.profile_image = profile_image
+        if request.FILES.get('profile_image') :
+            lawyer_profile.profile_image = request.FILES['profile_image']
             lawyer_profile.save()
 
-        # -------------------------
-        # ورود خودکار کاربر
-        # -------------------------
-
+        from django.contrib.auth import login
         login(request, user)
 
         messages.success(
             request,
-            'ثبت‌نام با موفقیت انجام شد. پروفایل شما پس از بررسی شماره پروانه وکالت توسط تیم ما فعال خواهد شد.'
+            'ثبت‌نام با موفقیت انجام شد. پروفایل شما بعد از بررسی شماره پروانه‌ی وکالت توسط تیم ما فعال و رو سایت نمایش داده می‌شود.'
         )
-
         return redirect('home:index')
 
-    return render(
-        request,
-        'home/lawyer_register.html',
-        {
-            'meta_title': 'ثبت‌نام وکیل | دادور',
-            'meta_description': 'در سامانه دادور ثبت‌نام کنید و در گوگل دیده شوید',
-            'canonical_url': request.build_absolute_uri(request.path),
-        }
-    )
+    return render(request, 'home/lawyer_register.html', {
+        'meta_title' : 'ثبت‌نام وکیل | وکیل جو',
+        'meta_description' : 'در سامانه وکیل جو ثبت‌نام کنید و در گوگل دیده شوید',
+        'canonical_url' : request.build_absolute_uri(request.path),
+    })
+
 
 class LandingPage(View) :
 
@@ -1479,3 +1397,95 @@ class ArticleDetailView(DetailView):
         }, ensure_ascii=False)
 
         return ctx
+
+
+# =========================================================
+# دستیار شخصی همه‌کاره (فقط برای خود مدیر سایت - superuser)
+# =========================================================
+# نکته‌ی امنیتی: این صفحه فقط برای request.user.is_superuser در دسترسه.
+# کلید API لیارا همیشه سمت سرور می‌مونه (تو settings.py)، هیچ‌وقت به مرورگر
+# فرستاده نمیشه. برخلاف ویجت عمومی سایت (AIMatchView)، اینجا:
+#   - هیچ سقف نرخ درخواستی نداریم (چون فقط خودت استفاده می‌کنی، نه عموم)
+#   - system prompt عمومیه (نه محدود به حوزه‌ی حقوقی)، برای کدنویسی/تحقیق/
+#     محاسبات مالی و هرکار دیگه
+#   - مکالمه چندمرحله‌ای پشتیبانی میشه (تاریخچه‌ی کامل هر بار فرستاده میشه)
+
+PERSONAL_ASSISTANT_SYSTEM_PROMPT = (
+    "شما یک دستیار هوشمند همه‌کاره‌اید که برای کمک به مدیر سایت وکیل‌جو در "
+    "کارهای شخصی و کاری‌اش استفاده می‌شوید: کدنویسی، تحقیق، تحلیل و محاسبات "
+    "مالی، مسائل حقوقی، و هر موضوع دیگری که مطرح کند. پاسخ‌های دقیق، کامل و "
+    "مفید بده. اگه سوال فنی/کدنویسیه، کد واقعی و قابل‌اجرا بنویس. اگه سوال "
+    "مالی یا حقوقیه، دقیق و مستند توضیح بده، ولی روشن کن که جای مشورت با "
+    "متخصص واقعی (حسابدار، وکیل و غیره) رو برای تصمیمات مهم نمی‌گیره."
+)
+
+
+@login_required
+def personal_assistant_view(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'این بخش فقط برای مدیر سایت در دسترس است.')
+        return redirect('home:index')
+
+    return render(request, 'home/personal_assistant.html', {
+        'meta_title': 'دستیار شخصی',
+        'robots': 'noindex, nofollow',
+    })
+
+
+@login_required
+def personal_assistant_chat(request):
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'دسترسی ندارید.'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'روش نامعتبر است.'}, status=405)
+
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'درخواست نامعتبر است.'}, status=400)
+
+    # تاریخچه‌ی کامل مکالمه از کلاینت میاد: [{"role": "user"/"assistant", "content": "..."}]
+    conversation = body.get('messages') or []
+    if not isinstance(conversation, list) or not conversation:
+        return JsonResponse({'error': 'پیامی ارسال نشده است.'}, status=400)
+
+    # یه سقف عقلانی و بزرگ فقط برای جلوگیری از هزینه‌ی ناخواسته در صورت باگ
+    # (نه برای محدود کردن خودت) - قابل تغییر/حذف در همین فایل
+    MAX_MESSAGES_PER_REQUEST = 60
+    conversation = conversation[-MAX_MESSAGES_PER_REQUEST:]
+
+    api_key = getattr(settings, 'LIARA_AI_API_KEY', '')
+    base_url = getattr(settings, 'LIARA_AI_BASE_URL', '')
+    model_name = getattr(settings, 'LIARA_AI_MODEL', '')
+
+    if not api_key or not base_url:
+        return JsonResponse({'error': 'سرویس هوش مصنوعی تنظیم نشده است.'}, status=503)
+
+    payload = {
+        "model": model_name,
+        "messages": [{"role": "system", "content": PERSONAL_ASSISTANT_SYSTEM_PROMPT}] + conversation,
+        "temperature": 0.5,
+        "max_tokens": 4000,
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
+
+    try:
+        response = requests.post(f"{base_url.rstrip('/')}/chat/completions",
+                                  headers=headers, data=json.dumps(payload), timeout=60)
+    except requests.RequestException:
+        return JsonResponse({'error': 'خطا در ارتباط با سرویس هوش مصنوعی.'}, status=503)
+
+    if response.status_code != 200:
+        return JsonResponse({'error': 'سرویس هوش مصنوعی خطا برگرداند.'}, status=502)
+
+    try:
+        data = response.json()
+        reply = data['choices'][0]['message']['content']
+    except (ValueError, KeyError, IndexError):
+        return JsonResponse({'error': 'پاسخ سرویس قابل پردازش نبود.'}, status=502)
+
+    return JsonResponse({'reply': reply})

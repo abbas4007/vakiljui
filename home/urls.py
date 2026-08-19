@@ -32,6 +32,12 @@ urlpatterns = [
     path('مشاوره/اتاق/<int:pk>/ارسال/', views.consultation_send_message, name='consultation_send_message'),
     path('مشاوره/اتاق/<int:pk>/پیام‌ها/', views.consultation_poll_messages, name='consultation_poll_messages'),
     path('مشاوره/اتاق/<int:pk>/پایان/', views.consultation_complete_view, name='consultation_complete'),
+
+    # ========== مقالات حقوقی ==========
     path('مقالات/', views.ArticleListView.as_view(), name='article_list'),
     path('مقالات/<path:slug>/', views.ArticleDetailView.as_view(), name='article_detail'),
+
+    # ========== دستیار شخصی (فقط مدیر سایت) ==========
+    path('دستیار-شخصی/', views.personal_assistant_view, name='personal_assistant'),
+    path('دستیار-شخصی/چت/', views.personal_assistant_chat, name='personal_assistant_chat'),
 ]

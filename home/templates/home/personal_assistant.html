@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0"><i class="bi bi-robot"></i> دستیار شخصی</h1>
+        <button id="clear-btn" class="btn btn-outline-secondary btn-sm">پاک کردن مکالمه</button>
+    </div>
+
+    <div id="chat-box" class="border rounded p-3 mb-3"
+         style="height: 60vh; overflow-y: auto; background: #f8f9fa; white-space: pre-wrap;"></div>
+
+    <div class="input-group">
+        <textarea id="msg-input" class="form-control" rows="2" placeholder="هر سوالی داری بپرس..."></textarea>
+        <button id="send-btn" class="btn btn-primary">ارسال</button>
+    </div>
+    <div id="error-box" class="alert alert-danger mt-2 py-2 small d-none"></div>
+    <small class="text-muted d-block mt-2">Ctrl+Enter برای ارسال سریع</small>
+</div>
+
+<script>
+(function () {
+    var chatBox = document.getElementById('chat-box');
+    var input = document.getElementById('msg-input');
+    var sendBtn = document.getElementById('send-btn');
+    var clearBtn = document.getElementById('clear-btn');
+    var errorBox = document.getElementById('error-box');
+
+    var STORAGE_KEY = 'personal_assistant_history';
+    var history = [];
+    try {
+        history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch (e) { history = []; }
+
+    function getCookie(name) {
+        var value = '; ' + document.cookie;
+        var parts = value.split('; ' + name + '=');
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function renderAll() {
+        chatBox.innerHTML = '';
+        history.forEach(function (m) {
+            var div = document.createElement('div');
+            div.className = 'mb-3';
+            var label = document.createElement('div');
+            label.className = 'small fw-bold ' + (m.role === 'user' ? 'text-primary' : 'text-success');
+            label.textContent = m.role === 'user' ? 'تو' : 'دستیار';
+            var content = document.createElement('div');
+            content.textContent = m.content;
+            div.appendChild(label);
+            div.appendChild(content);
+            chatBox.appendChild(div);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    }
+
+    async function send() {
+        var text = input.value.trim();
+        if (!text) return;
+        errorBox.classList.add('d-none');
+
+        history.push({role: 'user', content: text});
+        renderAll();
+        save();
+        input.value = '';
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'در حال فکر کردن...';
+
+        try {
+            var resp = await fetch('{% url "home:personal_assistant_chat" %}', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                body: JSON.stringify({messages: history}),
+            });
+            var data = await resp.json();
+            if (!resp.ok) {
+                errorBox.textContent = data.error || 'خطایی رخ داد.';
+                errorBox.classList.remove('d-none');
+                history.pop(); // پیام کاربر که جواب نگرفت رو برگردون تا دوباره بفرسته
+                renderAll();
+                save();
+                return;
+            }
+            history.push({role: 'assistant', content: data.reply});
+            renderAll();
+            save();
+        } catch (e) {
+            errorBox.textContent = 'خطا در ارتباط با سرور.';
+            errorBox.classList.remove('d-none');
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'ارسال';
+        }
+    }
+
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.ctrlKey) send();
+    });
+    clearBtn.addEventListener('click', function () {
+        if (!confirm('کل مکالمه پاک بشه؟')) return;
+        history = [];
+        save();
+        renderAll();
+    });
+
+    renderAll();
+})();
+</script>
+{% endblock %}
