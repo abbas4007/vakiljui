@@ -1042,7 +1042,7 @@ def consultation_settings_view(request):
         setting.session_minutes = int(request.POST.get('session_minutes') or 30)
         setting.save()
         messages.success(request, 'تنظیمات مشاوره با موفقیت ذخیره شد.')
-        return redirect('home:consultation_settings')
+        return redirect('home:index')
 
     return render(request, 'home/consultation_settings.html', {
         'setting': setting,
