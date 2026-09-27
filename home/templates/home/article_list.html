@@ -16,7 +16,7 @@
 
     <div class="row g-4">
         {% for article in articles %}
-        <div class="col-md-6 col-lg-4">
+        <div class="col-md-6 col-lg-4 gy-4">
             <a href="{{ article.get_absolute_url }}" class="text-decoration-none text-dark">
                 <div class="card h-100 shadow-sm border-0">
                     {% if article.featured_image %}
