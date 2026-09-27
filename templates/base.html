@@ -174,6 +174,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/تماس-با-ما/">تماس با ما</a>
                 </li>
+                {% if request.user.is_authenticated and request.user.is_lawyer  %}
+                    <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home:my_consultations' %}">مشاوره های من</a>
+                </li>
+                {% endif %}
             </ul>
 
             <div class="ms-2">
