@@ -739,76 +739,57 @@ def subscription_plans(request) :
     })
 
 
+@login_required
 def lawyer_register(request) :
+    # اگه کاربر از قبل پروفایل وکالت ساخته، دوباره نسازه
+    existing_profile = LawyerProfile.objects.filter(user = request.user).first()
+    if existing_profile :
+        messages.info(request, 'شما قبلاً پروفایل وکالت ساخته‌اید.')
+        return redirect('home:index')
+
     if request.method == 'POST' :
-        from accounts.models import User
+        speciality = request.POST.get('speciality', '').strip()
+        city = request.POST.get('city', '').strip()
+        description = request.POST.get('description', '').strip()
 
-        username = request.POST.get('username') or request.POST.get('phone')
-        password = request.POST.get('password')
-        password_confirm = request.POST.get('password_confirm')
-
-        if not username or not password :
-            messages.error(request, 'نام کاربری و رمز عبور الزامی است')
+        if not speciality or not city or not description :
+            messages.error(request, 'لطفاً فیلدهای الزامی را کامل کنید.')
             return render(request, 'home/lawyer_register.html')
 
-        if password != password_confirm :
-            messages.error(request, 'رمز عبور و تکرار آن یکسان نیستند')
-            return render(request, 'home/lawyer_register.html')
-
-        if len(password) < 8 :
-            messages.error(request, 'رمز عبور باید حداقل ۸ کاراکتر باشد')
-            return render(request, 'home/lawyer_register.html')
-
-        if User.objects.filter(username = username).exists() :
-            messages.error(request, 'این نام کاربری قبلاً ثبت شده است')
-            return render(request, 'home/lawyer_register.html')
-
-        bar_number = request.POST.get('bar_number', '').strip()
-        if not bar_number :
-            messages.error(request, 'شماره پروانه وکالت الزامی است')
-            return render(request, 'home/lawyer_register.html')
-
-        full_name = request.POST.get('full_name', '')
-        name_parts = full_name.split()
-        first_name = name_parts[0] if name_parts else ''
-        last_name = ' '.join(name_parts[1 :]) if len(name_parts) > 1 else ''
-
-        user = User.objects.create_user(
-            username = username,
-            password = password,
-            first_name = first_name,
-            last_name = last_name,
-            email = request.POST.get('email', ''),
-            phone = request.POST.get('phone', ''),
-            is_lawyer = True
-        )
+        try :
+            years_of_experience = int(request.POST.get('years_experience') or 0)
+        except ValueError :
+            years_of_experience = 0
 
         lawyer_profile = LawyerProfile.objects.create(
-            user = user,
-            speciality = request.POST.get('speciality', ''),
-            city = request.POST.get('city', ''),
-            description = request.POST.get('description', ''),
+            user = request.user,
+            speciality = speciality,
+            city = city,
+            description = description,
             ai_summary = request.POST.get('ai_summary', ''),
-            years_of_experience = int(request.POST.get('years_of_experience', 0) or 0),
+            years_of_experience = years_of_experience,
             phone_display = request.POST.get('phone_display', ''),
-            bar_number = bar_number,
-            # نکته‌ی مهم: is_active اینجا False می‌مونه تا خودت (ادمین) قبل از
-            # نمایش عمومی، صحت شماره پروانه رو بررسی کنی؛ قبلاً این مستقیم
-            # True بود که یعنی هرکسی بدون هیچ بررسی‌ای فوراً رو سایت لایو
-            # می‌شد - این ریسک واقعی داره (جعل هویت وکیل)
-            is_active = False
+            bar_number = request.POST.get('bar_number', '').strip(),
+            # نکته: قبل از این‌که رو سایت عمومی نمایش داده بشه، خودت باید از
+            # پنل ادمین بررسی و فعالش کنی
+            is_active = False,
         )
 
         if request.FILES.get('profile_image') :
             lawyer_profile.profile_image = request.FILES['profile_image']
             lawyer_profile.save()
 
-        from django.contrib.auth import login
-        login(request, user)
+        if not request.user.is_lawyer :
+            request.user.is_lawyer = True
+            # عمداً بدون update_fields ذخیره می‌کنیم چون متد save() سفارشی
+            # User موقع تنظیم is_lawyer=True برای اولین بار، یه slug هم
+            # می‌سازه؛ اگه update_fields محدود بذاریم، همون slug ساخته‌شده
+            # تو دیتابیس ذخیره نمیشه (فقط تو حافظه می‌مونه)
+            request.user.save()
 
         messages.success(
             request,
-            'ثبت‌نام با موفقیت انجام شد. پروفایل شما بعد از بررسی شماره پروانه‌ی وکالت توسط تیم ما فعال و رو سایت نمایش داده می‌شود.'
+            'پروفایل شما با موفقیت ساخته شد. بعد از بررسی اطلاعات توسط تیم ما، رو سایت نمایش داده می‌شود.'
         )
         return redirect('home:index')
 
@@ -1042,7 +1023,7 @@ def consultation_settings_view(request):
         setting.session_minutes = int(request.POST.get('session_minutes') or 30)
         setting.save()
         messages.success(request, 'تنظیمات مشاوره با موفقیت ذخیره شد.')
-        return redirect('home:index')
+        return redirect('home:consultation_settings')
 
     return render(request, 'home/consultation_settings.html', {
         'setting': setting,
