@@ -249,7 +249,7 @@ class LawyerListView(ListView) :
 
 class SpecialictView(View):
     def get(self, request, *args, **kwargs):
-        speciality = Specialty.objects.all()
+        speciality = Specialty.objects.filter(is_active = True)
         return render(request,'base.html',{'speciality':speciality})
 
 class LawyerDetailView(DetailView) :
