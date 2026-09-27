@@ -157,11 +157,10 @@
                         تخصص‌ها
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='طلاق' %}">وکیل طلاق</a></li>
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='مهریه' %}">وکیل مهریه</a></li>
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='کیفری' %}">وکیل کیفری</a></li>
-                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality='ملکی' %}">وکیل ملکی</a></li>
-                    </ul>
+                        {% for spi in speciality %}
+                        <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality= spi.name  %}">وکیل {{ spi.name }}</a></li>
+                                {% endfor %}
+                                 </ul>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'home:consultation_lawyers' %}">

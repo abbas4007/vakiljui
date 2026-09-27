@@ -247,6 +247,10 @@ class LawyerListView(ListView) :
 
         return ctx
 
+class SpecialictView(View):
+    def get(self, request, *args, **kwargs):
+        speciality = Specialty.objects.all()
+        return render(request,'base.html',{'speciality':speciality})
 
 class LawyerDetailView(DetailView) :
     model = LawyerProfile
