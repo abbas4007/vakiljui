@@ -159,33 +159,33 @@
 
 
         <div class="mb-5 bg-light py-5 rounded-4" data-aos="fade-up">
-<div class="container">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">تخصص‌های <span class="text-primary">پرطرفدار</span></h2>
-        <p class="text-muted">بر اساس نیاز کاربران و رتبه‌بندی گوگل</p>
-    </div>
-    <div class="row g-3 justify-content-center">
-        {% for specialty in specialties %}
-        <div class="col-md-3 col-6">
-            <a href="{{ specialty.get_absolute_url }}" class="text-decoration-none">
-                <div class="specialty-card text-center p-3 bg-white rounded-3 shadow-sm">
-                    <i class="bi {{ specialty.icon }} display-4
-                    {% if specialty.slug == 'طلاق' %}text-danger
-                    {% elif specialty.slug == 'مهریه' %}text-success
-                    {% elif specialty.slug == 'کیفری' %}text-navy
-                    {% else %}text-primary{% endif %}"></i>
-                    <h5 class="mt-2 mb-0">{{ specialty.name }}</h5>
-                </div>
-            </a>
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">تخصص‌های <span class="text-primary">پرطرفدار</span></h2>
+            <p class="text-muted">بر اساس نیاز کاربران و رتبه‌بندی گوگل</p>
         </div>
-        {% empty %}
-        <div class="col-12 text-center">
-            <p>هنوز تخصصی ثبت نشده است.</p>
+        <div class="row g-3 justify-content-center">
+            {% for specialty in specialties %}
+            <div class="col-md-3 col-6">
+<a href="{{ specialty.get_absolute_url }}" class="text-decoration-none">
+                    <div class="specialty-card text-center p-3 bg-white rounded-3 shadow-sm">
+                        <i class="bi {{ specialty.icon }} display-4
+                        {% if specialty.slug == 'طلاق' %}text-danger
+                        {% elif specialty.slug == 'مهریه' %}text-success
+                        {% elif specialty.slug == 'کیفری' %}text-primary
+                        {% else %}text-primary{% endif %}"></i>
+                        <h5 class="mt-2 mb-0">{{ specialty.name }}</h5>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>هنوز تخصصی ثبت نشده است.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
-        </div>
 
 
         <!-- ========== شهرهای فعال ========== -->
@@ -214,31 +214,33 @@
 </div>
 
         <!-- ========== درباره ما و مزایا ========== -->
-        <div class="container">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">تخصص‌های <span class="text-primary">پرطرفدار</span></h2>
-        <p class="text-muted">بر اساس نیاز کاربران و رتبه‌بندی گوگل</p>
-    </div>
-
-    <div class="specialty-grid">
-        {% for specialty in specialties %}
-            <a href="{{ specialty.get_absolute_url }}" class="text-decoration-none specialty-item">
-                <div class="specialty-card text-center p-3 bg-white rounded-3 shadow-sm">
-                    <i class="bi {{ specialty.icon }} display-4
-                    {% if specialty.slug == 'طلاق' %}text-danger
-                    {% elif specialty.slug == 'مهریه' %}text-success
-                    {% elif specialty.slug == 'کیفری' %}text-navy
-                    {% else %}text-primary{% endif %}"></i>
-                    <h5 class="mt-2 mb-0">{{ specialty.name }}</h5>
-                </div>
-            </a>
-        {% empty %}
-            <div class="text-center w-100">
-                <p>هنوز تخصصی ثبت نشده است.</p>
+        <div class="row g-4 mb-5 align-items-center" data-aos="fade-up">
+            <div class="col-md-6">
+                     <img src="{% static 'img/about-law.jpg' %}" alt="درباره وکیل جو" class="img-fluid rounded-4 shadow-sm" onerror="this.src='https://placehold.co/600x400/1e3c72/white?text=وکیل+جو'">#}
             </div>
-        {% endfor %}
-    </div>
-</div>
+            <div class="col-md-6">
+                <h2 class="fw-bold">چرا <span class="text-primary">وکیل جو</span>؟</h2>
+                <p class="lead text-muted">سامانه تخصصی معرفی بهترین وکلای ایران</p>
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>رتبه‌بندی
+                        هوشمند</strong> - بر اساس نرخ موفقیت و سابقه
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>نظرات
+                        واقعی</strong> - تایید شده توسط کاربران
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>مقایسه
+                        آسان</strong> - وکلا را کنار هم ببینید
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>پشتیبانی
+                        ۲۴/۷</strong> - تیم حرفه‌ای پاسخگو
+                    </li>
+                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>داده‌های
+                        ساختاریافته</strong> - برای هوش مصنوعی و گوگل
+                    </li>
+                </ul>
+                <a href="/درباره-ما/" class="btn btn-primary mt-3">اطلاعات بیشتر <i class="bi bi-arrow-left"></i></a>
+            </div>
+        </div>
 
         <!-- ========== نظرات کاربران ========== -->
         <div class="mb-5 bg-primary bg-opacity-10 py-5 rounded-4" data-aos="fade-up">
