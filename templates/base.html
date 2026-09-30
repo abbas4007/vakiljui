@@ -43,6 +43,74 @@
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <style>
+        /* === Speciality Grid (Grid-based, مقاوم به تداخل) === */
+.specialty-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);   /* ۴ ستون در دسکتاپ */
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.specialty-item {
+    display: block;
+    height: 100%;
+}
+
+.specialty-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+.specialty-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold-gradient);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.35s ease;
+}
+.specialty-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -15px rgba(15, 37, 71, 0.18) !important;
+    border-color: rgba(255, 215, 0, 0.4);
+}
+.specialty-card:hover::before { transform: scaleX(1); }
+.specialty-card i {
+    transition: transform 0.35s ease;
+    display: inline-block;
+}
+.specialty-card:hover i { transform: scale(1.15) rotate(-6deg); }
+.specialty-card h5 {
+    color: var(--ink-700);
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+.specialty-card:hover h5 { color: var(--navy-700); }
+
+/* رنگ آبی برای کیفری */
+.text-navy { color: #1e3c72 !important; }
+
+/* === ریسپانسیو === */
+@media (max-width: 992px) {   /* تبلت */
+    .specialty-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {   /* موبایل بزرگ */
+    .specialty-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+}
+@media (max-width: 480px) {   /* موبایل کوچک */
+    .specialty-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .specialty-card h5 { font-size: 0.9rem; }
+    .specialty-card i { font-size: 2.5rem !important; }
+}
         /* === Speciality Cards === */
 .text-navy { color: #1e3c72 !important; }
 
