@@ -214,33 +214,87 @@
 </div>
 
         <!-- ========== درباره ما و مزایا ========== -->
-        <div class="row g-4 mb-5 align-items-center" data-aos="fade-up">
-            <div class="col-md-6">
-                     <img src="{% static 'img/about-law.jpg' %}" alt="درباره وکیل جو" class="img-fluid rounded-4 shadow-sm" onerror="this.src='https://placehold.co/600x400/1e3c72/white?text=وکیل+جو'">#}
+<div class="row g-4 mb-5 align-items-center" data-aos="fade-up">
+    <div class="col-md-6">
+        <!-- باکس آماری -->
+        <div class="stats-box rounded-4 shadow-sm p-4 p-lg-5 h-100">
+            <div class="text-center mb-4">
+                <div class="stats-icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle mb-3">
+                    <i class="bi bi-graph-up-arrow fs-1 text-white"></i>
+                </div>
+                <h4 class="fw-bold mb-1">آمار و عملکرد سامانه</h4>
+                <p class="text-muted small mb-0">اعتماد هزاران کاربر در سراسر ایران</p>
             </div>
-            <div class="col-md-6">
-                <h2 class="fw-bold">چرا <span class="text-primary">وکیل جو</span>؟</h2>
-                <p class="lead text-muted">سامانه تخصصی معرفی بهترین وکلای ایران</p>
-                <ul class="list-unstyled mt-4">
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>رتبه‌بندی
-                        هوشمند</strong> - بر اساس نرخ موفقیت و سابقه
-                    </li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>نظرات
-                        واقعی</strong> - تایید شده توسط کاربران
-                    </li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>مقایسه
-                        آسان</strong> - وکلا را کنار هم ببینید
-                    </li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>پشتیبانی
-                        ۲۴/۷</strong> - تیم حرفه‌ای پاسخگو
-                    </li>
-                    <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>داده‌های
-                        ساختاریافته</strong> - برای هوش مصنوعی و گوگل
-                    </li>
-                </ul>
-                <a href="/درباره-ما/" class="btn btn-primary mt-3">اطلاعات بیشتر <i class="bi bi-arrow-left"></i></a>
+
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="stat-card text-center p-3 rounded-3 h-100">
+                        <i class="bi bi-people-fill stat-card-icon text-primary mb-2"></i>
+                        <h3 class="fw-bold mb-0 counter" data-target="12500">۰</h3>
+                        <p class="text-muted small mb-0">وکیل فعال</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card text-center p-3 rounded-3 h-100">
+                        <i class="bi bi-briefcase-fill stat-card-icon text-success mb-2"></i>
+                        <h3 class="fw-bold mb-0 counter" data-target="48000">۰</h3>
+                        <p class="text-muted small mb-0">پرونده موفق</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card text-center p-3 rounded-3 h-100">
+                        <i class="bi bi-star-fill stat-card-icon text-warning mb-2"></i>
+                        <h3 class="fw-bold mb-0"><span class="counter" data-target="4.9">۰</span><span class="fs-6">/۵</span></h3>
+                        <p class="text-muted small mb-0">رضایت کاربران</p>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card text-center p-3 rounded-3 h-100">
+                        <i class="bi bi-headset stat-card-icon text-danger mb-2"></i>
+                        <h3 class="fw-bold mb-0"><span class="counter" data-target="24">۰</span>/<span class="counter" data-target="7">۰</span></h3>
+                        <p class="text-muted small mb-0">پشتیبانی فعال</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="small text-muted">نرخ موفقیت پرونده‌ها</span>
+                    <span class="small fw-bold text-success">۹۲٪</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="col-md-6">
+        <h2 class="fw-bold">چرا <span class="text-primary">وکیل جو</span>؟</h2>
+        <p class="lead text-muted">سامانه تخصصی معرفی بهترین وکلای ایران</p>
+        <ul class="list-unstyled mt-4">
+            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>رتبه‌بندی
+                هوشمند</strong> - بر اساس نرخ موفقیت و سابقه
+            </li>
+            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>نظرات
+                واقعی</strong> - تایید شده توسط کاربران
+            </li>
+            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>مقایسه
+                آسان</strong> - وکلا را کنار هم ببینید
+            </li>
+            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>پشتیبانی
+                ۲۴/۷</strong> - تیم حرفه‌ای پاسخگو
+            </li>
+            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>داده‌های
+                ساختاریافته</strong> - برای هوش مصنوعی و گوگل
+            </li>
+        </ul>
+        <a href="/درباره-ما/" class="btn btn-primary mt-3">اطلاعات بیشتر <i class="bi bi-arrow-left"></i></a>
+    </div>
+</div>
+
+
+
 
         <!-- ========== نظرات کاربران ========== -->
         <div class="mb-5 bg-primary bg-opacity-10 py-5 rounded-4" data-aos="fade-up">
@@ -459,6 +513,51 @@
             });
             observer.observe(counter);
         });
+    });
+</script>
+    <!-- اسکریپت شمارنده انیمیشنی -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const counters = document.querySelectorAll(".counter");
+
+        const animateCounter = (el) => {
+            const target = parseFloat(el.getAttribute("data-target"));
+            const isDecimal = target % 1 !== 0;
+            const duration = 1500;
+            const startTime = performance.now();
+
+            const update = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const currentValue = target * eased;
+
+                if (isDecimal) {
+                    el.textContent = currentValue.toFixed(1);
+                } else {
+                    el.textContent = Math.floor(currentValue).toLocaleString("fa-IR");
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString("fa-IR");
+                }
+            };
+
+            requestAnimationFrame(update);
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.4 });
+
+        counters.forEach((c) => observer.observe(c));
     });
 </script>
 {% endblock %}

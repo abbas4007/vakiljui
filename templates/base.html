@@ -43,6 +43,96 @@
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
     <style>
+        <!-- استایل باکس آماری -->
+<style>
+    .stats-box {
+        background: linear-gradient(135deg, #f8faff 0%, #eef3ff 100%);
+        border: 1px solid rgba(30, 60, 114, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-box::before {
+        content: "";
+        position: absolute;
+        top: -60px;
+        left: -60px;
+        width: 180px;
+        height: 180px;
+        background: radial-gradient(circle, rgba(30, 60, 114, 0.12), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .stats-box::after {
+        content: "";
+        position: absolute;
+        bottom: -80px;
+        right: -80px;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(25, 135, 84, 0.10), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .stats-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        box-shadow: 0 10px 25px rgba(30, 60, 114, 0.35);
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid rgba(30, 60, 114, 0.06);
+        transition: all 0.35s ease;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(30, 60, 114, 0.12);
+        border-color: rgba(30, 60, 114, 0.15);
+    }
+
+    .stat-card-icon {
+        font-size: 1.6rem;
+    }
+
+    .stat-card h3 {
+        color: #1e3c72;
+        font-size: 1.5rem;
+    }
+
+    .stat-card .counter {
+        display: inline-block;
+    }
+
+    .progress {
+        background-color: rgba(30, 60, 114, 0.08);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+    }
+
+    /* واکنش‌گرایی */
+    @media (max-width: 576px) {
+        .stats-box {
+            padding: 1.25rem !important;
+        }
+        .stat-card h3 {
+            font-size: 1.25rem;
+        }
+        .stat-card-icon {
+            font-size: 1.3rem;
+        }
+    }
+</style>
         /* === Speciality Grid (Grid-based, مقاوم به تداخل) === */
 .specialty-grid {
     display: grid;
