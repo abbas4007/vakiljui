@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-    <!-- ========== OPEN GRAPH (یکبار) ========== -->
+    <!-- ========== OPEN GRAPH ========== -->
     <meta property="og:title" content="{% block og_title %}{{ meta_title|default:'وکیل جوی | سامانه تخصصی وکلای ایران' }}{% endblock %}">
     <meta property="og:description" content="{% block meta_description_og %}بهترین وکلای طلاق، مهریه، کیفری و ملکی سراسر ایران را با رتبه‌بندی هوشمند، نرخ موفقیت واقعی و نظرات کاربران در وکیل جوی پیدا کنید.{% endblock %}">
     <meta property="og:type" content="website">
@@ -121,6 +121,30 @@
             color: transparent;
             margin-left: 4px;
         }
+
+        /* ============ FIX: HAMBURGER MENU ============ */
+        .navbar-toggler {
+            border: 1.5px solid var(--navy-700) !important;
+            padding: 0.4rem 0.7rem;
+            border-radius: 10px;
+            background: #fff !important;
+            transition: all 0.25s ease;
+        }
+        .navbar-toggler:hover {
+            background: rgba(255, 215, 0, 0.15) !important;
+            border-color: var(--gold-500) !important;
+        }
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.3) !important;
+            outline: none !important;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231e3c72' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+            width: 1.6em;
+            height: 1.6em;
+            background-size: 100% 100%;
+        }
+
         .nav-link {
             font-weight: 500;
             color: var(--ink-700) !important;
@@ -371,6 +395,124 @@
             border-color: transparent;
             transform: translateY(-2px);
             box-shadow: 0 12px 26px -14px rgba(30,60,114,0.7);
+            color: #fff;
+        }
+
+        /* ============ FIX: LAWYER IMAGES (جلوگیری از زوم) ============ */
+        .lawyer-card img,
+        .lawyer-img,
+        .attorney-card img,
+        .lawyer-avatar,
+        .card-img-top,
+        .lawyer-card .card-img-top,
+        .lawyer-photo,
+        .lawyer-profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover !important;
+            object-position: center top !important;
+            display: block;
+            transform: none !important;
+            transition: transform 0.4s ease;
+        }
+        /* فقط روی hover زوم ملایم داشته باشه */
+        .lawyer-card:hover img,
+        .attorney-card:hover img {
+            transform: scale(1.03) !important;
+        }
+        /* جلوگیری از اورفلو */
+        .lawyer-card,
+        .attorney-card {
+            overflow: hidden;
+            border-radius: var(--radius-md);
+        }
+
+        /* ============ FIX: CRIMINAL CARD (کیفری مشکی → آبی) ============ */
+        /* اگر کارت کیفری پس‌زمینه‌ی تیره داره */
+        .category-criminal,
+        .specialty-criminal,
+        .card-criminal,
+        .criminal-card {
+            background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%) !important;
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        .category-criminal::before,
+        .specialty-criminal::before,
+        .card-criminal::before,
+        .criminal-card::before,
+        .category-criminal .overlay,
+        .specialty-criminal .overlay {
+            background: linear-gradient(135deg,
+                rgba(30, 60, 114, 0.92) 0%,
+                rgba(43, 76, 124, 0.85) 100%) !important;
+        }
+        /* اگر تصویر کیفری سیاهه، رنگش رو به آبی ببر */
+        .category-criminal img,
+        .specialty-criminal img,
+        .card-criminal img,
+        .criminal-card img {
+            filter: hue-rotate(190deg) saturate(1.3) brightness(0.95) !important;
+        }
+        /* عمومی: هر کارتی که کلاسش criminal داره */
+        [class*="criminal"] {
+            --criminal-accent: #1e3c72;
+        }
+
+        /* ============ STAT CARDS (برای بخش «چرا وکیل جو») ============ */
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius-md);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--line);
+            transition: all .3s ease;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(255,215,0,0.5);
+        }
+        .stat-card i {
+            font-size: 2rem;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: .5rem;
+            display: inline-block;
+        }
+        .stat-card h3 {
+            color: var(--navy-800);
+            font-weight: 800;
+            margin: .25rem 0;
+            font-size: 1.65rem;
+        }
+        .stat-card p {
+            color: var(--ink-500);
+            font-size: .88rem;
+            margin: 0;
+            font-weight: 500;
+        }
+        .why-us-visual {
+            position: relative;
+            padding: 1.75rem;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(30,60,114,0.04), rgba(255,215,0,0.06));
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        .why-us-visual::before {
+            content: '⚖️';
+            position: absolute;
+            top: -30px; left: -20px;
+            font-size: 9rem;
+            opacity: 0.06;
+            transform: rotate(-15deg);
+            pointer-events: none;
         }
 
         /* ============ FOOTER ============ */
@@ -439,6 +581,7 @@
             transform: translateY(-4px) rotate(-6deg);
             border-color: transparent;
             box-shadow: 0 12px 25px -10px rgba(255,215,0,0.7);
+            padding-right: 0;
         }
 
         .footer-bottom {
@@ -466,7 +609,6 @@
         }
         .developer-name:hover { filter: brightness(1.2); }
 
-        /* FAQ pills in footer */
         .footer .btn-outline-light.rounded-pill {
             border-color: rgba(255,255,255,0.22);
             color: #dbe3ee;
@@ -487,7 +629,6 @@
         main { flex: 1; }
         .text-gold { color: var(--gold-500) !important; }
 
-        /* custom scrollbar */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: #eef1f7; }
         ::-webkit-scrollbar-thumb {
@@ -505,6 +646,7 @@
                 padding: 1rem;
                 margin-top: 0.75rem;
                 box-shadow: var(--shadow-md);
+                border: 1px solid var(--line);
             }
             .nav-link::after { display: none; }
         }
@@ -526,6 +668,8 @@
             .scroll-down a { width: 40px; height: 40px; font-size: 1.1rem; }
             .footer { padding-top: 2.5rem; }
             .footer h5 { font-size: 1rem; }
+            .stat-card h3 { font-size: 1.35rem; }
+            .stat-card i { font-size: 1.6rem; }
         }
     </style>
 
@@ -564,7 +708,7 @@
         <a class="navbar-brand" href="{% url 'home:index' %}">
             <i class="bi bi-gavel"></i> وکیل جوی
         </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarMain">
@@ -576,7 +720,7 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         تخصص‌ها
                     </a>
-                  <ul class="dropdown-menu">
+                    <ul class="dropdown-menu">
     {% for s in nav_specialties %}
     <li><a class="dropdown-item" href="{% url 'home:lawyer_list' speciality=s.slug %}">وکیل {{ s.name }}</a></li>
     {% endfor %}
@@ -705,7 +849,7 @@
 
         <div class="row mt-5 pt-3 border-top border-light border-opacity-25">
             <div class="col-12">
-                <h5 class="text-gold mb-3 text-center" style="display:block;text-align:center !important;">
+                <h5 class="text-gold mb-3" style="display:block;text-align:center !important;">
                     <i class="bi bi-question-circle"></i> سوالات رایج حقوقی
                 </h5>
                 <div class="d-flex flex-wrap justify-content-center gap-2">
