@@ -1535,7 +1535,17 @@ def personal_assistant_image_view(request) :
     prompt = request.POST.get('prompt', '').strip()
     mode = request.POST.get('mode', 'generate')
     aspect_ratio = request.POST.get('aspect_ratio', '1:1')
-
+    print(
+        "IMAGE FORM DEBUG:",
+        {
+            'mode' : mode,
+            'prompt' : prompt,
+            'aspect_ratio' : aspect_ratio,
+            'files' : list(request.FILES.keys()),
+            'post_keys' : list(request.POST.keys()),
+        },
+        flush = True
+    )
     if not prompt :
         return JsonResponse(
             {'error' : 'لطفاً توضیح تصویر را وارد کنید.'},
