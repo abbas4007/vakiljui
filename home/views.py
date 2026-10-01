@@ -22,33 +22,32 @@ import base64
 
 from django.views.decorators.http import require_POST
 
-
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class HomeView(TemplateView):
+@method_decorator(ensure_csrf_cookie, name = 'dispatch')
+class HomeView(TemplateView) :
     template_name = 'home/index.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) :
         ctx = super().get_context_data(**kwargs)
 
         # ============ شهرها ============
         cities = cache.get('active_cities')
-        if not cities:
-            cities = list(City.objects.filter(is_active=True))
+        if not cities :
+            cities = list(City.objects.filter(is_active = True))
             cache.set('active_cities', cities, 3600)
 
         # ============ تخصص‌ها ============
         specialties = cache.get('active_specialties')
-        if not specialties:
-            specialties = list(Specialty.objects.filter(is_active=True))
+        if not specialties :
+            specialties = list(Specialty.objects.filter(is_active = True))
             cache.set('active_specialties', specialties, 3600)
 
         # تعداد واقعی وکلا در هر شهر
-        for city in cities:
-            real_count = LawyerProfile.objects.filter(is_active=True, city=city.name).count()
+        for city in cities :
+            real_count = LawyerProfile.objects.filter(is_active = True, city = city.name).count()
             city.real_lawyer_count = real_count if real_count > 0 else city.lawyer_count
 
         ctx['cities'] = cities
@@ -57,39 +56,39 @@ class HomeView(TemplateView):
         # ============ وکلای طلایی ============
         top_lawyers = cache.get('top_lawyers')
 
-        if top_lawyers is None:
-            try:
+        if top_lawyers is None :
+            try :
                 gold_plan = SubscriptionPlan.objects.get(
-                    Q(name__icontains='طلا') | Q(name__iexact='gold'),
-                    is_active=True
+                    Q(name__icontains = 'طلا') | Q(name__iexact = 'gold'),
+                    is_active = True
                 )
-            except SubscriptionPlan.DoesNotExist:
+            except SubscriptionPlan.DoesNotExist :
                 gold_plan = SubscriptionPlan.objects.filter(
-                    is_active=True
+                    is_active = True
                 ).order_by('-priority').first()
 
-            if gold_plan:
+            if gold_plan :
                 top_lawyers = list(LawyerProfile.objects.filter(
-                    is_active=True,
-                    subscriptions__plan=gold_plan,
-                    subscriptions__is_paid=True,
-                    subscriptions__end_date__gt=timezone.now()
+                    is_active = True,
+                    subscriptions__plan = gold_plan,
+                    subscriptions__is_paid = True,
+                    subscriptions__end_date__gt = timezone.now()
                 ).select_related('user').distinct().order_by(
                     '-subscriptions__start_date'
                 )[:8])
 
-                if not top_lawyers:
+                if not top_lawyers :
                     top_lawyers = list(LawyerProfile.objects.filter(
-                        is_active=True,
-                        subscriptions__is_paid=True,
-                        subscriptions__end_date__gt=timezone.now()
+                        is_active = True,
+                        subscriptions__is_paid = True,
+                        subscriptions__end_date__gt = timezone.now()
                     ).select_related('user').distinct().order_by(
                         '-subscriptions__plan__priority',
                         '-subscriptions__start_date'
                     )[:8])
-            else:
+            else :
                 top_lawyers = list(LawyerProfile.objects.filter(
-                    is_active=True
+                    is_active = True
                 ).select_related('user').order_by('-success_rate')[:8])
 
             cache.set('top_lawyers', top_lawyers, 300)
@@ -104,55 +103,55 @@ class HomeView(TemplateView):
 
         # ============ Schema برای صفحه اصلی ============
         ctx['site_schema'] = json.dumps({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "وکیل جو",
-            "url": self.request.build_absolute_uri('/'),
-            "description": ctx['meta_description'],
-            "potentialAction": {
-                "@type": "SearchAction",
-                "target": {
-                    "@type": "EntryPoint",
-                    "urlTemplate": self.request.build_absolute_uri('/') + "جستجو?q={search_term_string}"
+            "@context" : "https://schema.org",
+            "@type" : "WebSite",
+            "name" : "وکیل جو",
+            "url" : self.request.build_absolute_uri('/'),
+            "description" : ctx['meta_description'],
+            "potentialAction" : {
+                "@type" : "SearchAction",
+                "target" : {
+                    "@type" : "EntryPoint",
+                    "urlTemplate" : self.request.build_absolute_uri('/') + "جستجو?q={search_term_string}"
                 },
-                "query-input": "required name=search_term_string"
+                "query-input" : "required name=search_term_string"
             }
-        }, ensure_ascii=False)
+        }, ensure_ascii = False)
 
         # ============ پردازش پارامتر q برای سئو ============
         query = self.request.GET.get('q', '').strip()
-        if query:
+        if query :
             valid_specialty_names = [s.name for s in specialties]
             valid_city_names = [c.name for c in cities]
 
-            try:
+            try :
                 result = analyze_legal_query(query, valid_specialty_names, valid_city_names)
                 ctx['initial_ai_query'] = query
                 ctx['initial_ai_result'] = result
                 ctx['panel_should_open'] = True
 
                 # برای ریچ‌اسنیپت گوگل، یک FAQPage با سوال و جواب تولید می‌کنیم
-                if result.get('summary'):
+                if result.get('summary') :
                     ctx['faq_schema_for_seo'] = json.dumps({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        "mainEntity": [{
-                            "@type": "Question",
-                            "name": query,
-                            "acceptedAnswer": {
-                                "@type": "Answer",
-                                "text": result['summary']
+                        "@context" : "https://schema.org",
+                        "@type" : "FAQPage",
+                        "mainEntity" : [{
+                            "@type" : "Question",
+                            "name" : query,
+                            "acceptedAnswer" : {
+                                "@type" : "Answer",
+                                "text" : result['summary']
                             }
                         }]
-                    }, ensure_ascii=False)
+                    }, ensure_ascii = False)
                 # کانونیکال رو به صفحه اصلی بدون پارامتر تنظیم می‌کنیم تا محتوای تکراری نداشته باشیم
                 ctx['canonical_url'] = self.request.build_absolute_uri('/')
 
-            except AIMatcherError:
+            except AIMatcherError :
                 # در صورت خطا، پنل باز نمی‌شه
                 ctx['panel_should_open'] = False
                 ctx['initial_ai_result'] = None
-        else:
+        else :
             ctx['panel_should_open'] = False
             ctx['initial_ai_result'] = None
 
@@ -250,10 +249,12 @@ class LawyerListView(ListView) :
 
         return ctx
 
-class SpecialictView(View):
-    def get(self, request, *args, **kwargs):
+
+class SpecialictView(View) :
+    def get(self, request, *args, **kwargs) :
         speciality = Specialty.objects.filter(is_active = True)
-        return render(request,'base.html',{'speciality':speciality})
+        return render(request, 'base.html', {'speciality' : speciality})
+
 
 class LawyerDetailView(DetailView) :
     model = LawyerProfile
@@ -813,7 +814,7 @@ class LandingPage(View) :
         return render(request, 'home/landing.html')
 
 
-class LawyerSearchView(ListView):
+class LawyerSearchView(ListView) :
     model = LawyerProfile
     template_name = 'home/search_results.html'
     context_object_name = 'lawyers'
@@ -821,162 +822,163 @@ class LawyerSearchView(ListView):
 
     STOP_WORDS = ['وکیل', 'وکلای', 'مشاور', 'برای']
 
-    def get_query(self):
+    def get_query(self) :
         return self.request.GET.get('q', '').strip()
 
-    def get_keywords(self):
+    def get_keywords(self) :
         query = self.get_query()
-        if not query:
+        if not query :
             return []
         keywords = [w for w in query.split() if w not in self.STOP_WORDS]
         return keywords if keywords else query.split()
 
-    def build_search_field_query(self, word):
+    def build_search_field_query(self, word) :
         return (
-            Q(user__first_name__icontains=word) |
-            Q(user__last_name__icontains=word) |
-            Q(speciality__icontains=word) |
-            Q(sub_speciality__icontains=word) |
-            Q(city__icontains=word)
+                Q(user__first_name__icontains = word) |
+                Q(user__last_name__icontains = word) |
+                Q(speciality__icontains = word) |
+                Q(sub_speciality__icontains = word) |
+                Q(city__icontains = word)
         )
 
-    def get_queryset(self):
+    def get_queryset(self) :
         query = self.get_query()
         base_qs = LawyerProfile.objects.filter(
-            is_active=True
+            is_active = True
         ).select_related('user')
 
-        if not query:
+        if not query :
             return LawyerProfile.objects.none()
 
         keywords = self.get_keywords()
 
         and_query = Q()
-        for word in keywords:
+        for word in keywords :
             and_query &= self.build_search_field_query(word)
 
         results = base_qs.filter(and_query).distinct()
 
-        if not results.exists():
+        if not results.exists() :
             or_query = Q()
-            for word in keywords:
+            for word in keywords :
                 or_query |= self.build_search_field_query(word)
             results = base_qs.filter(or_query).distinct()
 
         return results
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) :
         context = super().get_context_data(**kwargs)
         context['query'] = self.get_query()
         context['results_count'] = context['paginator'].count
         return context
 
 
-class AIMatchView(View):
+class AIMatchView(View) :
     MAX_REQUESTS_PER_HOUR = 8
     SESSION_KEY = 'ai_match_requests'
 
-    def _is_rate_limited(self, request):
+    def _is_rate_limited(self, request) :
         now = timezone.now().timestamp()
         history = request.session.get(self.SESSION_KEY, [])
         history = [t for t in history if now - t < 3600]
-        if len(history) >= self.MAX_REQUESTS_PER_HOUR:
+        if len(history) >= self.MAX_REQUESTS_PER_HOUR :
             request.session[self.SESSION_KEY] = history
             return True
         history.append(now)
         request.session[self.SESSION_KEY] = history
         return False
 
-    def post(self, request):
-        if self._is_rate_limited(request):
+    def post(self, request) :
+        if self._is_rate_limited(request) :
             return JsonResponse(
-                {'error': 'تعداد درخواست‌های شما در این ساعت به حد مجاز رسیده است. کمی بعد دوباره تلاش کنید.'},
-                status=429
+                {'error' : 'تعداد درخواست‌های شما در این ساعت به حد مجاز رسیده است. کمی بعد دوباره تلاش کنید.'},
+                status = 429
             )
 
-        try:
+        try :
             body = json.loads(request.body.decode('utf-8'))
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return JsonResponse({'error': 'درخواست نامعتبر است.'}, status=400)
+        except (json.JSONDecodeError, UnicodeDecodeError) :
+            return JsonResponse({'error' : 'درخواست نامعتبر است.'}, status = 400)
 
         description = (body.get('description') or '').strip()
-        if not description:
-            return JsonResponse({'error': 'لطفاً مشکل خود را توضیح دهید.'}, status=400)
-        if len(description) < 10:
-            return JsonResponse({'error': 'لطفاً کمی بیشتر توضیح دهید تا بتوانیم بهتر راهنمایی کنیم.'}, status=400)
+        if not description :
+            return JsonResponse({'error' : 'لطفاً مشکل خود را توضیح دهید.'}, status = 400)
+        if len(description) < 10 :
+            return JsonResponse({'error' : 'لطفاً کمی بیشتر توضیح دهید تا بتوانیم بهتر راهنمایی کنیم.'}, status = 400)
 
         cities = cache.get('active_cities')
-        if not cities:
-            cities = list(City.objects.filter(is_active=True))
+        if not cities :
+            cities = list(City.objects.filter(is_active = True))
             cache.set('active_cities', cities, 3600)
 
         specialties = cache.get('active_specialties')
-        if not specialties:
-            specialties = list(Specialty.objects.filter(is_active=True))
+        if not specialties :
+            specialties = list(Specialty.objects.filter(is_active = True))
             cache.set('active_specialties', specialties, 3600)
 
         valid_specialty_names = [s.name for s in specialties]
         valid_city_names = [c.name for c in cities]
 
-        try:
+        try :
             result = analyze_legal_query(description, valid_specialty_names, valid_city_names)
-        except AIMatcherError as e:
-            return JsonResponse({'error': str(e)}, status=503)
+        except AIMatcherError as e :
+            return JsonResponse({'error' : str(e)}, status = 503)
 
-        if not result['specialties']:
+        if not result['specialties'] :
             return JsonResponse({
-                'summary': result['summary'] or 'متوجه ارتباط توضیح شما با تخصص‌های موجود در سایت نشدیم. لطفاً کمی واضح‌تر توضیح دهید یا مستقیماً از لیست تخصص‌ها انتخاب کنید.',
-                'city': result['city'],
-                'specialties': [],
-                'lawyers': [],
-                'ai_powered': result.get('source') == 'ai',
-                'primary_url': None,
-                'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
+                'summary' : result[
+                                'summary'] or 'متوجه ارتباط توضیح شما با تخصص‌های موجود در سایت نشدیم. لطفاً کمی واضح‌تر توضیح دهید یا مستقیماً از لیست تخصص‌ها انتخاب کنید.',
+                'city' : result['city'],
+                'specialties' : [],
+                'lawyers' : [],
+                'ai_powered' : result.get('source') == 'ai',
+                'primary_url' : None,
+                'disclaimer' : 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
             })
 
         specialties_data = []
-        for sp in result['specialties']:
+        for sp in result['specialties'] :
             sp_slug = sp.replace(' ', '-')
-            if result['city']:
-                url = reverse('home:lawyer_list_city', kwargs={'speciality': sp_slug, 'city': result['city']})
-            else:
-                url = reverse('home:lawyer_list', kwargs={'speciality': sp_slug})
-            specialties_data.append({'name': sp, 'url': url})
+            if result['city'] :
+                url = reverse('home:lawyer_list_city', kwargs = {'speciality' : sp_slug, 'city' : result['city']})
+            else :
+                url = reverse('home:lawyer_list', kwargs = {'speciality' : sp_slug})
+            specialties_data.append({'name' : sp, 'url' : url})
 
         lawyers_data = []
-        if result.get('source') == 'ai':
+        if result.get('source') == 'ai' :
             specialty_query = Q()
-            for sp in result['specialties']:
-                specialty_query |= Q(speciality=sp)
+            for sp in result['specialties'] :
+                specialty_query |= Q(speciality = sp)
 
-            lawyers_qs = LawyerProfile.objects.filter(specialty_query, is_active=True).select_related('user')
-            if result['city']:
-                lawyers_qs = lawyers_qs.filter(city=result['city'])
+            lawyers_qs = LawyerProfile.objects.filter(specialty_query, is_active = True).select_related('user')
+            if result['city'] :
+                lawyers_qs = lawyers_qs.filter(city = result['city'])
 
             lawyers_qs = lawyers_qs.annotate(
-                top_priority=Max(
+                top_priority = Max(
                     'subscriptions__plan__priority',
-                    filter=Q(subscriptions__is_paid=True, subscriptions__end_date__gt=timezone.now())
+                    filter = Q(subscriptions__is_paid = True, subscriptions__end_date__gt = timezone.now())
                 )
             ).order_by('-top_priority', '-success_rate')[:6]
 
-            for lawyer in lawyers_qs:
+            for lawyer in lawyers_qs :
                 lawyers_data.append({
-                    'name': lawyer.user.get_full_name(),
-                    'speciality': lawyer.speciality,
-                    'city': lawyer.city,
-                    'years_of_experience': lawyer.years_of_experience,
-                    'url': lawyer.get_absolute_url(),
+                    'name' : lawyer.user.get_full_name(),
+                    'speciality' : lawyer.speciality,
+                    'city' : lawyer.city,
+                    'years_of_experience' : lawyer.years_of_experience,
+                    'url' : lawyer.get_absolute_url(),
                 })
 
         return JsonResponse({
-            'summary': result['summary'],
-            'city': result['city'],
-            'specialties': specialties_data,
-            'lawyers': lawyers_data,
-            'ai_powered': result.get('source') == 'ai',
-            'primary_url': specialties_data[0]['url'] if specialties_data else None,
-            'disclaimer': 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
+            'summary' : result['summary'],
+            'city' : result['city'],
+            'specialties' : specialties_data,
+            'lawyers' : lawyers_data,
+            'ai_powered' : result.get('source') == 'ai',
+            'primary_url' : specialties_data[0]['url'] if specialties_data else None,
+            'disclaimer' : 'این پاسخ توسط هوش مصنوعی تولید شده و جایگزین مشاوره‌ی حقوقی با وکیل واقعی نیست.',
         })
 
 
@@ -984,44 +986,44 @@ class AIMatchView(View):
 # سیستم مشاوره‌ی آنلاین پولی
 # =========================================================
 
-def consultation_lawyer_list_view(request):
+def consultation_lawyer_list_view(request) :
     lawyers_qs = LawyerProfile.objects.filter(
-        is_active=True,
-        consultation_setting__is_available=True,
+        is_active = True,
+        consultation_setting__is_available = True,
     ).select_related('user', 'consultation_setting')
 
     speciality = request.GET.get('speciality', '').strip()
     city = request.GET.get('city', '').strip()
-    if speciality:
-        lawyers_qs = lawyers_qs.filter(speciality=speciality)
-    if city:
-        lawyers_qs = lawyers_qs.filter(city=city)
+    if speciality :
+        lawyers_qs = lawyers_qs.filter(speciality = speciality)
+    if city :
+        lawyers_qs = lawyers_qs.filter(city = city)
 
     lawyers_qs = lawyers_qs.order_by('-success_rate', '-years_of_experience')
 
     return render(request, 'home/consultation_lawyers.html', {
-        'lawyers': lawyers_qs,
-        'specialties': Specialty.objects.filter(is_active=True),
-        'cities': City.objects.filter(is_active=True),
-        'selected_speciality': speciality,
-        'selected_city': city,
-        'meta_title': 'مشاوره‌ی آنلاین با وکیل | وکیل جو',
-        'meta_description': 'مستقیم و آنلاین با وکلای متخصص و تأییدشده مشاوره بگیرید؛ چت متنی یا تماس تلفنی.',
-        'canonical_url': request.build_absolute_uri(request.path),
+        'lawyers' : lawyers_qs,
+        'specialties' : Specialty.objects.filter(is_active = True),
+        'cities' : City.objects.filter(is_active = True),
+        'selected_speciality' : speciality,
+        'selected_city' : city,
+        'meta_title' : 'مشاوره‌ی آنلاین با وکیل | وکیل جو',
+        'meta_description' : 'مستقیم و آنلاین با وکلای متخصص و تأییدشده مشاوره بگیرید؛ چت متنی یا تماس تلفنی.',
+        'canonical_url' : request.build_absolute_uri(request.path),
     })
 
 
 @login_required
-def consultation_settings_view(request):
-    try:
-        lawyer = LawyerProfile.objects.get(user=request.user)
-    except LawyerProfile.DoesNotExist:
+def consultation_settings_view(request) :
+    try :
+        lawyer = LawyerProfile.objects.get(user = request.user)
+    except LawyerProfile.DoesNotExist :
         messages.error(request, 'این بخش فقط برای وکلا در دسترس است.')
         return redirect('home:index')
 
-    setting, _ = ConsultationSetting.objects.get_or_create(lawyer=lawyer)
+    setting, _ = ConsultationSetting.objects.get_or_create(lawyer = lawyer)
 
-    if request.method == 'POST':
+    if request.method == 'POST' :
         setting.is_available = request.POST.get('is_available') == 'on'
         setting.chat_enabled = request.POST.get('chat_enabled') == 'on'
         setting.chat_price = int(request.POST.get('chat_price') or 0)
@@ -1033,252 +1035,252 @@ def consultation_settings_view(request):
         return redirect('home:consultation_settings')
 
     return render(request, 'home/consultation_settings.html', {
-        'setting': setting,
-        'meta_title': 'تنظیمات مشاوره | وکیل جو',
+        'setting' : setting,
+        'meta_title' : 'تنظیمات مشاوره | وکیل جو',
     })
 
 
 @login_required
-def request_consultation_view(request, slug, format):
-    lawyer = get_object_or_404(LawyerProfile, slug=slug, is_active=True)
+def request_consultation_view(request, slug, format) :
+    lawyer = get_object_or_404(LawyerProfile, slug = slug, is_active = True)
 
-    try:
+    try :
         setting = lawyer.consultation_setting
-    except ConsultationSetting.DoesNotExist:
+    except ConsultationSetting.DoesNotExist :
         messages.error(request, 'این وکیل در حال حاضر مشاوره‌ی آنلاین فعال نکرده است.')
         return redirect(lawyer.get_absolute_url())
 
-    if not setting.is_available:
+    if not setting.is_available :
         messages.error(request, 'این وکیل در حال حاضر آماده‌ی پذیرش مشاوره نیست.')
         return redirect(lawyer.get_absolute_url())
 
-    if format == ConsultationRequest.Format.CHAT:
-        if not setting.chat_enabled or setting.chat_price <= 0:
+    if format == ConsultationRequest.Format.CHAT :
+        if not setting.chat_enabled or setting.chat_price <= 0 :
             messages.error(request, 'مشاوره‌ی متنی برای این وکیل فعال نیست.')
             return redirect(lawyer.get_absolute_url())
         price = setting.chat_price
-    elif format == ConsultationRequest.Format.VOICE:
-        if not setting.voice_enabled or setting.voice_price <= 0:
+    elif format == ConsultationRequest.Format.VOICE :
+        if not setting.voice_enabled or setting.voice_price <= 0 :
             messages.error(request, 'مشاوره‌ی تلفنی برای این وکیل فعال نیست.')
             return redirect(lawyer.get_absolute_url())
         price = setting.voice_price
-    else:
+    else :
         messages.error(request, 'فرمت مشاوره نامعتبر است.')
         return redirect(lawyer.get_absolute_url())
 
-    if lawyer.user_id == request.user.id:
+    if lawyer.user_id == request.user.id :
         messages.error(request, 'نمی‌توانید برای خودتان درخواست مشاوره ثبت کنید.')
         return redirect(lawyer.get_absolute_url())
 
     consultation = ConsultationRequest.objects.create(
-        user=request.user,
-        lawyer=lawyer,
-        format=format,
-        price=price,
-        commission_percent=getattr(settings, 'CONSULTATION_COMMISSION_PERCENT', 20),
-        session_minutes=setting.session_minutes,
+        user = request.user,
+        lawyer = lawyer,
+        format = format,
+        price = price,
+        commission_percent = getattr(settings, 'CONSULTATION_COMMISSION_PERCENT', 20),
+        session_minutes = setting.session_minutes,
     )
 
     callback_url = request.build_absolute_uri(
-        reverse('home:consultation_payment_verify', args=[consultation.id])
+        reverse('home:consultation_payment_verify', args = [consultation.id])
     )
     data = {
-        'merchant_id': settings.ZARINPAL_MERCHANT_ID,
-        'amount': price,
-        'callback_url': callback_url,
-        'description': f'مشاوره‌ی {consultation.get_format_display()} با {lawyer.user.get_full_name()}',
-        'metadata': {
-            'email': request.user.email,
-            'mobile': request.user.phone,
+        'merchant_id' : settings.ZARINPAL_MERCHANT_ID,
+        'amount' : price,
+        'callback_url' : callback_url,
+        'description' : f'مشاوره‌ی {consultation.get_format_display()} با {lawyer.user.get_full_name()}',
+        'metadata' : {
+            'email' : request.user.email,
+            'mobile' : request.user.phone,
         }
     }
-    try:
+    try :
         response = requests.post(
             'https://sandbox.zarinpal.com/pg/v4/payment/request.json',
-            json=data, timeout=10
+            json = data, timeout = 10
         )
-        if response.status_code == 200:
+        if response.status_code == 200 :
             result = response.json()
-            if result['data']['code'] == 100:
+            if result['data']['code'] == 100 :
                 consultation.payment_authority = result['data']['authority']
-                consultation.save(update_fields=['payment_authority'])
+                consultation.save(update_fields = ['payment_authority'])
                 return redirect(f'https://sandbox.zarinpal.com/pg/StartPay/{result["data"]["authority"]}')
-            else:
+            else :
                 messages.error(request, f'خطا در اتصال به درگاه: {result["data"]["message"]}')
-        else:
+        else :
             messages.error(request, 'خطا در اتصال به درگاه پرداخت.')
-    except requests.RequestException:
+    except requests.RequestException :
         messages.error(request, 'خطا در اتصال به درگاه پرداخت. لطفاً دوباره تلاش کنید.')
 
     consultation.status = ConsultationRequest.Status.CANCELLED
-    consultation.save(update_fields=['status'])
+    consultation.save(update_fields = ['status'])
     return redirect(lawyer.get_absolute_url())
 
 
 @login_required
-def consultation_payment_verify(request, pk):
-    consultation = get_object_or_404(ConsultationRequest, id=pk, user=request.user)
+def consultation_payment_verify(request, pk) :
+    consultation = get_object_or_404(ConsultationRequest, id = pk, user = request.user)
     authority = request.GET.get('Authority')
     status = request.GET.get('Status')
 
-    if consultation.status != ConsultationRequest.Status.PENDING_PAYMENT:
-        if consultation.status == ConsultationRequest.Status.PAID:
-            return redirect('home:consultation_room', pk=consultation.id)
-        return render(request, 'home/payment_failed.html', {'message': 'این تراکنش قبلاً پردازش شده است.'})
+    if consultation.status != ConsultationRequest.Status.PENDING_PAYMENT :
+        if consultation.status == ConsultationRequest.Status.PAID :
+            return redirect('home:consultation_room', pk = consultation.id)
+        return render(request, 'home/payment_failed.html', {'message' : 'این تراکنش قبلاً پردازش شده است.'})
 
-    if status == 'OK':
+    if status == 'OK' :
         data = {
-            'merchant_id': settings.ZARINPAL_MERCHANT_ID,
-            'amount': consultation.price,
-            'authority': authority,
+            'merchant_id' : settings.ZARINPAL_MERCHANT_ID,
+            'amount' : consultation.price,
+            'authority' : authority,
         }
-        try:
+        try :
             response = requests.post(
                 'https://sandbox.zarinpal.com/pg/v4/payment/verify.json',
-                json=data, timeout=10
+                json = data, timeout = 10
             )
-            if response.status_code == 200:
+            if response.status_code == 200 :
                 result = response.json()
-                if result['data']['code'] == 100:
+                if result['data']['code'] == 100 :
                     consultation.status = ConsultationRequest.Status.PAID
                     consultation.paid_at = timezone.now()
                     consultation.payment_ref_id = str(result['data'].get('ref_id', ''))
-                    consultation.save(update_fields=['status', 'paid_at', 'payment_ref_id'])
-                    return redirect('home:consultation_room', pk=consultation.id)
-                else:
+                    consultation.save(update_fields = ['status', 'paid_at', 'payment_ref_id'])
+                    return redirect('home:consultation_room', pk = consultation.id)
+                else :
                     return render(request, 'home/payment_failed.html', {
-                        'message': f'پرداخت ناموفق: {result["data"]["message"]}'
+                        'message' : f'پرداخت ناموفق: {result["data"]["message"]}'
                     })
-        except requests.RequestException:
-            return render(request, 'home/payment_failed.html', {'message': 'خطا در تأیید پرداخت.'})
+        except requests.RequestException :
+            return render(request, 'home/payment_failed.html', {'message' : 'خطا در تأیید پرداخت.'})
 
     consultation.status = ConsultationRequest.Status.CANCELLED
-    consultation.save(update_fields=['status'])
-    return render(request, 'home/payment_failed.html', {'message': 'پرداخت توسط کاربر لغو شد.'})
+    consultation.save(update_fields = ['status'])
+    return render(request, 'home/payment_failed.html', {'message' : 'پرداخت توسط کاربر لغو شد.'})
 
 
-def _get_consultation_for_participant(request, pk):
-    consultation = get_object_or_404(ConsultationRequest, id=pk)
+def _get_consultation_for_participant(request, pk) :
+    consultation = get_object_or_404(ConsultationRequest, id = pk)
     is_client = consultation.user_id == request.user.id
     is_lawyer = consultation.lawyer.user_id == request.user.id
-    if not (is_client or is_lawyer):
+    if not (is_client or is_lawyer) :
         return None
     return consultation
 
 
 @login_required
-def consultation_room_view(request, pk):
+def consultation_room_view(request, pk) :
     consultation = _get_consultation_for_participant(request, pk)
-    if consultation is None:
+    if consultation is None :
         messages.error(request, 'شما به این مشاوره دسترسی ندارید.')
         return redirect('home:index')
 
-    if consultation.status == ConsultationRequest.Status.PENDING_PAYMENT:
+    if consultation.status == ConsultationRequest.Status.PENDING_PAYMENT :
         messages.error(request, 'این مشاوره هنوز پرداخت نشده است.')
         return redirect('home:index')
 
     return render(request, 'home/consultation_room.html', {
-        'consultation': consultation,
-        'is_lawyer_side': consultation.lawyer.user_id == request.user.id,
-        'meta_title': 'اتاق مشاوره | وکیل جو',
-        'robots': 'noindex, nofollow',
+        'consultation' : consultation,
+        'is_lawyer_side' : consultation.lawyer.user_id == request.user.id,
+        'meta_title' : 'اتاق مشاوره | وکیل جو',
+        'robots' : 'noindex, nofollow',
     })
 
 
 @login_required
-def consultation_send_message(request, pk):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'روش نامعتبر است.'}, status=405)
+def consultation_send_message(request, pk) :
+    if request.method != 'POST' :
+        return JsonResponse({'error' : 'روش نامعتبر است.'}, status = 405)
 
     consultation = _get_consultation_for_participant(request, pk)
-    if consultation is None:
-        return JsonResponse({'error': 'دسترسی ندارید.'}, status=403)
+    if consultation is None :
+        return JsonResponse({'error' : 'دسترسی ندارید.'}, status = 403)
 
-    if consultation.status != ConsultationRequest.Status.PAID:
-        return JsonResponse({'error': 'این جلسه فعال نیست.'}, status=400)
+    if consultation.status != ConsultationRequest.Status.PAID :
+        return JsonResponse({'error' : 'این جلسه فعال نیست.'}, status = 400)
 
-    if consultation.is_session_expired:
-        return JsonResponse({'error': 'زمان این جلسه‌ی مشاوره به پایان رسیده است.'}, status=400)
+    if consultation.is_session_expired :
+        return JsonResponse({'error' : 'زمان این جلسه‌ی مشاوره به پایان رسیده است.'}, status = 400)
 
-    try:
+    try :
         body = json.loads(request.body.decode('utf-8'))
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({'error': 'درخواست نامعتبر است.'}, status=400)
+    except (json.JSONDecodeError, UnicodeDecodeError) :
+        return JsonResponse({'error' : 'درخواست نامعتبر است.'}, status = 400)
 
     content = (body.get('content') or '').strip()
-    if not content:
-        return JsonResponse({'error': 'متن پیام نمی‌تواند خالی باشد.'}, status=400)
-    if len(content) > 5000:
+    if not content :
+        return JsonResponse({'error' : 'متن پیام نمی‌تواند خالی باشد.'}, status = 400)
+    if len(content) > 5000 :
         content = content[:5000]
 
     msg = ConsultationMessage.objects.create(
-        consultation=consultation, sender=request.user, content=content
+        consultation = consultation, sender = request.user, content = content
     )
     return JsonResponse({
-        'id': msg.id,
-        'content': msg.content,
-        'is_mine': True,
-        'created_at': msg.created_at.isoformat(),
+        'id' : msg.id,
+        'content' : msg.content,
+        'is_mine' : True,
+        'created_at' : msg.created_at.isoformat(),
     })
 
 
 @login_required
-def consultation_poll_messages(request, pk):
+def consultation_poll_messages(request, pk) :
     consultation = _get_consultation_for_participant(request, pk)
-    if consultation is None:
-        return JsonResponse({'error': 'دسترسی ندارید.'}, status=403)
+    if consultation is None :
+        return JsonResponse({'error' : 'دسترسی ندارید.'}, status = 403)
 
     after_id = int(request.GET.get('after_id') or 0)
-    qs = consultation.messages.filter(id__gt=after_id).select_related('sender')
+    qs = consultation.messages.filter(id__gt = after_id).select_related('sender')
 
     return JsonResponse({
-        'messages': [
+        'messages' : [
             {
-                'id': m.id,
-                'content': m.content,
-                'is_mine': m.sender_id == request.user.id,
-                'sender_name': m.sender.get_full_name() or m.sender.username,
-                'created_at': m.created_at.isoformat(),
+                'id' : m.id,
+                'content' : m.content,
+                'is_mine' : m.sender_id == request.user.id,
+                'sender_name' : m.sender.get_full_name() or m.sender.username,
+                'created_at' : m.created_at.isoformat(),
             } for m in qs
         ],
-        'status': consultation.status,
-        'is_expired': consultation.is_session_expired,
+        'status' : consultation.status,
+        'is_expired' : consultation.is_session_expired,
     })
 
 
 @login_required
-def consultation_complete_view(request, pk):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'روش نامعتبر است.'}, status=405)
+def consultation_complete_view(request, pk) :
+    if request.method != 'POST' :
+        return JsonResponse({'error' : 'روش نامعتبر است.'}, status = 405)
 
     consultation = _get_consultation_for_participant(request, pk)
-    if consultation is None:
-        return JsonResponse({'error': 'دسترسی ندارید.'}, status=403)
+    if consultation is None :
+        return JsonResponse({'error' : 'دسترسی ندارید.'}, status = 403)
 
-    if consultation.status == ConsultationRequest.Status.PAID:
+    if consultation.status == ConsultationRequest.Status.PAID :
         consultation.status = ConsultationRequest.Status.COMPLETED
         consultation.completed_at = timezone.now()
-        consultation.save(update_fields=['status', 'completed_at'])
+        consultation.save(update_fields = ['status', 'completed_at'])
 
-    return JsonResponse({'status': consultation.status})
+    return JsonResponse({'status' : consultation.status})
 
 
 @login_required
-def my_consultations_view(request):
-    as_client = ConsultationRequest.objects.filter(user=request.user).select_related('lawyer__user')
+def my_consultations_view(request) :
+    as_client = ConsultationRequest.objects.filter(user = request.user).select_related('lawyer__user')
 
     as_lawyer = ConsultationRequest.objects.none()
-    try:
-        lawyer = LawyerProfile.objects.get(user=request.user)
-        as_lawyer = ConsultationRequest.objects.filter(lawyer=lawyer).select_related('user')
-    except LawyerProfile.DoesNotExist:
+    try :
+        lawyer = LawyerProfile.objects.get(user = request.user)
+        as_lawyer = ConsultationRequest.objects.filter(lawyer = lawyer).select_related('user')
+    except LawyerProfile.DoesNotExist :
         pass
 
     return render(request, 'home/my_consultations.html', {
-        'as_client': as_client,
-        'as_lawyer': as_lawyer,
-        'meta_title': 'مشاوره‌های من | وکیل جو',
-        'robots': 'noindex, nofollow',
+        'as_client' : as_client,
+        'as_lawyer' : as_lawyer,
+        'meta_title' : 'مشاوره‌های من | وکیل جو',
+        'robots' : 'noindex, nofollow',
     })
 
 
@@ -1286,24 +1288,24 @@ def my_consultations_view(request):
 # بخش مقالات حقوقی
 # =========================================================
 
-class ArticleListView(ListView):
+class ArticleListView(ListView) :
     model = Article
     template_name = 'home/article_list.html'
     context_object_name = 'articles'
     paginate_by = 12
 
-    def get_queryset(self):
-        qs = Article.objects.filter(is_published=True).select_related('specialty', 'author__user')
+    def get_queryset(self) :
+        qs = Article.objects.filter(is_published = True).select_related('specialty', 'author__user')
 
         speciality_slug = self.request.GET.get('speciality', '').strip()
-        if speciality_slug:
-            qs = qs.filter(specialty__slug=speciality_slug)
+        if speciality_slug :
+            qs = qs.filter(specialty__slug = speciality_slug)
 
         return qs
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) :
         ctx = super().get_context_data(**kwargs)
-        ctx['specialties'] = Specialty.objects.filter(is_active=True)
+        ctx['specialties'] = Specialty.objects.filter(is_active = True)
         ctx['selected_speciality'] = self.request.GET.get('speciality', '')
         ctx['meta_title'] = 'مقالات و راهنمای حقوقی | وکیل جو'
         ctx['meta_description'] = 'مقالات آموزشی و راهنمای حقوقی در زمینه‌ی طلاق، مهریه، ملکی، کیفری و سایر تخصص‌ها.'
@@ -1311,21 +1313,21 @@ class ArticleListView(ListView):
         return ctx
 
 
-class ArticleDetailView(DetailView):
+class ArticleDetailView(DetailView) :
     model = Article
     template_name = 'home/article_detail.html'
     context_object_name = 'article'
     slug_url_kwarg = 'slug'
 
-    def get_queryset(self):
-        return Article.objects.filter(is_published=True).select_related('specialty', 'author__user')
+    def get_queryset(self) :
+        return Article.objects.filter(is_published = True).select_related('specialty', 'author__user')
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) :
         response = super().get(request, *args, **kwargs)
-        Article.objects.filter(pk=self.object.pk).update(view_count=F('view_count') + 1)
+        Article.objects.filter(pk = self.object.pk).update(view_count = F('view_count') + 1)
         return response
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) :
         ctx = super().get_context_data(**kwargs)
         article = self.object
 
@@ -1336,53 +1338,53 @@ class ArticleDetailView(DetailView):
             article.featured_image.url) if article.featured_image else self.request.build_absolute_uri(
             '/static/img/back.jpg')
 
-        related = Article.objects.filter(is_published=True, specialty=article.specialty).exclude(
-            id=article.id) if article.specialty else Article.objects.none()
+        related = Article.objects.filter(is_published = True, specialty = article.specialty).exclude(
+            id = article.id) if article.specialty else Article.objects.none()
         ctx['related_articles'] = related.select_related('specialty')[:4]
 
-        if article.specialty:
-            ctx['specialty_lawyers_url'] = reverse('home:lawyer_list', kwargs={'speciality': article.specialty.slug})
+        if article.specialty :
+            ctx['specialty_lawyers_url'] = reverse('home:lawyer_list', kwargs = {'speciality' : article.specialty.slug})
 
         author_name = article.author.user.get_full_name() if article.author else 'تیم تحریریه‌ی وکیل جو'
 
         article_schema = {
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": article.title,
-            "description": ctx['meta_description'],
-            "image": ctx['og_image'],
-            "datePublished": article.published_at.isoformat() if article.published_at else "",
-            "dateModified": article.updated_at.isoformat(),
-            "author": {
-                "@type": "Person" if article.author else "Organization",
-                "name": author_name,
+            "@context" : "https://schema.org",
+            "@type" : "Article",
+            "headline" : article.title,
+            "description" : ctx['meta_description'],
+            "image" : ctx['og_image'],
+            "datePublished" : article.published_at.isoformat() if article.published_at else "",
+            "dateModified" : article.updated_at.isoformat(),
+            "author" : {
+                "@type" : "Person" if article.author else "Organization",
+                "name" : author_name,
             },
-            "publisher": {
-                "@type": "Organization",
-                "name": "وکیل جو",
-                "logo": {
-                    "@type": "ImageObject",
-                    "url": self.request.build_absolute_uri('/static/img/back.jpg')
+            "publisher" : {
+                "@type" : "Organization",
+                "name" : "وکیل جو",
+                "logo" : {
+                    "@type" : "ImageObject",
+                    "url" : self.request.build_absolute_uri('/static/img/back.jpg')
                 }
             },
-            "mainEntityOfPage": {
-                "@type": "WebPage",
-                "@id": ctx['canonical_url']
+            "mainEntityOfPage" : {
+                "@type" : "WebPage",
+                "@id" : ctx['canonical_url']
             }
         }
-        ctx['article_schema'] = json.dumps(article_schema, ensure_ascii=False)
+        ctx['article_schema'] = json.dumps(article_schema, ensure_ascii = False)
 
         breadcrumb_items = [
-            {"@type": "ListItem", "position": 1, "name": "خانه", "item": self.request.build_absolute_uri('/')},
-            {"@type": "ListItem", "position": 2, "name": "مقالات",
-             "item": self.request.build_absolute_uri(reverse('home:article_list'))},
-            {"@type": "ListItem", "position": 3, "name": article.title, "item": ctx['canonical_url']},
+            {"@type" : "ListItem", "position" : 1, "name" : "خانه", "item" : self.request.build_absolute_uri('/')},
+            {"@type" : "ListItem", "position" : 2, "name" : "مقالات",
+             "item" : self.request.build_absolute_uri(reverse('home:article_list'))},
+            {"@type" : "ListItem", "position" : 3, "name" : article.title, "item" : ctx['canonical_url']},
         ]
         ctx['breadcrumb_schema'] = json.dumps({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": breadcrumb_items
-        }, ensure_ascii=False)
+            "@context" : "https://schema.org",
+            "@type" : "BreadcrumbList",
+            "itemListElement" : breadcrumb_items
+        }, ensure_ascii = False)
 
         return ctx
 
@@ -1409,80 +1411,79 @@ PERSONAL_ASSISTANT_SYSTEM_PROMPT = (
 
 
 @login_required
-def personal_assistant_view(request):
-    if not request.user.is_superuser:
+def personal_assistant_view(request) :
+    if not request.user.is_superuser :
         messages.error(request, 'این بخش فقط برای مدیر سایت در دسترس است.')
         return redirect('home:index')
 
     return render(request, 'home/personal_assistant.html', {
-        'meta_title': 'دستیار شخصی',
-        'robots': 'noindex, nofollow',
+        'meta_title' : 'دستیار شخصی',
+        'robots' : 'noindex, nofollow',
     })
 
 
 @login_required
-def personal_assistant_chat(request):
-    if not request.user.is_superuser:
-        return JsonResponse({'error': 'دسترسی ندارید.'}, status=403)
+def personal_assistant_chat(request) :
+    if not request.user.is_superuser :
+        return JsonResponse({'error' : 'دسترسی ندارید.'}, status = 403)
 
-    if request.method != 'POST':
-        return JsonResponse({'error': 'روش نامعتبر است.'}, status=405)
+    if request.method != 'POST' :
+        return JsonResponse({'error' : 'روش نامعتبر است.'}, status = 405)
 
-    try:
+    try :
         body = json.loads(request.body.decode('utf-8'))
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({'error': 'درخواست نامعتبر است.'}, status=400)
+    except (json.JSONDecodeError, UnicodeDecodeError) :
+        return JsonResponse({'error' : 'درخواست نامعتبر است.'}, status = 400)
 
     # تاریخچه‌ی کامل مکالمه از کلاینت میاد: [{"role": "user"/"assistant", "content": "..."}]
     conversation = body.get('messages') or []
-    if not isinstance(conversation, list) or not conversation:
-        return JsonResponse({'error': 'پیامی ارسال نشده است.'}, status=400)
+    if not isinstance(conversation, list) or not conversation :
+        return JsonResponse({'error' : 'پیامی ارسال نشده است.'}, status = 400)
 
     # یه سقف عقلانی و بزرگ فقط برای جلوگیری از هزینه‌ی ناخواسته در صورت باگ
     # (نه برای محدود کردن خودت) - قابل تغییر/حذف در همین فایل
     MAX_MESSAGES_PER_REQUEST = 60
-    conversation = conversation[-MAX_MESSAGES_PER_REQUEST:]
+    conversation = conversation[-MAX_MESSAGES_PER_REQUEST :]
 
     api_key = getattr(settings, 'LIARA_AI_API_KEY', '')
     base_url = getattr(settings, 'LIARA_AI_BASE_URL', '')
     model_name = getattr(settings, 'LIARA_AI_MODEL', '')
 
-    if not api_key or not base_url:
-        return JsonResponse({'error': 'سرویس هوش مصنوعی تنظیم نشده است.'}, status=503)
+    if not api_key or not base_url :
+        return JsonResponse({'error' : 'سرویس هوش مصنوعی تنظیم نشده است.'}, status = 503)
 
     payload = {
-        "model": model_name,
-        "messages": [{"role": "system", "content": PERSONAL_ASSISTANT_SYSTEM_PROMPT}] + conversation,
-        "temperature": 0.5,
-        "max_tokens": 4000,
+        "model" : model_name,
+        "messages" : [{"role" : "system", "content" : PERSONAL_ASSISTANT_SYSTEM_PROMPT}] + conversation,
+        "temperature" : 0.5,
+        "max_tokens" : 4000,
     }
     headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}",
+        "Content-Type" : "application/json",
+        "Authorization" : f"Bearer {api_key}",
     }
 
-    try:
+    try :
         response = requests.post(f"{base_url.rstrip('/')}/chat/completions",
-                                  headers=headers, data=json.dumps(payload), timeout=60)
-    except requests.RequestException:
-        return JsonResponse({'error': 'خطا در ارتباط با سرویس هوش مصنوعی.'}, status=503)
+                                 headers = headers, data = json.dumps(payload), timeout = 60)
+    except requests.RequestException :
+        return JsonResponse({'error' : 'خطا در ارتباط با سرویس هوش مصنوعی.'}, status = 503)
 
-    if response.status_code != 200:
-        return JsonResponse({'error': 'سرویس هوش مصنوعی خطا برگرداند.'}, status=502)
+    if response.status_code != 200 :
+        return JsonResponse({'error' : 'سرویس هوش مصنوعی خطا برگرداند.'}, status = 502)
 
-    try:
+    try :
         data = response.json()
         reply = data['choices'][0]['message']['content']
-    except (ValueError, KeyError, IndexError):
-        return JsonResponse({'error': 'پاسخ سرویس قابل پردازش نبود.'}, status=502)
+    except (ValueError, KeyError, IndexError) :
+        return JsonResponse({'error' : 'پاسخ سرویس قابل پردازش نبود.'}, status = 502)
 
-    return JsonResponse({'reply': reply})
-
+    return JsonResponse({'reply' : reply})
 
 
 @login_required
-def image_studio_view(request):
-    if not request.user.is_superuser:
+def image_studio_view(request) :
+    if not request.user.is_superuser :
         messages.error(
             request,
             'این بخش فقط برای مدیر سایت در دسترس است.'
@@ -1490,8 +1491,8 @@ def image_studio_view(request):
         return redirect('home:index')
 
     return render(request, 'home/personal_assistant.html', {
-        'meta_title': 'استودیو هوش مصنوعی',
-        'robots': 'noindex, nofollow',
+        'meta_title' : 'استودیو هوش مصنوعی',
+        'robots' : 'noindex, nofollow',
     })
 
 
@@ -1509,25 +1510,31 @@ def personal_assistant_image_view(request):
             status=403
         )
 
-    api_key = getattr(settings, 'LIARA_AI_API_KEY', None)
-    workspace_id = getattr(settings, 'LIARA_WORKSPACE_ID', None)
+    # =========================================
+    # تنظیمات Liara
+    # =========================================
+
+    api_key = getattr(settings, 'LIARA_AI_API_KEY', '')
+    base_url = getattr(settings, 'LIARA_AI_BASE_URL', '')
     model = getattr(
         settings,
-        'LIARA_IMAGE_MODEL',
-        'google/gemini-2.5-flash-image'
+        'LIARA_AI_MODEL',
+        'google/gemini-3-pro-image-preview'
     )
 
-    if not api_key or not workspace_id:
+    if not api_key or not base_url or not model:
         return JsonResponse(
             {'error': 'تنظیمات API لیارا روی سرور کامل نیست.'},
             status=500
         )
 
+    # =========================================
+    # دریافت اطلاعات درخواست
+    # =========================================
+
     prompt = request.POST.get('prompt', '').strip()
     mode = request.POST.get('mode', 'generate')
     aspect_ratio = request.POST.get('aspect_ratio', '1:1')
-    quality = request.POST.get('quality', '1K')
-    output_format = request.POST.get('output_format', 'png')
 
     if not prompt:
         return JsonResponse(
@@ -1535,6 +1542,7 @@ def personal_assistant_image_view(request):
             status=400
         )
 
+    # نسبت‌های مجاز
     allowed_ratios = {
         '1:1',
         '16:9',
@@ -1545,53 +1553,46 @@ def personal_assistant_image_view(request):
         '2:3',
     }
 
-    allowed_qualities = {
-        '1K',
-        '2K',
-        '4K',
-    }
-
-    allowed_formats = {
-        'png',
-        'jpeg',
-        'webp',
-    }
-
     if aspect_ratio not in allowed_ratios:
         aspect_ratio = '1:1'
 
-    if quality not in allowed_qualities:
-        quality = '1K'
-
-    if output_format not in allowed_formats:
-        output_format = 'png'
-
-    base_url = f'https://ai.liara.ir/api/{workspace_id}/v1/images'
+    # =========================================
+    # هدرهای API
+    # =========================================
 
     headers = {
         'Authorization': f'Bearer {api_key}',
     }
 
+    # =========================================
+    # ارسال درخواست به Liara
+    # =========================================
+
     try:
 
-        # =========================================
+        # -----------------------------------------
         # حالت تولید تصویر از متن
-        # =========================================
+        # -----------------------------------------
+
         if mode == 'generate':
+
+            final_prompt = f"""
+{prompt}
+
+Image composition requirements:
+- Aspect ratio: {aspect_ratio}
+- Create the composition specifically for this aspect ratio.
+- Professional high-quality visual design.
+"""
 
             payload = {
                 'model': model,
-                'prompt': prompt,
-                'n': 1,
-                'size': aspect_ratio,
-                'quality': quality,
-                'output_format': output_format,
+                'prompt': final_prompt,
                 'response_format': 'b64_json',
-                'user': str(request.user.pk),
             }
 
             response = requests.post(
-                f'{base_url}/generations',
+                f"{base_url.rstrip('/')}/images/generations",
                 headers={
                     **headers,
                     'Content-Type': 'application/json',
@@ -1600,22 +1601,27 @@ def personal_assistant_image_view(request):
                 timeout=300,
             )
 
-        # =========================================
+        # -----------------------------------------
         # حالت ویرایش تصویر
-        # =========================================
+        # -----------------------------------------
+
         elif mode == 'edit':
 
             uploaded_images = request.FILES.getlist('images')
 
             if not uploaded_images:
                 return JsonResponse(
-                    {'error': 'برای حالت ویرایش، حداقل یک تصویر آپلود کنید.'},
+                    {
+                        'error':
+                        'برای حالت ویرایش، حداقل یک تصویر آپلود کنید.'
+                    },
                     status=400
                 )
 
             files = []
 
             for image in uploaded_images:
+
                 # محدودیت 10MB برای هر فایل
                 if image.size > 10 * 1024 * 1024:
                     return JsonResponse(
@@ -1626,6 +1632,7 @@ def personal_assistant_image_view(request):
                         status=400
                     )
 
+                # فرمت‌های مجاز
                 if image.content_type not in [
                     'image/jpeg',
                     'image/png',
@@ -1650,61 +1657,94 @@ def personal_assistant_image_view(request):
                     )
                 )
 
+            edit_prompt = f"""
+{prompt}
+
+Image composition requirements:
+- Aspect ratio: {aspect_ratio}
+- Preserve important elements of the original image unless
+  the prompt explicitly asks to change them.
+"""
+
             data = {
                 'model': model,
-                'prompt': prompt,
-                'n': '1',
-                'size': aspect_ratio,
-                'quality': quality,
-                'output_format': output_format,
+                'prompt': edit_prompt,
                 'response_format': 'b64_json',
-                'user': str(request.user.pk),
             }
 
             response = requests.post(
-                f'{base_url}/edits',
+                f"{base_url.rstrip('/')}/images/edits",
                 headers=headers,
                 data=data,
                 files=files,
                 timeout=300,
             )
 
+        # -----------------------------------------
+        # حالت نامعتبر
+        # -----------------------------------------
+
         else:
+
             return JsonResponse(
                 {'error': 'حالت درخواست نامعتبر است.'},
                 status=400
             )
 
+    # =========================================
+    # خطای Timeout
+    # =========================================
+
     except requests.Timeout:
+
         return JsonResponse(
-            {'error': 'زمان پاسخ‌گویی مدل بیش از حد طول کشید.'},
+            {
+                'error':
+                'زمان پاسخ‌گویی مدل بیش از حد طول کشید.'
+            },
             status=504
         )
 
+    # =========================================
+    # خطای ارتباط
+    # =========================================
+
     except requests.RequestException as exc:
+
         return JsonResponse(
             {
-                'error': 'ارتباط با سرویس هوش مصنوعی برقرار نشد.',
-                'detail': str(exc),
+                'error':
+                'ارتباط با سرویس هوش مصنوعی برقرار نشد.',
+                'detail':
+                str(exc),
             },
             status=502
         )
 
     # =========================================
-    # بررسی پاسخ Liara
+    # تبدیل پاسخ Liara به JSON
     # =========================================
 
     try:
+
         result = response.json()
+
     except ValueError:
+
         return JsonResponse(
             {
-                'error': 'پاسخ نامعتبر از سرویس هوش مصنوعی دریافت شد.'
+                'error':
+                'پاسخ نامعتبر از سرویس هوش مصنوعی دریافت شد.'
             },
             status=502
         )
 
+    # =========================================
+    # بررسی خطای API
+    # =========================================
+
     if not response.ok:
+
         error_message = (
             result.get('error')
             or result.get('message')
@@ -1712,6 +1752,7 @@ def personal_assistant_image_view(request):
         )
 
         if isinstance(error_message, dict):
+
             error_message = (
                 error_message.get('message')
                 or str(error_message)
@@ -1725,10 +1766,16 @@ def personal_assistant_image_view(request):
             status=response.status_code
         )
 
+    # =========================================
+    # استخراج تصویر
+    # =========================================
+
     try:
+
         image_data = result['data'][0]
 
     except (KeyError, IndexError, TypeError):
+
         return JsonResponse(
             {
                 'error':
@@ -1737,9 +1784,14 @@ def personal_assistant_image_view(request):
             status=502
         )
 
+    # =========================================
+    # استخراج Base64
+    # =========================================
+
     b64_image = image_data.get('b64_json')
 
     if not b64_image:
+
         return JsonResponse(
             {
                 'error':
@@ -1748,25 +1800,48 @@ def personal_assistant_image_view(request):
             status=502
         )
 
-    mime_types = {
-        'png': 'image/png',
-        'jpeg': 'image/jpeg',
-        'webp': 'image/webp',
-    }
+    # =========================================
+    # تشخیص فرمت واقعی تصویر
+    # =========================================
 
-    mime_type = mime_types.get(
-        output_format,
-        'image/png'
+    if b64_image.startswith('/9j/'):
+
+        mime_type = 'image/jpeg'
+        actual_format = 'jpeg'
+
+    elif b64_image.startswith('iVBORw0KGgo'):
+
+        mime_type = 'image/png'
+        actual_format = 'png'
+
+    elif b64_image.startswith('UklGR'):
+
+        mime_type = 'image/webp'
+        actual_format = 'webp'
+
+    else:
+
+        # در تست واقعی Liara خروجی JPEG بود
+        mime_type = 'image/jpeg'
+        actual_format = 'jpeg'
+
+    # =========================================
+    # پاسخ نهایی به Frontend
+    # =========================================
+
+    return JsonResponse(
+        {
+            'success': True,
+            'image': b64_image,
+            'mime_type': mime_type,
+            'output_format': actual_format,
+            'revised_prompt': image_data.get(
+                'revised_prompt',
+                ''
+            ),
+            'usage': result.get(
+                'usage',
+                {}
+            ),
+        }
     )
-
-    return JsonResponse({
-        'success': True,
-        'image': b64_image,
-        'mime_type': mime_type,
-        'output_format': output_format,
-        'revised_prompt': image_data.get(
-            'revised_prompt',
-            ''
-        ),
-        'usage': result.get('usage', {}),
-    })
