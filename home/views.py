@@ -1498,16 +1498,16 @@ def image_studio_view(request) :
 
 @login_required
 @require_POST
-def personal_assistant_image_view(request):
+def personal_assistant_image_view(request) :
     """
     تولید تصویر یا ویرایش تصویر با مدل‌های Image در Liara.
     فقط برای superuser.
     """
 
-    if not request.user.is_superuser:
+    if not request.user.is_superuser :
         return JsonResponse(
-            {'error': 'این بخش فقط برای مدیر سایت در دسترس است.'},
-            status=403
+            {'error' : 'این بخش فقط برای مدیر سایت در دسترس است.'},
+            status = 403
         )
 
     # =========================================
@@ -1522,10 +1522,10 @@ def personal_assistant_image_view(request):
         'google/gemini-3-pro-image-preview'
     )
 
-    if not api_key or not base_url or not model:
+    if not api_key or not base_url or not model :
         return JsonResponse(
-            {'error': 'تنظیمات API لیارا روی سرور کامل نیست.'},
-            status=500
+            {'error' : 'تنظیمات API لیارا روی سرور کامل نیست.'},
+            status = 500
         )
 
     # =========================================
@@ -1536,10 +1536,10 @@ def personal_assistant_image_view(request):
     mode = request.POST.get('mode', 'generate')
     aspect_ratio = request.POST.get('aspect_ratio', '1:1')
 
-    if not prompt:
+    if not prompt :
         return JsonResponse(
-            {'error': 'لطفاً توضیح تصویر را وارد کنید.'},
-            status=400
+            {'error' : 'لطفاً توضیح تصویر را وارد کنید.'},
+            status = 400
         )
 
     # نسبت‌های مجاز
@@ -1553,7 +1553,7 @@ def personal_assistant_image_view(request):
         '2:3',
     }
 
-    if aspect_ratio not in allowed_ratios:
+    if aspect_ratio not in allowed_ratios :
         aspect_ratio = '1:1'
 
     # =========================================
@@ -1561,20 +1561,20 @@ def personal_assistant_image_view(request):
     # =========================================
 
     headers = {
-        'Authorization': f'Bearer {api_key}',
+        'Authorization' : f'Bearer {api_key}',
     }
 
     # =========================================
     # ارسال درخواست به Liara
     # =========================================
 
-    try:
+    try :
 
         # -----------------------------------------
         # حالت تولید تصویر از متن
         # -----------------------------------------
 
-        if mode == 'generate':
+        if mode == 'generate' :
 
             final_prompt = f"""
 {prompt}
@@ -1586,50 +1586,50 @@ Image composition requirements:
 """
 
             payload = {
-                'model': model,
-                'prompt': final_prompt,
-                'response_format': 'b64_json',
+                'model' : model,
+                'prompt' : final_prompt,
+                'response_format' : 'b64_json',
             }
 
             response = requests.post(
                 f"{base_url.rstrip('/')}/images/generations",
-                headers={
+                headers = {
                     **headers,
-                    'Content-Type': 'application/json',
+                    'Content-Type' : 'application/json',
                 },
-                json=payload,
-                timeout=300,
+                json = payload,
+                timeout = 300,
             )
 
         # -----------------------------------------
         # حالت ویرایش تصویر
         # -----------------------------------------
 
-        elif mode == 'edit':
+        elif mode == 'edit' :
 
             uploaded_images = request.FILES.getlist('images')
 
-            if not uploaded_images:
+            if not uploaded_images :
                 return JsonResponse(
                     {
-                        'error':
-                        'برای حالت ویرایش، حداقل یک تصویر آپلود کنید.'
+                        'error' :
+                            'برای حالت ویرایش، حداقل یک تصویر آپلود کنید.'
                     },
-                    status=400
+                    status = 400
                 )
 
             files = []
 
-            for image in uploaded_images:
+            for image in uploaded_images :
 
                 # محدودیت 10MB برای هر فایل
-                if image.size > 10 * 1024 * 1024:
+                if image.size > 10 * 1024 * 1024 :
                     return JsonResponse(
                         {
-                            'error':
-                            f'حجم فایل «{image.name}» بیشتر از 10MB است.'
+                            'error' :
+                                f'حجم فایل «{image.name}» بیشتر از 10MB است.'
                         },
-                        status=400
+                        status = 400
                     )
 
                 # فرمت‌های مجاز
@@ -1637,13 +1637,13 @@ Image composition requirements:
                     'image/jpeg',
                     'image/png',
                     'image/webp',
-                ]:
+                ] :
                     return JsonResponse(
                         {
-                            'error':
-                            f'فرمت فایل «{image.name}» مجاز نیست.'
+                            'error' :
+                                f'فرمت فایل «{image.name}» مجاز نیست.'
                         },
-                        status=400
+                        status = 400
                     )
 
                 files.append(
@@ -1667,121 +1667,135 @@ Image composition requirements:
 """
 
             data = {
-                'model': model,
-                'prompt': edit_prompt,
-                'response_format': 'b64_json',
+                'model' : model,
+                'prompt' : edit_prompt,
+                'response_format' : 'b64_json',
             }
 
             response = requests.post(
                 f"{base_url.rstrip('/')}/images/edits",
-                headers=headers,
-                data=data,
-                files=files,
-                timeout=300,
+                headers = headers,
+                data = data,
+                files = files,
+                timeout = 300,
             )
 
-        # -----------------------------------------
-        # حالت نامعتبر
-        # -----------------------------------------
+            # -----------------------------------------
+            # حالت نامعتبر
+            # -----------------------------------------
 
         else:
-
             return JsonResponse(
-                {'error': 'حالت درخواست نامعتبر است.'},
-                status=400
+
+                {'error' : 'حالت درخواست نامعتبر است.'},
+
+                status = 400
+
             )
+
+        print(
+            "LIARA IMAGE DEBUG:",
+
+            response.status_code,
+
+            response.text[:3000],
+
+            flush = True
+
+        )
+
+
 
     # =========================================
     # خطای Timeout
     # =========================================
 
-    except requests.Timeout:
+    except requests.Timeout :
 
         return JsonResponse(
             {
-                'error':
-                'زمان پاسخ‌گویی مدل بیش از حد طول کشید.'
+                'error' :
+                    'زمان پاسخ‌گویی مدل بیش از حد طول کشید.'
             },
-            status=504
+            status = 504
         )
 
     # =========================================
     # خطای ارتباط
     # =========================================
 
-    except requests.RequestException as exc:
+    except requests.RequestException as exc :
 
         return JsonResponse(
             {
-                'error':
-                'ارتباط با سرویس هوش مصنوعی برقرار نشد.',
-                'detail':
-                str(exc),
+                'error' :
+                    'ارتباط با سرویس هوش مصنوعی برقرار نشد.',
+                'detail' :
+                    str(exc),
             },
-            status=502
+            status = 502
         )
 
     # =========================================
     # تبدیل پاسخ Liara به JSON
     # =========================================
 
-    try:
+    try :
 
         result = response.json()
 
-    except ValueError:
+    except ValueError :
 
         return JsonResponse(
             {
-                'error':
-                'پاسخ نامعتبر از سرویس هوش مصنوعی دریافت شد.'
+                'error' :
+                    'پاسخ نامعتبر از سرویس هوش مصنوعی دریافت شد.'
             },
-            status=502
+            status = 502
         )
 
     # =========================================
     # بررسی خطای API
     # =========================================
 
-    if not response.ok:
+    if not response.ok :
 
         error_message = (
-            result.get('error')
-            or result.get('message')
-            or 'تولید تصویر ناموفق بود.'
+                result.get('error')
+                or result.get('message')
+                or 'تولید تصویر ناموفق بود.'
         )
 
-        if isinstance(error_message, dict):
-
+        if isinstance(error_message, dict) :
             error_message = (
-                error_message.get('message')
-                or str(error_message)
+                    error_message.get('message')
+                    or str(error_message)
             )
 
         return JsonResponse(
             {
-                'error': error_message,
-                'status_code': response.status_code,
+                'error' : error_message,
+                'status_code' : response.status_code,
             },
-            status=response.status_code
+            status = response.status_code
         )
 
     # =========================================
     # استخراج تصویر
     # =========================================
 
-    try:
+    try :
 
         image_data = result['data'][0]
 
-    except (KeyError, IndexError, TypeError):
+    except (KeyError, IndexError, TypeError) :
 
         return JsonResponse(
             {
-                'error':
-                'تصویری در پاسخ سرویس دریافت نشد.'
+                'error' :
+                    'تصویری در پاسخ سرویس دریافت نشد.'
             },
-            status=502
+            status = 502
         )
 
     # =========================================
@@ -1790,36 +1804,35 @@ Image composition requirements:
 
     b64_image = image_data.get('b64_json')
 
-    if not b64_image:
-
+    if not b64_image :
         return JsonResponse(
             {
-                'error':
-                'سرویس تصویر را به صورت Base64 برنگرداند.'
+                'error' :
+                    'سرویس تصویر را به صورت Base64 برنگرداند.'
             },
-            status=502
+            status = 502
         )
 
     # =========================================
     # تشخیص فرمت واقعی تصویر
     # =========================================
 
-    if b64_image.startswith('/9j/'):
+    if b64_image.startswith('/9j/') :
 
         mime_type = 'image/jpeg'
         actual_format = 'jpeg'
 
-    elif b64_image.startswith('iVBORw0KGgo'):
+    elif b64_image.startswith('iVBORw0KGgo') :
 
         mime_type = 'image/png'
         actual_format = 'png'
 
-    elif b64_image.startswith('UklGR'):
+    elif b64_image.startswith('UklGR') :
 
         mime_type = 'image/webp'
         actual_format = 'webp'
 
-    else:
+    else :
 
         # در تست واقعی Liara خروجی JPEG بود
         mime_type = 'image/jpeg'
@@ -1831,15 +1844,15 @@ Image composition requirements:
 
     return JsonResponse(
         {
-            'success': True,
-            'image': b64_image,
-            'mime_type': mime_type,
-            'output_format': actual_format,
-            'revised_prompt': image_data.get(
+            'success' : True,
+            'image' : b64_image,
+            'mime_type' : mime_type,
+            'output_format' : actual_format,
+            'revised_prompt' : image_data.get(
                 'revised_prompt',
                 ''
             ),
-            'usage': result.get(
+            'usage' : result.get(
                 'usage',
                 {}
             ),
