@@ -299,7 +299,7 @@ SITE_URL = config(
 
 LIARA_AI_BASE_URL = config('LIARA_AI_BASE_URL', default = '')
 LIARA_AI_API_KEY = config('LIARA_AI_API_KEY', default = '')
-LIARA_AI_MODEL = config('LIARA_AI_MODEL', default = 'anthropic/claude-haiku-4.5')
+LIARA_AI_MODEL = config('LIARA_AI_MODEL', default = 'google/gemini-3-pro-image-preview')
 
 # =========================================================
 # زرین پال
