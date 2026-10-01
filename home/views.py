@@ -1646,7 +1646,7 @@ Image composition requirements:
 
             files = []
 
-            for image in uploaded_images :
+            for index, image in enumerate(uploaded_images, start = 1) :
 
                 if image.size > 10 * 1024 * 1024 :
                     return JsonResponse(
@@ -1674,7 +1674,7 @@ Image composition requirements:
                     (
                         'image[]',
                         (
-                            image.name,
+                            f'reference_{index}.jpg',
                             image.read(),
                             image.content_type
                         )
@@ -1682,20 +1682,36 @@ Image composition requirements:
                 )
 
             edit_prompt = f"""
-{prompt}
+            {prompt}
 
-Image composition requirements:
-- Aspect ratio: {aspect_ratio}
-- Preserve important elements of the original image unless
-  the prompt explicitly asks to change them.
-"""
+            REFERENCE IMAGE ORDER:
+
+            Reference Image 1:
+            This is the PRIMARY / BASE IMAGE.
+            Preserve the person's identity, face, body structure and important details
+            from this image.
+
+            Reference Image 2:
+            This is the SECONDARY REFERENCE.
+            Use its clothing, robe, outfit or other requested visual elements.
+
+            IMPORTANT:
+            - Never swap the roles of the reference images.
+            - Reference Image 1 is the person/base.
+            - Reference Image 2 is the clothing/reference.
+            - Combine the requested elements naturally.
+            - Preserve facial identity from Reference Image 1.
+            - Match lighting, perspective, shadows and proportions.
+            - Do not replace the person with the person from Reference Image 2.
+            - Do not use the face from Reference Image 2.
+            - Create one final realistic image.
+            """
 
             data = {
                 'model' : model,
                 'prompt' : edit_prompt,
                 'response_format' : 'b64_json',
             }
-
             response = requests.post(
                 f"{base_url.rstrip('/')}/images/edits",
                 headers = headers,
