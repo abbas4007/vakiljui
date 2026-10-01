@@ -18,6 +18,9 @@ from django.core.cache import cache
 import json
 from django.views.generic import ListView, DetailView
 from django.db.models import Q, Max, F
+import base64
+
+from django.views.decorators.http import require_POST
 
 
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -1474,3 +1477,293 @@ def personal_assistant_chat(request):
         return JsonResponse({'error': 'پاسخ سرویس قابل پردازش نبود.'}, status=502)
 
     return JsonResponse({'reply': reply})
+
+
+
+@login_required
+def personal_assistant_view(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'این بخش فقط برای مدیر سایت در دسترس است.')
+        return redirect('home:index')
+
+    return render(request, 'home/personal_assistant.html', {
+        'meta_title': 'استودیو هوش مصنوعی',
+        'robots': 'noindex, nofollow',
+    })
+
+
+@login_required
+@require_POST
+def personal_assistant_image_view(request):
+    """
+    تولید تصویر یا ویرایش تصویر با مدل‌های Image در Liara.
+    فقط برای superuser.
+    """
+
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {'error': 'این بخش فقط برای مدیر سایت در دسترس است.'},
+            status=403
+        )
+
+    api_key = getattr(settings, 'LIARA_AI_API_KEY', None)
+    workspace_id = getattr(settings, 'LIARA_WORKSPACE_ID', None)
+    model = getattr(
+        settings,
+        'LIARA_IMAGE_MODEL',
+        'google/gemini-2.5-flash-image'
+    )
+
+    if not api_key or not workspace_id:
+        return JsonResponse(
+            {'error': 'تنظیمات API لیارا روی سرور کامل نیست.'},
+            status=500
+        )
+
+    prompt = request.POST.get('prompt', '').strip()
+    mode = request.POST.get('mode', 'generate')
+    aspect_ratio = request.POST.get('aspect_ratio', '1:1')
+    quality = request.POST.get('quality', '1K')
+    output_format = request.POST.get('output_format', 'png')
+
+    if not prompt:
+        return JsonResponse(
+            {'error': 'لطفاً توضیح تصویر را وارد کنید.'},
+            status=400
+        )
+
+    allowed_ratios = {
+        '1:1',
+        '16:9',
+        '9:16',
+        '4:3',
+        '3:4',
+        '3:2',
+        '2:3',
+    }
+
+    allowed_qualities = {
+        '1K',
+        '2K',
+        '4K',
+    }
+
+    allowed_formats = {
+        'png',
+        'jpeg',
+        'webp',
+    }
+
+    if aspect_ratio not in allowed_ratios:
+        aspect_ratio = '1:1'
+
+    if quality not in allowed_qualities:
+        quality = '1K'
+
+    if output_format not in allowed_formats:
+        output_format = 'png'
+
+    base_url = f'https://ai.liara.ir/api/{workspace_id}/v1/images'
+
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+    }
+
+    try:
+
+        # =========================================
+        # حالت تولید تصویر از متن
+        # =========================================
+        if mode == 'generate':
+
+            payload = {
+                'model': model,
+                'prompt': prompt,
+                'n': 1,
+                'size': aspect_ratio,
+                'quality': quality,
+                'output_format': output_format,
+                'response_format': 'b64_json',
+                'user': str(request.user.pk),
+            }
+
+            response = requests.post(
+                f'{base_url}/generations',
+                headers={
+                    **headers,
+                    'Content-Type': 'application/json',
+                },
+                json=payload,
+                timeout=300,
+            )
+
+        # =========================================
+        # حالت ویرایش تصویر
+        # =========================================
+        elif mode == 'edit':
+
+            uploaded_images = request.FILES.getlist('images')
+
+            if not uploaded_images:
+                return JsonResponse(
+                    {'error': 'برای حالت ویرایش، حداقل یک تصویر آپلود کنید.'},
+                    status=400
+                )
+
+            files = []
+
+            for image in uploaded_images:
+                # محدودیت 10MB برای هر فایل
+                if image.size > 10 * 1024 * 1024:
+                    return JsonResponse(
+                        {
+                            'error':
+                            f'حجم فایل «{image.name}» بیشتر از 10MB است.'
+                        },
+                        status=400
+                    )
+
+                if image.content_type not in [
+                    'image/jpeg',
+                    'image/png',
+                    'image/webp',
+                ]:
+                    return JsonResponse(
+                        {
+                            'error':
+                            f'فرمت فایل «{image.name}» مجاز نیست.'
+                        },
+                        status=400
+                    )
+
+                files.append(
+                    (
+                        'image',
+                        (
+                            image.name,
+                            image.read(),
+                            image.content_type
+                        )
+                    )
+                )
+
+            data = {
+                'model': model,
+                'prompt': prompt,
+                'n': '1',
+                'size': aspect_ratio,
+                'quality': quality,
+                'output_format': output_format,
+                'response_format': 'b64_json',
+                'user': str(request.user.pk),
+            }
+
+            response = requests.post(
+                f'{base_url}/edits',
+                headers=headers,
+                data=data,
+                files=files,
+                timeout=300,
+            )
+
+        else:
+            return JsonResponse(
+                {'error': 'حالت درخواست نامعتبر است.'},
+                status=400
+            )
+
+    except requests.Timeout:
+        return JsonResponse(
+            {'error': 'زمان پاسخ‌گویی مدل بیش از حد طول کشید.'},
+            status=504
+        )
+
+    except requests.RequestException as exc:
+        return JsonResponse(
+            {
+                'error': 'ارتباط با سرویس هوش مصنوعی برقرار نشد.',
+                'detail': str(exc),
+            },
+            status=502
+        )
+
+    # =========================================
+    # بررسی پاسخ Liara
+    # =========================================
+
+    try:
+        result = response.json()
+    except ValueError:
+        return JsonResponse(
+            {
+                'error': 'پاسخ نامعتبر از سرویس هوش مصنوعی دریافت شد.'
+            },
+            status=502
+        )
+
+    if not response.ok:
+        error_message = (
+            result.get('error')
+            or result.get('message')
+            or 'تولید تصویر ناموفق بود.'
+        )
+
+        if isinstance(error_message, dict):
+            error_message = (
+                error_message.get('message')
+                or str(error_message)
+            )
+
+        return JsonResponse(
+            {
+                'error': error_message,
+                'status_code': response.status_code,
+            },
+            status=response.status_code
+        )
+
+    try:
+        image_data = result['data'][0]
+
+    except (KeyError, IndexError, TypeError):
+        return JsonResponse(
+            {
+                'error':
+                'تصویری در پاسخ سرویس دریافت نشد.'
+            },
+            status=502
+        )
+
+    b64_image = image_data.get('b64_json')
+
+    if not b64_image:
+        return JsonResponse(
+            {
+                'error':
+                'سرویس تصویر را به صورت Base64 برنگرداند.'
+            },
+            status=502
+        )
+
+    mime_types = {
+        'png': 'image/png',
+        'jpeg': 'image/jpeg',
+        'webp': 'image/webp',
+    }
+
+    mime_type = mime_types.get(
+        output_format,
+        'image/png'
+    )
+
+    return JsonResponse({
+        'success': True,
+        'image': b64_image,
+        'mime_type': mime_type,
+        'output_format': output_format,
+        'revised_prompt': image_data.get(
+            'revised_prompt',
+            ''
+        ),
+        'usage': result.get('usage', {}),
+    })

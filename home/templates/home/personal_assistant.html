@@ -1,114 +1,1219 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container py-4" style="max-width: 900px;">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 mb-0"><i class="bi bi-robot"></i> دستیار شخصی</h1>
-        <button id="clear-btn" class="btn btn-outline-secondary btn-sm">پاک کردن مکالمه</button>
-    </div>
 
-    <div id="chat-box" class="border rounded p-3 mb-3"
-         style="height: 60vh; overflow-y: auto; background: #f8f9fa; white-space: pre-wrap;"></div>
+<style>
+    .ai-studio {
+        max-width: 1250px;
+        margin: 0 auto;
+    }
 
-    <div class="input-group">
-        <textarea id="msg-input" class="form-control" rows="2" placeholder="هر سوالی داری بپرس..."></textarea>
-        <button id="send-btn" class="btn btn-primary">ارسال</button>
+    .studio-header {
+        background:
+            linear-gradient(
+                135deg,
+                rgba(13, 110, 253, .10),
+                rgba(111, 66, 193, .08)
+            );
+        border: 1px solid rgba(13, 110, 253, .10);
+        border-radius: 24px;
+    }
+
+    .studio-card {
+        border: 0;
+        border-radius: 24px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, .07);
+    }
+
+    .upload-zone {
+        border: 2px dashed #ced4da;
+        border-radius: 20px;
+        min-height: 240px;
+        transition: .2s ease;
+        cursor: pointer;
+        background: #fbfcfe;
+    }
+
+    .upload-zone:hover {
+        border-color: #0d6efd;
+        background: #f5f9ff;
+    }
+
+    .upload-zone.dragging {
+        border-color: #0d6efd;
+        background: #eef5ff;
+        transform: scale(1.01);
+    }
+
+    .upload-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 110, 253, .10);
+        font-size: 30px;
+        color: #0d6efd;
+    }
+
+    .image-preview {
+        max-height: 230px;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 16px;
+    }
+
+    .preview-panel {
+        min-height: 590px;
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f8f9fa
+            );
+    }
+
+    .empty-preview {
+        min-height: 500px;
+        border: 1px dashed #dee2e6;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #6c757d;
+        background:
+            radial-gradient(
+                circle at top,
+                rgba(13,110,253,.05),
+                transparent 40%
+            );
+    }
+
+    .result-image {
+        width: 100%;
+        max-height: 650px;
+        object-fit: contain;
+        border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0,0,0,.12);
+    }
+
+    .mode-btn {
+        cursor: pointer;
+    }
+
+    .mode-btn input {
+        display: none;
+    }
+
+    .mode-box {
+        border: 1px solid #dee2e6;
+        border-radius: 16px;
+        padding: 16px;
+        height: 100%;
+        transition: .2s ease;
+    }
+
+    .mode-btn input:checked + .mode-box {
+        border-color: #0d6efd;
+        background: rgba(13, 110, 253, .06);
+        box-shadow: 0 0 0 3px rgba(13,110,253,.08);
+    }
+
+    .option-card {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 14px;
+    }
+
+    .status-dot {
+        width: 9px;
+        height: 9px;
+        display: inline-block;
+        border-radius: 50%;
+        background: #198754;
+        margin-left: 6px;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,.86);
+        border-radius: 20px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 5;
+        backdrop-filter: blur(4px);
+    }
+
+    .preview-wrapper {
+        position: relative;
+    }
+
+    .drop-help {
+        font-size: .85rem;
+    }
+
+    .revised-prompt {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+</style>
+
+
+<div class="container-fluid py-4">
+    <div class="ai-studio">
+
+        <!-- Header -->
+        <div class="studio-header p-4 mb-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge text-bg-primary rounded-pill px-3 py-2">
+                            AI IMAGE STUDIO
+                        </span>
+
+                        <span class="small text-success">
+                            <span class="status-dot"></span>
+                            سرویس آماده است
+                        </span>
+                    </div>
+
+                    <h1 class="fw-bold mb-2">
+                        <i class="bi bi-stars text-primary"></i>
+                        استودیو تولید تصویر
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        تولید و ویرایش تصاویر با مدل هوش مصنوعی
+                    </p>
+                </div>
+
+                <div>
+                    <a href="{% url 'home:index' %}"
+                       class="btn btn-light border rounded-pill px-4">
+                        <i class="bi bi-arrow-right"></i>
+                        بازگشت
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="row g-4">
+
+            <!-- LEFT -->
+            <div class="col-lg-5">
+
+                <div class="card studio-card h-100">
+                    <div class="card-body p-4">
+
+                        <div class="d-flex align-items-center mb-4">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    ساخت تصویر
+                                </h5>
+                                <small class="text-muted">
+                                    تنظیمات تصویر و prompt
+                                </small>
+                            </div>
+                        </div>
+
+
+                        <!-- MODE -->
+                        <div class="mb-4">
+
+                            <label class="form-label fw-semibold">
+                                حالت کار
+                            </label>
+
+                            <div class="row g-3">
+
+                                <div class="col-6">
+                                    <label class="mode-btn w-100">
+                                        <input
+                                            type="radio"
+                                            name="mode"
+                                            value="generate"
+                                            checked
+                                        >
+
+                                        <div class="mode-box">
+                                            <div class="mb-2">
+                                                <i class="bi bi-magic fs-4 text-primary"></i>
+                                            </div>
+
+                                            <strong>
+                                                تولید تصویر
+                                            </strong>
+
+                                            <div class="small text-muted mt-1">
+                                                فقط با متن
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+
+                                <div class="col-6">
+                                    <label class="mode-btn w-100">
+                                        <input
+                                            type="radio"
+                                            name="mode"
+                                            value="edit"
+                                        >
+
+                                        <div class="mode-box">
+                                            <div class="mb-2">
+                                                <i class="bi bi-image fs-4 text-primary"></i>
+                                            </div>
+
+                                            <strong>
+                                                ویرایش تصویر
+                                            </strong>
+
+                                            <div class="small text-muted mt-1">
+                                                آپلود + دستور
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <!-- UPLOAD -->
+                        <div id="upload-section" class="mb-4 d-none">
+
+                            <label class="form-label fw-semibold">
+                                تصویر مرجع
+                            </label>
+
+                            <div id="upload-zone"
+                                 class="upload-zone d-flex align-items-center justify-content-center text-center p-4">
+
+                                <div id="upload-placeholder">
+
+                                    <div class="upload-icon mb-3">
+                                        <i class="bi bi-cloud-arrow-up"></i>
+                                    </div>
+
+                                    <h6 class="fw-bold">
+                                        تصویر را اینجا رها کنید
+                                    </h6>
+
+                                    <p class="text-muted mb-2">
+                                        یا برای انتخاب فایل کلیک کنید
+                                    </p>
+
+                                    <div class="drop-help text-muted">
+                                        PNG / JPG / WEBP
+                                        <br>
+                                        حداکثر 10MB
+                                    </div>
+
+                                </div>
+
+
+                                <div id="upload-preview-wrapper"
+                                     class="d-none w-100">
+
+                                    <img
+                                        id="upload-preview"
+                                        class="image-preview mb-3"
+                                        alt="preview"
+                                    >
+
+                                    <div
+                                        id="selected-files"
+                                        class="small text-muted mb-3">
+                                    </div>
+
+                                    <button
+                                        id="remove-image-btn"
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm rounded-pill">
+
+                                        <i class="bi bi-trash"></i>
+                                        حذف تصویر
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <input
+                                id="image-input"
+                                type="file"
+                                class="d-none"
+                                accept="image/png,image/jpeg,image/webp"
+                                multiple
+                            >
+
+                        </div>
+
+
+                        <!-- PROMPT -->
+                        <div class="mb-4">
+
+                            <label
+                                for="prompt-input"
+                                class="form-label fw-semibold">
+
+                                توضیح تصویر
+
+                            </label>
+
+                            <textarea
+                                id="prompt-input"
+                                class="form-control"
+                                rows="6"
+                                placeholder="مثلاً:
+
+یک کاور حرفه‌ای اینستاگرام برای برند حقوقی،
+با فضای لوکس و مدرن،
+المان‌های حقوقی مثل ترازو و ستون‌های دادگستری،
+رنگ‌بندی سرمه‌ای و طلایی،
+بدون انسان،
+ترکیب‌بندی مناسب پست اینستاگرام..."
+                            ></textarea>
+
+                            <div class="d-flex justify-content-between mt-2">
+
+                                <small class="text-muted">
+                                    هرچه توضیح دقیق‌تر باشد، نتیجه قابل‌کنترل‌تر است.
+                                </small>
+
+                                <small id="char-count"
+                                       class="text-muted">
+                                    0
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- OPTIONS -->
+                        <div class="option-card mb-4">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <label
+                                        class="form-label small fw-semibold">
+
+                                        نسبت تصویر
+
+                                    </label>
+
+                                    <select
+                                        id="aspect-ratio"
+                                        class="form-select">
+
+                                        <option value="1:1">
+                                            1:1 — مربع
+                                        </option>
+
+                                        <option value="16:9">
+                                            16:9 — افقی
+                                        </option>
+
+                                        <option value="9:16">
+                                            9:16 — استوری
+                                        </option>
+
+                                        <option value="4:3">
+                                            4:3
+                                        </option>
+
+                                        <option value="3:4">
+                                            3:4
+                                        </option>
+
+                                        <option value="3:2">
+                                            3:2
+                                        </option>
+
+                                        <option value="2:3">
+                                            2:3
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <label
+                                        class="form-label small fw-semibold">
+
+                                        کیفیت
+
+                                    </label>
+
+                                    <select
+                                        id="quality"
+                                        class="form-select">
+
+                                        <option value="1K">
+                                            1K
+                                        </option>
+
+                                        <option value="2K">
+                                            2K
+                                        </option>
+
+                                        <option value="4K">
+                                            4K
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <label
+                                        class="form-label small fw-semibold">
+
+                                        فرمت خروجی
+
+                                    </label>
+
+                                    <select
+                                        id="output-format"
+                                        class="form-select">
+
+                                        <option value="png">
+                                            PNG
+                                        </option>
+
+                                        <option value="jpeg">
+                                            JPEG
+                                        </option>
+
+                                        <option value="webp">
+                                            WEBP
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ERROR -->
+                        <div
+                            id="error-box"
+                            class="alert alert-danger d-none rounded-4 small">
+
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span id="error-text"></span>
+
+                        </div>
+
+
+                        <!-- BUTTON -->
+                        <button
+                            id="generate-btn"
+                            type="button"
+                            class="btn btn-primary btn-lg w-100 rounded-pill py-3">
+
+                            <i class="bi bi-stars"></i>
+                            تولید تصویر
+
+                        </button>
+
+                        <div class="text-center mt-3">
+
+                            <small class="text-muted">
+                                Ctrl + Enter برای اجرا
+                            </small>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT -->
+            <div class="col-lg-7">
+
+                <div class="card studio-card preview-panel h-100">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    پیش‌نمایش
+                                </h5>
+
+                                <small class="text-muted">
+                                    نتیجه تولید تصویر
+                                </small>
+                            </div>
+
+                            <button
+                                id="download-btn"
+                                class="btn btn-success rounded-pill px-4 d-none"
+                                type="button">
+
+                                <i class="bi bi-download"></i>
+                                دانلود تصویر
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="preview-wrapper">
+
+                            <div
+                                id="loading-overlay"
+                                class="loading-overlay">
+
+                                <div
+                                    class="spinner-border text-primary mb-3"
+                                    role="status">
+                                </div>
+
+                                <h6 class="fw-bold">
+                                    در حال ساخت تصویر...
+                                </h6>
+
+                                <p class="text-muted small mb-0">
+                                    ممکن است چند لحظه زمان ببرد
+                                </p>
+
+                            </div>
+
+
+                            <div id="empty-preview"
+                                 class="empty-preview">
+
+                                <div class="upload-icon mb-3">
+                                    <i class="bi bi-image"></i>
+                                </div>
+
+                                <h6 class="fw-bold">
+                                    هنوز تصویری تولید نشده
+                                </h6>
+
+                                <p class="text-muted text-center mb-0">
+                                    prompt را وارد کنید و دکمه
+                                    «تولید تصویر» را بزنید.
+                                </p>
+
+                            </div>
+
+
+                            <div id="result-container"
+                                 class="d-none">
+
+                                <img
+                                    id="result-image"
+                                    class="result-image"
+                                    alt="AI generated image"
+                                >
+
+                                <div
+                                    id="revised-prompt-box"
+                                    class="alert alert-light border rounded-4 mt-4 d-none">
+
+                                    <div class="fw-bold mb-2">
+                                        <i class="bi bi-lightbulb"></i>
+                                        Prompt پردازش‌شده توسط مدل
+                                    </div>
+
+                                    <div
+                                        id="revised-prompt"
+                                        class="small revised-prompt text-muted">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-    <div id="error-box" class="alert alert-danger mt-2 py-2 small d-none"></div>
-    <small class="text-muted d-block mt-2">Ctrl+Enter برای ارسال سریع</small>
 </div>
+
 
 <script>
 (function () {
-    var chatBox = document.getElementById('chat-box');
-    var input = document.getElementById('msg-input');
-    var sendBtn = document.getElementById('send-btn');
-    var clearBtn = document.getElementById('clear-btn');
-    var errorBox = document.getElementById('error-box');
 
-    var STORAGE_KEY = 'personal_assistant_history';
-    var history = [];
-    try {
-        history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch (e) { history = []; }
+    const uploadSection = document.getElementById('upload-section');
+    const uploadZone = document.getElementById('upload-zone');
+
+    const imageInput = document.getElementById('image-input');
+    const uploadPlaceholder = document.getElementById('upload-placeholder');
+    const uploadPreviewWrapper = document.getElementById('upload-preview-wrapper');
+    const uploadPreview = document.getElementById('upload-preview');
+    const selectedFiles = document.getElementById('selected-files');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+
+    const promptInput = document.getElementById('prompt-input');
+    const charCount = document.getElementById('char-count');
+
+    const generateBtn = document.getElementById('generate-btn');
+
+    const emptyPreview = document.getElementById('empty-preview');
+    const resultContainer = document.getElementById('result-container');
+    const resultImage = document.getElementById('result-image');
+
+    const downloadBtn = document.getElementById('download-btn');
+
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    const errorBox = document.getElementById('error-box');
+    const errorText = document.getElementById('error-text');
+
+    const revisedPromptBox =
+        document.getElementById('revised-prompt-box');
+
+    const revisedPrompt =
+        document.getElementById('revised-prompt');
+
+
+    let currentFiles = [];
+    let currentImageUrl = null;
+
+
+    // =========================================
+    // CSRF
+    // =========================================
 
     function getCookie(name) {
-        var value = '; ' + document.cookie;
-        var parts = value.split('; ' + name + '=');
-        if (parts.length === 2) return parts.pop().split(';').shift();
+
+        const value = '; ' + document.cookie;
+
+        const parts =
+            value.split('; ' + name + '=');
+
+        if (parts.length === 2) {
+            return parts.pop().split(';').shift();
+        }
+
+        return '';
     }
 
-    function renderAll() {
-        chatBox.innerHTML = '';
-        history.forEach(function (m) {
-            var div = document.createElement('div');
-            div.className = 'mb-3';
-            var label = document.createElement('div');
-            label.className = 'small fw-bold ' + (m.role === 'user' ? 'text-primary' : 'text-success');
-            label.textContent = m.role === 'user' ? 'تو' : 'دستیار';
-            var content = document.createElement('div');
-            content.textContent = m.content;
-            div.appendChild(label);
-            div.appendChild(content);
-            chatBox.appendChild(div);
-        });
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
 
-    function save() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-    }
+    // =========================================
+    // Mode
+    // =========================================
 
-    async function send() {
-        var text = input.value.trim();
-        if (!text) return;
-        errorBox.classList.add('d-none');
+    document
+        .querySelectorAll('input[name="mode"]')
+        .forEach(function (radio) {
 
-        history.push({role: 'user', content: text});
-        renderAll();
-        save();
-        input.value = '';
-        sendBtn.disabled = true;
-        sendBtn.textContent = 'در حال فکر کردن...';
+            radio.addEventListener('change', function () {
 
-        try {
-            var resp = await fetch('{% url "home:personal_assistant_chat" %}', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
-                body: JSON.stringify({messages: history}),
+                if (this.value === 'edit') {
+
+                    uploadSection.classList.remove('d-none');
+
+                    generateBtn.innerHTML =
+                        '<i class="bi bi-stars"></i> ویرایش تصویر';
+
+                } else {
+
+                    uploadSection.classList.add('d-none');
+
+                    generateBtn.innerHTML =
+                        '<i class="bi bi-stars"></i> تولید تصویر';
+
+                }
+
             });
-            var data = await resp.json();
-            if (!resp.ok) {
-                errorBox.textContent = data.error || 'خطایی رخ داد.';
-                errorBox.classList.remove('d-none');
-                history.pop(); // پیام کاربر که جواب نگرفت رو برگردون تا دوباره بفرسته
-                renderAll();
-                save();
+
+        });
+
+
+    // =========================================
+    // Upload
+    // =========================================
+
+    uploadZone.addEventListener('click', function (event) {
+
+        if (event.target.closest('#remove-image-btn')) {
+            return;
+        }
+
+        imageInput.click();
+
+    });
+
+
+    imageInput.addEventListener('change', function () {
+
+        handleFiles(Array.from(this.files));
+
+    });
+
+
+    function handleFiles(files) {
+
+        if (!files.length) {
+            return;
+        }
+
+        const validFiles = files.filter(function (file) {
+
+            return [
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ].includes(file.type);
+
+        });
+
+
+        if (!validFiles.length) {
+
+            showError(
+                'فرمت فایل مجاز نیست. PNG، JPG و WEBP انتخاب کنید.'
+            );
+
+            return;
+        }
+
+
+        for (const file of validFiles) {
+
+            if (file.size > 10 * 1024 * 1024) {
+
+                showError(
+                    'حجم هر تصویر باید حداکثر 10MB باشد.'
+                );
+
                 return;
             }
-            history.push({role: 'assistant', content: data.reply});
-            renderAll();
-            save();
-        } catch (e) {
-            errorBox.textContent = 'خطا در ارتباط با سرور.';
-            errorBox.classList.remove('d-none');
-        } finally {
-            sendBtn.disabled = false;
-            sendBtn.textContent = 'ارسال';
+
         }
+
+
+        currentFiles = validFiles;
+
+
+        const firstFile = currentFiles[0];
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+
+            uploadPreview.src = e.target.result;
+
+            uploadPlaceholder.classList.add('d-none');
+
+            uploadPreviewWrapper.classList.remove('d-none');
+
+            selectedFiles.textContent =
+                currentFiles.length === 1
+                    ? currentFiles[0].name
+                    : `${currentFiles.length} تصویر انتخاب شده`;
+
+        };
+
+        reader.readAsDataURL(firstFile);
+
     }
 
-    sendBtn.addEventListener('click', send);
-    input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' && e.ctrlKey) send();
-    });
-    clearBtn.addEventListener('click', function () {
-        if (!confirm('کل مکالمه پاک بشه؟')) return;
-        history = [];
-        save();
-        renderAll();
+
+    removeImageBtn.addEventListener('click', function (event) {
+
+        event.stopPropagation();
+
+        currentFiles = [];
+
+        imageInput.value = '';
+
+        uploadPreview.src = '';
+
+        selectedFiles.textContent = '';
+
+        uploadPreviewWrapper.classList.add('d-none');
+
+        uploadPlaceholder.classList.remove('d-none');
+
     });
 
-    renderAll();
+
+    // =========================================
+    // Drag & Drop
+    // =========================================
+
+    ['dragenter', 'dragover']
+        .forEach(function (eventName) {
+
+            uploadZone.addEventListener(
+                eventName,
+                function (event) {
+
+                    event.preventDefault();
+
+                    uploadZone.classList.add('dragging');
+
+                }
+            );
+
+        });
+
+
+    ['dragleave', 'drop']
+        .forEach(function (eventName) {
+
+            uploadZone.addEventListener(
+                eventName,
+                function (event) {
+
+                    event.preventDefault();
+
+                    uploadZone.classList.remove('dragging');
+
+                }
+            );
+
+        });
+
+
+    uploadZone.addEventListener('drop', function (event) {
+
+        const files =
+            Array.from(event.dataTransfer.files);
+
+        handleFiles(files);
+
+    });
+
+
+    // =========================================
+    // Character Counter
+    // =========================================
+
+    promptInput.addEventListener('input', function () {
+
+        charCount.textContent =
+            this.value.length.toLocaleString('fa-IR');
+
+    });
+
+
+    // =========================================
+    // Error
+    // =========================================
+
+    function showError(message) {
+
+        errorText.textContent = message;
+
+        errorBox.classList.remove('d-none');
+
+    }
+
+
+    function hideError() {
+
+        errorBox.classList.add('d-none');
+
+        errorText.textContent = '';
+
+    }
+
+
+    // =========================================
+    // Generate
+    // =========================================
+
+    async function generateImage() {
+
+        hideError();
+
+        const prompt =
+            promptInput.value.trim();
+
+        const mode =
+            document.querySelector(
+                'input[name="mode"]:checked'
+            ).value;
+
+        const aspectRatio =
+            document.getElementById(
+                'aspect-ratio'
+            ).value;
+
+        const quality =
+            document.getElementById(
+                'quality'
+            ).value;
+
+        const outputFormat =
+            document.getElementById(
+                'output-format'
+            ).value;
+
+
+        if (!prompt) {
+
+            showError(
+                'لطفاً توضیح تصویر را وارد کنید.'
+            );
+
+            promptInput.focus();
+
+            return;
+        }
+
+
+        if (mode === 'edit' && currentFiles.length === 0) {
+
+            showError(
+                'برای ویرایش تصویر، ابتدا یک تصویر آپلود کنید.'
+            );
+
+            return;
+        }
+
+
+        const formData = new FormData();
+
+        formData.append('prompt', prompt);
+        formData.append('mode', mode);
+        formData.append('aspect_ratio', aspectRatio);
+        formData.append('quality', quality);
+        formData.append('output_format', outputFormat);
+
+
+        if (mode === 'edit') {
+
+            currentFiles.forEach(function (file) {
+
+                formData.append(
+                    'images',
+                    file
+                );
+
+            });
+
+        }
+
+
+        loadingOverlay.style.display =
+            'flex';
+
+        generateBtn.disabled = true;
+
+
+        downloadBtn.classList.add('d-none');
+
+        revisedPromptBox.classList.add('d-none');
+
+
+        generateBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>' +
+            'در حال پردازش...';
+
+
+        try {
+
+            const response =
+                await fetch(
+                    '{% url "home:personal_assistant_image" %}',
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'X-CSRFToken':
+                                getCookie('csrftoken')
+                        },
+
+                        body: formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                showError(
+                    data.error ||
+                    'در تولید تصویر خطایی رخ داد.'
+                );
+
+                return;
+            }
+
+
+            const imageUrl =
+                'data:' +
+                data.mime_type +
+                ';base64,' +
+                data.image;
+
+
+            currentImageUrl = imageUrl;
+
+
+            resultImage.src =
+                imageUrl;
+
+
+            emptyPreview.classList.add('d-none');
+
+            resultContainer.classList.remove('d-none');
+
+            downloadBtn.classList.remove('d-none');
+
+
+            if (data.revised_prompt) {
+
+                revisedPrompt.textContent =
+                    data.revised_prompt;
+
+                revisedPromptBox.classList.remove(
+                    'd-none'
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                'ارتباط با سرور برقرار نشد.'
+            );
+
+        } finally {
+
+            loadingOverlay.style.display =
+                'none';
+
+            generateBtn.disabled =
+                false;
+
+
+            const modeNow =
+                document.querySelector(
+                    'input[name="mode"]:checked'
+                ).value;
+
+
+            generateBtn.innerHTML =
+                modeNow === 'edit'
+                    ? '<i class="bi bi-stars"></i> ویرایش تصویر'
+                    : '<i class="bi bi-stars"></i> تولید تصویر';
+
+        }
+
+    }
+
+
+    generateBtn.addEventListener(
+        'click',
+        generateImage
+    );
+
+
+    // =========================================
+    // Download
+    // =========================================
+
+    downloadBtn.addEventListener(
+        'click',
+        function () {
+
+            if (!currentImageUrl) {
+                return;
+            }
+
+
+            const format =
+                document.getElementById(
+                    'output-format'
+                ).value;
+
+
+            const extension =
+                format === 'jpeg'
+                    ? 'jpg'
+                    : format;
+
+
+            const link =
+                document.createElement('a');
+
+
+            link.href =
+                currentImageUrl;
+
+
+            link.download =
+                `vakiljui-ai-${Date.now()}.${extension}`;
+
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+        }
+    );
+
+
+    // =========================================
+    // Ctrl + Enter
+    // =========================================
+
+    promptInput.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+                event.key === 'Enter' &&
+                event.ctrlKey
+            ) {
+
+                event.preventDefault();
+
+                generateImage();
+
+            }
+
+        }
+    );
+
 })();
 </script>
+
 {% endblock %}
