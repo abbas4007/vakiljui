@@ -1481,9 +1481,12 @@ def personal_assistant_chat(request):
 
 
 @login_required
-def personal_assistant_view(request):
+def image_studio_view(request):
     if not request.user.is_superuser:
-        messages.error(request, 'این بخش فقط برای مدیر سایت در دسترس است.')
+        messages.error(
+            request,
+            'این بخش فقط برای مدیر سایت در دسترس است.'
+        )
         return redirect('home:index')
 
     return render(request, 'home/personal_assistant.html', {

@@ -38,9 +38,28 @@ urlpatterns = [
     path('مقالات/<path:slug>/', views.ArticleDetailView.as_view(), name = 'article_detail'),
 
     # ========== دستیار شخصی (فقط مدیر سایت) ==========
-    path('دستیار-شخصی/', views.personal_assistant_view, name = 'personal_assistant'),
-    path('دستیار-شخصی/چت/', views.personal_assistant_chat, name = 'personal_assistant_chat'),
+    path(
+        'دستیار-شخصی/',
+        views.personal_assistant_view,
+        name = 'personal_assistant'
+    ),
 
-    path('تصویر/',views.personal_assistant_image_view,name = 'personal_assistant_image'
+    path(
+        'دستیار-شخصی/چت/',
+        views.personal_assistant_chat,
+        name = 'personal_assistant_chat'
+    ),
+
+    # ========== استودیو تولید تصویر ==========
+    path(
+        'تصویر/',
+        views.image_studio_view,
+        name = 'image_studio'
+    ),
+
+    path(
+        'تصویر/api/',
+        views.personal_assistant_image_view,
+        name = 'personal_assistant_image'
     ),
 ]
