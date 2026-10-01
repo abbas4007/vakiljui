@@ -1648,7 +1648,6 @@ Image composition requirements:
 
             for image in uploaded_images :
 
-                # محدودیت 10MB برای هر فایل
                 if image.size > 10 * 1024 * 1024 :
                     return JsonResponse(
                         {
@@ -1658,7 +1657,6 @@ Image composition requirements:
                         status = 400
                     )
 
-                # فرمت‌های مجاز
                 if image.content_type not in [
                     'image/jpeg',
                     'image/png',
@@ -1674,7 +1672,7 @@ Image composition requirements:
 
                 files.append(
                     (
-                        'image',
+                        'image[]',
                         (
                             image.name,
                             image.read(),
