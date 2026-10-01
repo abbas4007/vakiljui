@@ -1590,7 +1590,23 @@ Image composition requirements:
                 'prompt' : final_prompt,
                 'response_format' : 'b64_json',
             }
-
+            print(
+                "LIARA REQUEST DEBUG:",
+                {
+                    'url' : f"{base_url.rstrip('/')}/images/generations",
+                    'model' : model,
+                    'prompt' : final_prompt,
+                    'prompt_length' : len(final_prompt),
+                    'mode' : mode,
+                    'aspect_ratio' : aspect_ratio,
+                },
+                flush = True
+            )
+            print(
+                "LIARA PAYLOAD:",
+                payload,
+                flush = True
+            )
             response = requests.post(
                 f"{base_url.rstrip('/')}/images/generations",
                 headers = {
