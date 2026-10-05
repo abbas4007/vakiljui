@@ -2,4 +2,11 @@
     {% for msg in messages %}
         <p class="alert alert-{{ msg.tags }}">{{ msg }}</p>
     {% endfor %}
-{% endif %}
+{% endif %}{% for message in messages %}
+    <div style="background:red; color:white; padding:20px; margin:20px 0;">
+        TEST MESSAGE:
+        {{ message }}
+        -
+        tags: {{ message.tags }}
+    </div>
+{% endfor %}

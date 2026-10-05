@@ -284,7 +284,7 @@ SITE_ID = 1
 
 SITE_NAME = config(
     'SITE_NAME',
-    default = 'دادور'
+    default = 'وکیل جوی'
 )
 
 SITE_DOMAIN = config(
