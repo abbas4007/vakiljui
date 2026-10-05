@@ -1158,7 +1158,7 @@ def consultation_payment_verify(request, pk) :
     consultation.save(update_fields = ['status'])
     return render(request, 'home/payment_failed.html', {'message' : 'پرداخت توسط کاربر لغو شد.'})
 
-
+ 
 def _get_consultation_for_participant(request, pk) :
     consultation = get_object_or_404(ConsultationRequest, id = pk)
     is_client = consultation.user_id == request.user.id
