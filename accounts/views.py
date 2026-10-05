@@ -9,6 +9,7 @@ from django.views.generic import CreateView
 from .forms import LawyerVerificationForm, SignupForm
 from .models import LawyerVerification
 from django.views.generic import CreateView, TemplateView
+from django.utils.http import url_has_allowed_host_and_scheme
 
 
 class SignupView(CreateView) :
@@ -36,29 +37,49 @@ class SignupView(CreateView) :
         return context
 
 
-def login_view(request) :
+
+
+def login_view(request):
     """صفحه ورود به حساب کاربری"""
-    if request.method == 'POST' :
-        form = AuthenticationForm(request, data = request.POST)
-        if form.is_valid() :
+
+    next_url = request.GET.get('next') or request.POST.get('next')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+
+        if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username = username, password = password)
-            if user is not None :
+
+            user = authenticate(
+                username=username,
+                password=password
+            )
+
+            if user is not None:
                 login(request, user)
+
+                # اگر next معتبر بود، کاربر را به همان صفحه برگردان
+                if next_url and url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure(),
+                ):
+                    return redirect(next_url)
+
+                # در غیر این صورت صفحه اصلی
                 return redirect('home:index')
-            else :
-                return redirect('accounts:login')
-    else :
+
+    else:
         form = AuthenticationForm()
 
     return render(request, 'accounts/login.html', {
-        'form' : form,
-        'robots' : 'noindex, follow',
-        'meta_title' : 'ورود به حساب کاربری',
-        'meta_description' : 'ورود به سامانه وکلا'
+        'form': form,
+        'next': next_url,
+        'robots': 'noindex, follow',
+        'meta_title': 'ورود به حساب کاربری',
+        'meta_description': 'ورود به سامانه وکلا'
     })
-
 
 # def login_view(request) :
 #     """صفحه ورود به حساب کاربری"""
